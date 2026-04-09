@@ -3,20 +3,24 @@ import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
 import CompletionCard from './CompletionCard';
-import { DAYS, PROGRAM, getTodayDayIndex } from '../../data/program';
+import { ALL_PROGRAMS, getTodayDayIndex } from '../../data/program';
 import useWorkoutStore from '../../store/useWorkoutStore';
+import useSettingsStore from '../../store/useSettingsStore';
 
 function getToday() {
   return new Date().toISOString().split('T')[0];
 }
 
 export default function WorkoutPage() {
+  const { activeProgram } = useSettingsStore();
+  const programData = ALL_PROGRAMS[activeProgram] || ALL_PROGRAMS.vtaper;
+
   const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayDayIndex());
   const date = getToday();
   const { getDayProgress } = useWorkoutStore();
 
-  const dayKey = DAYS[selectedDayIndex];
-  const dayData = PROGRAM[dayKey];
+  const dayKey = programData.days[selectedDayIndex];
+  const dayData = programData.program[dayKey];
 
   if (!dayData) return null;
 
@@ -24,13 +28,17 @@ export default function WorkoutPage() {
   const { completed, total } = getDayProgress(date, exercises);
   const allDone = total > 0 && completed === total;
 
-  // Build superset partner name map
   const nameMap = {};
   exercises.forEach(e => { nameMap[e.id] = e.name; });
 
   return (
     <div className="flex-1 overflow-y-auto pb-32 scrollbar-hide">
-      <DaySelector selectedIndex={selectedDayIndex} onSelect={setSelectedDayIndex} />
+      <DaySelector
+        selectedIndex={selectedDayIndex}
+        onSelect={setSelectedDayIndex}
+        days={programData.days}
+        program={programData.program}
+      />
 
       {/* Day header */}
       <div className="px-4 pt-2 pb-1">
@@ -44,10 +52,10 @@ export default function WorkoutPage() {
 
       <ProgressBar completed={completed} total={total} color={dayData.color} />
 
-      {/* Morning cardio */}
+      {/* Morning note */}
       {dayData.morning && (
         <div className="mx-4 mb-3 rounded-xl px-4 py-3 bg-bg-card border border-accent-teal/20">
-          <p className="text-xs font-semibold text-accent-teal mb-0.5">🌅 Sabah Kardiyo</p>
+          <p className="text-xs font-semibold text-accent-teal mb-0.5">🌅 Sabah</p>
           <p className="text-white/70 text-sm">{dayData.morning}</p>
         </div>
       )}

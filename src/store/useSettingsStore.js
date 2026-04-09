@@ -9,12 +9,14 @@ export const useSettingsStore = create(
       hapticEnabled: true,
       soundEnabled: false,
       timerVisible: false,
+      activeProgram: 'vtaper', // 'vtaper' | 'combat_strength' | 'combat_conditioning'
 
       setCoachSessionId: (id) => set({ coachSessionId: id }),
       clearCoachSession: () => set({ coachSessionId: null }),
       setHapticEnabled: (v) => set({ hapticEnabled: v }),
       setSoundEnabled: (v) => set({ soundEnabled: v }),
       setTimerVisible: (v) => set({ timerVisible: v }),
+      setActiveProgram: (id) => set({ activeProgram: id }),
     }),
     { name: 'vtaper-settings' }
   )

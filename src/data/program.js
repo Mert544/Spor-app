@@ -772,3 +772,237 @@ export function getPhaseFromWeek(week) {
   }
   return 1;
 }
+
+// ─────────────────────────────────────────────
+// DÖVÜŞ SPORLARI KUVVET PROGRAMI
+// Patlayıcı kuvvet, kavrama gücü, fonksiyonel dayanıklılık
+// ─────────────────────────────────────────────
+export const COMBAT_STRENGTH_DAYS = [
+  "Pzt - PATLAYICI ÜST",
+  "Sal - ÇEKİŞ + KAVRAMA",
+  "Çar - KOR + FONKSİYONEL",
+  "Per - BACAK GÜCÜ",
+  "Cum - DAYANIKLILIK DEVRESİ",
+  "Cmt - BOYUN + KOR",
+];
+
+export const COMBAT_STRENGTH_PROGRAM = {
+  "Pzt - PATLAYICI ÜST": {
+    color: "#FF6B35",
+    emoji: "⚡",
+    subtitle: "Patlayıcı Üst Vücut + Omuz Stabilitesi",
+    morning: "5 dk mobilite ısınma — eklem hareketleri",
+    exercises: [
+      { id: "ka1", name: "Smith Press (Patlayıcı)", sets: 5, reps: "3", tempo: "2:0:X:0", rpe: "7-8", rest: 180, muscle: "Göğüs", note: "Hafif ağırlık — maksimum hız, konsantrik çok hızlı", superset: null },
+      { id: "ka2", name: "Patlayıcı Pull-Up", sets: 5, reps: "3", tempo: "2:0:X:0", rpe: "7-8", rest: 180, muscle: "Sırt", note: "Çıkışta patlayıcı — en üste çabuk çek", superset: null },
+      { id: "ka3", name: "DB Push Press (Ayakta)", sets: 4, reps: "5", tempo: "1:0:X:0", rpe: "8", rest: 120, muscle: "Omuz", note: "Bacaktan yardım al — spor spesifik güç aktarımı", superset: null },
+      { id: "ka4", name: "Cable Row (Patlayıcı)", sets: 4, reps: "6", tempo: "1:0:X:0", rpe: "7", rest: 90, muscle: "Sırt", note: "Çekişte patlayıcı — yavaş bırak", superset: "ka5" },
+      { id: "ka5", name: "Band Pull-Apart", sets: 4, reps: "25", tempo: "1:0:1:0", rpe: "6", rest: 90, muscle: "Arka Delt", note: "Omuz stabilitesi — her push seansında zorunlu", superset: "ka4" },
+      { id: "ka6", name: "Cable Face Pull", sets: 3, reps: "15-20", tempo: "2:1:1:0", rpe: "7", rest: 60, muscle: "Arka Delt", note: "Rotator cuff koruması", superset: null },
+    ],
+  },
+
+  "Sal - ÇEKİŞ + KAVRAMA": {
+    color: "#7B2FBE",
+    emoji: "✊",
+    subtitle: "Grip Kuvveti + Ağır Çekiş + Sırt Dominantı",
+    morning: "Zone 2 Kürek — 20 dk",
+    exercises: [
+      { id: "kb1", name: "Weighted Pull-Up", sets: 5, reps: "3-5", tempo: "2:1:X:0", rpe: "8-9", rest: 180, muscle: "Sırt", note: "Dövüş için kritik — ağırlık ekle, az tekrar", superset: null },
+      { id: "kb2", name: "Towel Pull-Up (Havlulu)", sets: 3, reps: "max", tempo: "2:1:X:0", rpe: "8", rest: 120, muscle: "Kavrama+Sırt", note: "Havluyu pull-up bara sar — kavrama dayanıklılığı", superset: null },
+      { id: "kb3", name: "DB Farmer's Hold", sets: 4, reps: "30 sn", tempo: "-", rpe: "8", rest: 60, muscle: "Kavrama", note: "20 kg DB her elde — tutma dayanıklılığı", superset: null },
+      { id: "kb4", name: "DB One-Arm Row", sets: 4, reps: "8", tempo: "3:2:1:0", rpe: "8", rest: 90, muscle: "Sırt", note: "Ağır, tam ROM — 2sn kasılma zirvede", superset: null },
+      { id: "kb5", name: "Cable Curl (Kavrama Odaklı)", sets: 3, reps: "12", tempo: "3:1:2:0", rpe: "8", rest: 75, muscle: "Biseps", note: "Sıkı kavrama — underhand güç geliştirme", superset: "kb6" },
+      { id: "kb6", name: "DB Wrist Curl + Extension", sets: 3, reps: "20", tempo: "2:1:2:0", rpe: "7", rest: 75, muscle: "Kavrama", note: "Bilek fleksörü + ekstansörü — çift yönlü kavrama", superset: "kb5" },
+    ],
+  },
+
+  "Çar - KOR + FONKSİYONEL": {
+    color: "#FF4500",
+    emoji: "🔄",
+    subtitle: "Rotasyonel Güç + Kor Stabilitesi",
+    morning: "Zone 2 Koşu Bandı — 20 dk",
+    exercises: [
+      { id: "kc1", name: "Cable Woodchop (Çapraz)", sets: 4, reps: "12/taraf", tempo: "2:0:1:0", rpe: "8", rest: 75, muscle: "Kor", note: "Dövüş rotasyonu — kalçadan döndür, kor aktif", superset: null },
+      { id: "kc2", name: "Hanging Leg Raise", sets: 4, reps: "12-15", tempo: "2:1:1:0", rpe: "8", rest: 60, muscle: "Karın", note: "Pull-up bara as — yavaş ve kontrollü", superset: null },
+      { id: "kc3", name: "Cable Anti-Rotation Press", sets: 3, reps: "12/taraf", tempo: "2:2:1:0", rpe: "7-8", rest: 60, muscle: "Kor", note: "Dönme direnci — dövüşçü için kritik stabilite", superset: null },
+      { id: "kc4", name: "DB Turkish Get-Up", sets: 3, reps: "5/taraf", tempo: "yavaş", rpe: "7", rest: 90, muscle: "Fonksiyonel", note: "Tam vücut — yerden kalkma hareketi, dövüşe özgü", superset: null },
+      { id: "kc5", name: "Plank (Ağırlıklı)", sets: 3, reps: "45-60 sn", tempo: "-", rpe: "8", rest: 60, muscle: "Kor", note: "Sırtına plak koy ya da ağırlıklı yelek", superset: "kc6" },
+      { id: "kc6", name: "Band Hip Circle", sets: 3, reps: "20/taraf", tempo: "1:0:1:0", rpe: "6", rest: 60, muscle: "Kalça", note: "Direnç bandı dizde — kalça stabilitesi", superset: "kc5" },
+    ],
+  },
+
+  "Per - BACAK GÜCÜ": {
+    color: "#1DB954",
+    emoji: "🦵",
+    subtitle: "Patlayıcı Alt Vücut + Hamstring Kuvveti",
+    morning: "Zone 2 Bisiklet — 20 dk",
+    exercises: [
+      { id: "kd1", name: "Smith Squat (Patlayıcı)", sets: 5, reps: "3", tempo: "3:1:X:0", rpe: "8", rest: 180, muscle: "Kuadriseps", note: "%60-70 1RM — inişte yavaş, çıkışta patlayıcı", superset: null },
+      { id: "kd2", name: "DB Romanian Deadlift", sets: 4, reps: "8", tempo: "3:2:1:0", rpe: "8", rest: 120, muscle: "Hamstring", note: "Hamstring gerdirme — dövüşçü için esneklik+kuvvet", superset: null },
+      { id: "kd3", name: "Walking Lunge (DB)", sets: 3, reps: "10/bacak", tempo: "2:1:1:0", rpe: "8", rest: 90, muscle: "Kuad+Kalça", note: "Denge ve tek taraflı güç", superset: null },
+      { id: "kd4", name: "Hip Thrust Smith (Patlayıcı)", sets: 4, reps: "8", tempo: "1:1:X:0", rpe: "8", rest: 90, muscle: "Kalça", note: "Kalça ekstansiyonu gücü — taklama ve kaldırma", superset: null },
+      { id: "kd5", name: "Nordic Curl", sets: 3, reps: "5-8", tempo: "3:1:0:0", rpe: "8-9", rest: 90, muscle: "Hamstring", note: "Pull-up bardan nordik — yaralanma önleme", superset: null },
+      { id: "kd6", name: "Single-Leg Calf Raise (Smith)", sets: 4, reps: "15/bacak", tempo: "2:2:1:0", rpe: "8", rest: 60, muscle: "Baldır", note: "Tek bacak — patlama ve denge", superset: null },
+    ],
+  },
+
+  "Cum - DAYANIKLILIK DEVRESİ": {
+    color: "#FF8C00",
+    emoji: "🔥",
+    subtitle: "Yüksek Yoğunluk Devre + Kardiyovasküler",
+    morning: null,
+    exercises: [
+      { id: "ke1", name: "Kürek Ergometresi Sprint", sets: 4, reps: "250m", tempo: "-", rpe: "9", rest: 120, muscle: "Kardiyovasküler", note: "Her seferde max efor — süreyi not et", superset: null },
+      { id: "ke2", name: "Pull-Up (Max Tekrar)", sets: 4, reps: "max", tempo: "2:0:1:0", rpe: "9", rest: 90, muscle: "Sırt", note: "Yorgunlukta çekiş dayanıklılığı", superset: null },
+      { id: "ke3", name: "DB Thruster (Squat+Press)", sets: 4, reps: "10", tempo: "2:0:1:0", rpe: "8-9", rest: 75, muscle: "Full Body", note: "Tam vücut — dövüşçü kondisyonu", superset: "ke4" },
+      { id: "ke4", name: "Cable Row (Hızlı)", sets: 4, reps: "15", tempo: "1:0:1:0", rpe: "8", rest: 75, muscle: "Sırt", note: "Yorgunluğa rağmen form koru", superset: "ke3" },
+      { id: "ke5", name: "Bisiklet Sprint", sets: 4, reps: "30 sn", tempo: "-", rpe: "9-10", rest: 90, muscle: "Kardiyovasküler", note: "Max güç — anaerob kapasite", superset: null },
+    ],
+  },
+
+  "Cmt - BOYUN + KOR": {
+    color: "#4169E1",
+    emoji: "🧠",
+    subtitle: "Boyun Kuvveti + Kor + Aktif Dinlenme",
+    morning: "Mobilite devresi — 15 dk",
+    exercises: [
+      { id: "kf1", name: "Band Boyun Fleksiyonu", sets: 3, reps: "20", tempo: "2:1:2:0", rpe: "7", rest: 45, muscle: "Boyun", note: "Direnç bandı alnınıza — öne eğilme", superset: "kf2" },
+      { id: "kf2", name: "Band Boyun Ekstansiyonu", sets: 3, reps: "20", tempo: "2:1:2:0", rpe: "7", rest: 45, muscle: "Boyun", note: "Bant başın arkasında — geriye itiş", superset: "kf1" },
+      { id: "kf3", name: "Cable Woodchop", sets: 3, reps: "15/taraf", tempo: "2:0:1:0", rpe: "7", rest: 60, muscle: "Kor", note: "Hafif ağırlık — yüksek tekrar, kondisyon odağı", superset: null },
+      { id: "kf4", name: "Hanging Knee Raise", sets: 3, reps: "15", tempo: "2:1:1:0", rpe: "7", rest: 60, muscle: "Karın", note: "Diz bükük versiyon — daha kolay ama etkili", superset: null },
+      { id: "kf5", name: "DB Farmer's Carry", sets: 3, reps: "30 sn", tempo: "-", rpe: "7", rest: 60, muscle: "Kavrama", note: "Düz yürüyüş — kavrama aktif tut", superset: null },
+    ],
+  },
+};
+
+// ─────────────────────────────────────────────
+// DÖVÜŞ SPORLARI KONDİSYON PROGRAMI
+// Aerobik kapasite, devre antrenmanı, HIIT
+// ─────────────────────────────────────────────
+export const COMBAT_CONDITIONING_DAYS = [
+  "Pzt - HIIT ÜST",
+  "Sal - KUVVETLİ DAYANIKLILIK",
+  "Çar - AEROBİK KAPASİTE",
+  "Per - HIIT ALT",
+  "Cum - DEVRE ANTRENMANI",
+  "Cmt - AKTİF DİNLENME",
+];
+
+export const COMBAT_CONDITIONING_PROGRAM = {
+  "Pzt - HIIT ÜST": {
+    color: "#E94560",
+    emoji: "💥",
+    subtitle: "Yüksek Yoğunluk Üst Vücut + Kürek",
+    morning: null,
+    exercises: [
+      { id: "da1", name: "Kürek Ergometresi Interval", sets: 5, reps: "1 dk", tempo: "-", rpe: "9", rest: 60, muscle: "Kardiyovasküler", note: "1 dk max — 1 dk dinlenme, 5 tur", superset: null },
+      { id: "da2", name: "Pull-Up (Max Tekrar)", sets: 3, reps: "max", tempo: "2:0:1:0", rpe: "8", rest: 60, muscle: "Sırt", note: "Yorgunluğa rağmen devam", superset: "da3" },
+      { id: "da3", name: "Push-Up (Max Tekrar)", sets: 3, reps: "max", tempo: "1:0:1:0", rpe: "8", rest: 60, muscle: "Göğüs", note: "Süperset ile pull-up — üst vücut devresi", superset: "da2" },
+      { id: "da4", name: "Cable Row (Hızlı)", sets: 3, reps: "15", tempo: "1:0:1:0", rpe: "8", rest: 45, muscle: "Sırt", note: "Form yeterli — hız odağı", superset: "da5" },
+      { id: "da5", name: "DB Thruster", sets: 3, reps: "12", tempo: "2:0:1:0", rpe: "8-9", rest: 45, muscle: "Full Body", note: "Squat + overhead press — kondisyon hareketi", superset: "da4" },
+    ],
+  },
+
+  "Sal - KUVVETLİ DAYANIKLILIK": {
+    color: "#3B82F6",
+    emoji: "💪",
+    subtitle: "Orta Ağırlık + Yüksek Hacim",
+    morning: "Zone 2 Kürek — 15 dk",
+    exercises: [
+      { id: "db1", name: "Smith Press (Orta)", sets: 4, reps: "10", tempo: "2:1:1:0", rpe: "7-8", rest: 75, muscle: "Göğüs", note: "Orta ağırlık — dayanıklılık seti", superset: null },
+      { id: "db2", name: "Pull-Up", sets: 4, reps: "8", tempo: "2:1:1:0", rpe: "8", rest: 75, muscle: "Sırt", note: "Tam ROM — her tekrar kontrollü", superset: null },
+      { id: "db3", name: "DB Row", sets: 4, reps: "10/taraf", tempo: "2:1:1:0", rpe: "8", rest: 60, muscle: "Sırt", note: "Dövüşçü sırtı — her taraf eşit", superset: "db4" },
+      { id: "db4", name: "Cable Lateral Raise", sets: 4, reps: "20", tempo: "2:0:1:0", rpe: "8", rest: 60, muscle: "Lat.Delt", note: "Yüksek tekrar — omuz dayanıklılığı", superset: "db3" },
+      { id: "db5", name: "Tricep Pushdown", sets: 3, reps: "15", tempo: "2:1:1:0", rpe: "7-8", rest: 45, muscle: "Triseps", note: "İtme dayanıklılığı", superset: "db6" },
+      { id: "db6", name: "Cable Curl", sets: 3, reps: "15", tempo: "2:1:2:0", rpe: "7-8", rest: 45, muscle: "Biseps", note: "Çekme dayanıklılığı", superset: "db5" },
+    ],
+  },
+
+  "Çar - AEROBİK KAPASİTE": {
+    color: "#14B8A6",
+    emoji: "🫀",
+    subtitle: "Zone 2 Kardiyovasküler Kapasite Günü",
+    morning: null,
+    exercises: [
+      { id: "dc1", name: "Kürek Ergometresi (Zone 2)", sets: 1, reps: "25 dk", tempo: "-", rpe: "6-7", rest: 0, muscle: "Kardiyovasküler", note: "Nefes kontrolü — konuşabildiğin yoğunluk", superset: null },
+      { id: "dc2", name: "Koşu Bandı Interval", sets: 5, reps: "2 dk / 1 dk", tempo: "-", rpe: "8/5", rest: 0, muscle: "Kardiyovasküler", note: "2 dk hızlı + 1 dk yavaş — 5 tur", superset: null },
+      { id: "dc3", name: "Bisiklet (Soğuma)", sets: 1, reps: "10 dk", tempo: "-", rpe: "4-5", rest: 0, muscle: "Kardiyovasküler", note: "Düşük yoğunluk — aktif toparlanma", superset: null },
+    ],
+  },
+
+  "Per - HIIT ALT": {
+    color: "#10B981",
+    emoji: "⚡",
+    subtitle: "Bisiklet Sprint + Alt Vücut Kuvveti",
+    morning: "5 dk mobilite ısınma",
+    exercises: [
+      { id: "dd1", name: "Bisiklet Sprint", sets: 6, reps: "30 sn", tempo: "-", rpe: "9-10", rest: 90, muscle: "Kardiyovasküler", note: "Her seferinde max güç — anaerob kapasite", superset: null },
+      { id: "dd2", name: "Smith Squat (Orta)", sets: 4, reps: "10", tempo: "2:1:1:0", rpe: "8", rest: 90, muscle: "Kuadriseps", note: "Yorgunlukta squat — dövüş dayanıklılığı", superset: null },
+      { id: "dd3", name: "DB Lunge (Yürüyüş)", sets: 3, reps: "12/bacak", tempo: "2:1:1:0", rpe: "8", rest: 75, muscle: "Kuad+Kalça", note: "Denge ve koordinasyon", superset: null },
+      { id: "dd4", name: "Hip Thrust Smith", sets: 3, reps: "15", tempo: "2:1:1:0", rpe: "8", rest: 60, muscle: "Kalça", note: "Kalça gücü — fırlatma ve kaldırma için", superset: null },
+      { id: "dd5", name: "Calf Raise (Smith)", sets: 3, reps: "20", tempo: "2:2:1:0", rpe: "7", rest: 45, muscle: "Baldır", note: "Ayak dayanıklılığı", superset: null },
+    ],
+  },
+
+  "Cum - DEVRE ANTRENMANI": {
+    color: "#F5A623",
+    emoji: "🔁",
+    subtitle: "Full Body Devre — 4 Tur",
+    morning: null,
+    exercises: [
+      { id: "de1", name: "Pull-Up (Devre)", sets: 4, reps: "max (min 5)", tempo: "2:0:1:0", rpe: "8-9", rest: 15, muscle: "Sırt", note: "Devre A — 15sn geçiş, tur sonunda 60sn dinlenme", superset: "de2" },
+      { id: "de2", name: "Push-Up (Devre)", sets: 4, reps: "max (min 10)", tempo: "1:0:1:0", rpe: "8-9", rest: 15, muscle: "Göğüs", note: "Hemen pull-up sonrası", superset: "de3" },
+      { id: "de3", name: "DB Goblet Squat (Devre)", sets: 4, reps: "15", tempo: "2:1:1:0", rpe: "8", rest: 15, muscle: "Kuadriseps", note: "DB göğüse yakın tut", superset: "de4" },
+      { id: "de4", name: "Cable Row (Devre)", sets: 4, reps: "15", tempo: "1:0:1:0", rpe: "8", rest: 15, muscle: "Sırt", note: "Hızlı geçiş", superset: "de5" },
+      { id: "de5", name: "Plank (Devre)", sets: 4, reps: "30 sn", tempo: "-", rpe: "8", rest: 60, muscle: "Kor", note: "Tur sonu — 60sn dinlenme sonrası tekrar başla", superset: null },
+    ],
+  },
+
+  "Cmt - AKTİF DİNLENME": {
+    color: "#8B5CF6",
+    emoji: "🧘",
+    subtitle: "Aktif Toparlanma + Mobilite",
+    morning: null,
+    exercises: [
+      { id: "df1", name: "Koşu Bandı (Yürüyüş)", sets: 1, reps: "20 dk", tempo: "-", rpe: "4-5", rest: 0, muscle: "Kardiyovasküler", note: "Düşük yoğunluk — %50 max kalp atışı", superset: null },
+      { id: "df2", name: "Band Shoulder Circle", sets: 2, reps: "20/yön", tempo: "1:1:1:0", rpe: "5", rest: 45, muscle: "Omuz", note: "Omuz mobilite — her iki yön", superset: null },
+      { id: "df3", name: "Band Pull-Apart", sets: 2, reps: "25", tempo: "1:0:1:0", rpe: "5", rest: 45, muscle: "Arka Delt", note: "Omuz sağlığı bakımı", superset: null },
+      { id: "df4", name: "Hanging Stretch", sets: 3, reps: "30 sn", tempo: "-", rpe: "3", rest: 30, muscle: "Sırt", note: "Pull-up bara asıl — omurga dekompresyonu", superset: null },
+      { id: "df5", name: "DB Goblet Squat (Derin)", sets: 2, reps: "10", tempo: "3:3:1:0", rpe: "4", rest: 45, muscle: "Kuadriseps", note: "Kalça mobilite — çok yavaş, derine in", superset: null },
+    ],
+  },
+};
+
+// ─────────────────────────────────────────────
+// TÜM PROGRAMLAR — Program seçimi için
+// ─────────────────────────────────────────────
+export const ALL_PROGRAMS = {
+  vtaper: {
+    id: "vtaper",
+    name: "V-Taper 12 Hafta",
+    description: "Yağ yakma + kas hipertrofisi — estetik vücut",
+    emoji: "💎",
+    color: "#E94560",
+    days: DAYS,
+    program: PROGRAM,
+  },
+  combat_strength: {
+    id: "combat_strength",
+    name: "Dövüş Kuvveti",
+    description: "Patlayıcı güç, kavrama, fonksiyonel kuvvet",
+    emoji: "⚡",
+    color: "#FF6B35",
+    days: COMBAT_STRENGTH_DAYS,
+    program: COMBAT_STRENGTH_PROGRAM,
+  },
+  combat_conditioning: {
+    id: "combat_conditioning",
+    name: "Dövüş Kondisyonu",
+    description: "Aerobik kapasite, HIIT, devre antrenmanı",
+    emoji: "🔥",
+    color: "#FF8C00",
+    days: COMBAT_CONDITIONING_DAYS,
+    program: COMBAT_CONDITIONING_PROGRAM,
+  },
+};

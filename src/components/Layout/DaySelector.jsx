@@ -1,30 +1,21 @@
-import { DAYS, getTodayDayIndex } from '../../data/program.js';
-
-const DAY_COLORS = [
-  '#E94560', // Pzt - PUSH A
-  '#3B82F6', // Sal - PULL A
-  '#F5A623', // Çar - OMUZ+KOL
-  '#EC4899', // Per - PUSH B
-  '#14B8A6', // Cum - PULL B
-  '#10B981', // Cmt - BACAK
-];
+import { getTodayDayIndex } from '../../data/program.js';
 
 const SHORT_LABELS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
 
-export default function DaySelector({ selectedDay, onSelect }) {
+export default function DaySelector({ selectedIndex, onSelect, days, program }) {
   const todayIndex = getTodayDayIndex();
 
   return (
     <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
-      {DAYS.map((day, i) => {
-        const isSelected = day === selectedDay;
+      {(days || []).map((day, i) => {
+        const isSelected = i === selectedIndex;
         const isToday = i === todayIndex;
-        const color = DAY_COLORS[i];
+        const color = program?.[day]?.color || '#E94560';
 
         return (
           <button
             key={day}
-            onClick={() => onSelect(day)}
+            onClick={() => onSelect(i)}
             className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               isSelected
                 ? 'text-white scale-105'
@@ -36,7 +27,7 @@ export default function DaySelector({ selectedDay, onSelect }) {
                 : {}
             }
           >
-            <span>{SHORT_LABELS[i]}</span>
+            <span>{SHORT_LABELS[i] || `G${i + 1}`}</span>
             {isToday && (
               <span
                 className="w-1.5 h-1.5 rounded-full mt-1"
