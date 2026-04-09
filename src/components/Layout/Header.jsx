@@ -5,7 +5,6 @@ import useWorkoutStore from '../../store/useWorkoutStore.js';
 const PAGE_TITLES = {
   '/antrenman': 'V-Taper Coach',
   '/ilerleme': 'İlerleme',
-  '/koc': 'AI Koç',
   '/profil': 'Profil',
 };
 
