@@ -26,7 +26,7 @@ function StreamingDots() {
     <span className="inline-flex gap-1 items-center">
       {[0, 1, 2].map(i => (
         <span
-          key={i}
+          key={`dot-${i}`}
           className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse-slow"
           style={{ animationDelay: `${i * 0.2}s` }}
         />

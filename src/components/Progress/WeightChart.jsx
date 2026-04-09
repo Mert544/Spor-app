@@ -24,9 +24,9 @@ export default function WeightChart() {
   const { weights, targetWeight, getRecentWeights } = useProgressStore();
   const recent = getRecentWeights(30);
 
-  const raw = recent.map(([date, value]) => ({
+  const raw = recent.map(({ date, weight }) => ({
     date: date.slice(5).replace('-', '/'),
-    value,
+    value: weight,
   }));
   const data = movingAvg(raw);
 

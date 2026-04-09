@@ -43,7 +43,7 @@ export default function VolumeChart() {
           }}
         />
         <Bar dataKey="actual" radius={[4, 4, 0, 0]}>
-          {data.map((d, i) => <Cell key={i} fill={d.color} />)}
+          {data.map((d) => <Cell key={d.muscle} fill={d.color} />)}
         </Bar>
       </BarChart>
     </ResponsiveContainer>

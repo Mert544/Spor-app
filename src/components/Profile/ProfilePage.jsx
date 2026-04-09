@@ -16,10 +16,19 @@ export default function ProfilePage() {
   const phaseData = PHASES[phase];
 
   function handleExport() {
+    const ps = useProgressStore.getState();
     const data = {
       exportedAt: new Date().toISOString(),
-      progress: progressStore,
+      progress: {
+        weights: ps.weights,
+        measurements: ps.measurements,
+        weeklyCheckIns: ps.weeklyCheckIns,
+        currentWeek: ps.currentWeek,
+        startWeight: ps.startWeight,
+        targetWeight: ps.targetWeight,
+      },
       workoutLogs: workoutStore.logs,
+      exerciseNotes: useWorkoutStore.getState().exerciseNotes,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

@@ -25,6 +25,10 @@ export default function CoachPage() {
   const [streaming, setStreaming] = useState(false);
   const [sessionReady, setSessionReady] = useState(!!coachSessionId);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setSessionReady(!!coachSessionId);
+  }, [coachSessionId]);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -39,10 +43,10 @@ export default function CoachPage() {
   useEffect(() => {
     if (!coachSessionId) {
       createSession()
-        .then(id => { setCoachSessionId(id); setSessionReady(true); })
+        .then(id => { setCoachSessionId(id); })
         .catch(e => { setError('Koç bağlantısı kurulamadı. İnternet bağlantını kontrol et.'); console.error(e); });
     }
-  }, []);
+  }, [coachSessionId, setCoachSessionId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

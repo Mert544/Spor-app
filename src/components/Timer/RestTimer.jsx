@@ -19,7 +19,7 @@ export default function RestTimer() {
       setRunning(false);
       setRemaining(selected);
     }
-  }, [timerVisible]);
+  }, [timerVisible, selected]);
 
   useEffect(() => {
     if (running) {

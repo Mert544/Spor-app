@@ -137,7 +137,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
 
           {Array.from({ length: exercise.sets }, (_, i) => (
             <SetLogger
-              key={i}
+              key={`${exercise.id}-set-${i}`}
               date={date}
               exerciseId={exercise.id}
               setIndex={i}
