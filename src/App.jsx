@@ -3,7 +3,6 @@ import BottomNav from './components/Layout/BottomNav.jsx';
 import Header from './components/Layout/Header.jsx';
 import WorkoutPage from './components/Workout/WorkoutPage.jsx';
 import ProgressPage from './components/Progress/ProgressPage.jsx';
-import CoachPage from './components/Coach/CoachPage.jsx';
 import ProfilePage from './components/Profile/ProfilePage.jsx';
 import RestTimer from './components/Timer/RestTimer.jsx';
 
@@ -16,7 +15,6 @@ export default function App() {
           <Route path="/" element={<Navigate to="/antrenman" replace />} />
           <Route path="/antrenman" element={<WorkoutPage />} />
           <Route path="/ilerleme" element={<ProgressPage />} />
-          <Route path="/koc" element={<CoachPage />} />
           <Route path="/profil" element={<ProfilePage />} />
         </Routes>
       </main>

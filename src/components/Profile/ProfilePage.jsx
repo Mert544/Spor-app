@@ -7,7 +7,7 @@ import { PHASES, getPhaseFromWeek, ALL_PROGRAMS } from '../../data/program';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight } = useProgressStore();
-  const { clearCoachSession, activeProgram, setActiveProgram } = useSettingsStore();
+  const { activeProgram, setActiveProgram } = useSettingsStore();
   const progressStore = useProgressStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
@@ -43,7 +43,6 @@ export default function ProfilePage() {
     localStorage.removeItem('vtaper-workout-logs');
     localStorage.removeItem('vtaper-progress');
     localStorage.removeItem('vtaper-settings');
-    clearCoachSession();
     window.location.reload();
   }
 
