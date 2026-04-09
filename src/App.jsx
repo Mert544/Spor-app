@@ -5,8 +5,16 @@ import WorkoutPage from './components/Workout/WorkoutPage.jsx';
 import ProgressPage from './components/Progress/ProgressPage.jsx';
 import ProfilePage from './components/Profile/ProfilePage.jsx';
 import RestTimer from './components/Timer/RestTimer.jsx';
+import OnboardingPage from './components/Onboarding/OnboardingPage.jsx';
+import useSettingsStore from './store/useSettingsStore.js';
 
 export default function App() {
+  const isOnboarded = useSettingsStore((s) => s.isOnboarded);
+
+  if (!isOnboarded) {
+    return <OnboardingPage />;
+  }
+
   return (
     <div className="min-h-screen bg-bg flex flex-col max-w-lg mx-auto relative">
       <Header />

@@ -12,8 +12,8 @@ export const useProgressStore = create(
       weeklyCheckIns: {},
       // Program takibi
       currentWeek: 1,
-      startWeight: 94.5,
-      targetWeight: 87.5,
+      startWeight: null,
+      targetWeight: null,
       startDate: new Date().toISOString().split('T')[0],
 
       addWeight: (date, weight) =>
@@ -58,8 +58,9 @@ export const useProgressStore = create(
       // Toplam değişim
       getTotalChange: () => {
         const { startWeight, weights } = get();
+        if (!startWeight) return null;
         const sorted = Object.entries(weights).sort((a, b) => b[0].localeCompare(a[0]));
-        if (sorted.length === 0) return 0;
+        if (sorted.length === 0) return null;
         return parseFloat((sorted[0][1] - startWeight).toFixed(1));
       },
     }),

@@ -7,8 +7,7 @@ import { PHASES, getPhaseFromWeek, ALL_PROGRAMS } from '../../data/program';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight } = useProgressStore();
-  const { activeProgram, setActiveProgram } = useSettingsStore();
-  const progressStore = useProgressStore();
+  const { activeProgram, setActiveProgram, user } = useSettingsStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
 
@@ -58,14 +57,20 @@ export default function ProfilePage() {
               💪
             </div>
             <div>
-              <p className="text-lg font-bold text-white">Mert</p>
-              <p className="text-xs text-white/40">186 cm · V-Taper Programı</p>
+              <p className="text-lg font-bold text-white">{user?.name || 'Sporcu'}</p>
+              <p className="text-xs text-white/40">{user?.height ? `${user.height} cm · ` : ''}V-Taper Programı</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <InfoCell label="Başlangıç" value={`${startWeight} kg`} />
-            <InfoCell label="Hedef" value={`${targetWeight} kg`} color="#E94560" />
-            <InfoCell label="Fark" value={`-${(startWeight - targetWeight).toFixed(1)} kg`} color="#10B981" />
+            <InfoCell label="Başlangıç" value={startWeight ? `${startWeight} kg` : '—'} />
+            <InfoCell label="Hedef" value={targetWeight ? `${targetWeight} kg` : '—'} color="#E94560" />
+            <InfoCell
+              label="Fark"
+              value={startWeight && targetWeight
+                ? `${(startWeight - targetWeight) > 0 ? '-' : '+'}${Math.abs(startWeight - targetWeight).toFixed(1)} kg`
+                : '—'}
+              color="#10B981"
+            />
           </div>
         </div>
 

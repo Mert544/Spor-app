@@ -30,7 +30,7 @@ export default function ProgressPage() {
         <h1 className="text-xl font-bold text-white mb-3">İlerleme</h1>
 
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <StatCard label="Başlangıç" value={`${startWeight} kg`} color="rgba(255,255,255,0.3)" />
+          <StatCard label="Başlangıç" value={startWeight ? `${startWeight} kg` : '—'} color="rgba(255,255,255,0.3)" />
           <StatCard
             label="Bugün"
             value={todayWeight ? `${todayWeight} kg` : '—'}
@@ -38,7 +38,7 @@ export default function ProgressPage() {
           />
           <StatCard
             label="Hedef"
-            value={`${targetWeight} kg`}
+            value={targetWeight ? `${targetWeight} kg` : '—'}
             color="#E94560"
             sub={totalChange !== null ? `${totalChange > 0 ? '+' : ''}${totalChange.toFixed(1)} kg` : null}
           />
@@ -84,7 +84,7 @@ export default function ProgressPage() {
       <div className="px-4">
         {tab === 'Kilo' && (
           <div className="bg-bg-card rounded-2xl p-4">
-            <p className="text-xs text-white/40 mb-3 font-semibold">SON 30 GÜN · Hedef: {targetWeight} kg</p>
+            <p className="text-xs text-white/40 mb-3 font-semibold">SON 30 GÜN{targetWeight ? ` · Hedef: ${targetWeight} kg` : ''}</p>
             <WeightChart />
             <div className="flex gap-3 mt-3">
               <Legend color="#3B82F6" label="Günlük kilo" />
