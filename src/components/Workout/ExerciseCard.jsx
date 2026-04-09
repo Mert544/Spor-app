@@ -10,12 +10,13 @@ const MUSCLE_COLORS = {
 
 export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName }) {
   const [open, setOpen] = useState(false);
-  const { isExerciseComplete, getExerciseLogs } = useWorkoutStore();
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote } = useWorkoutStore();
   const complete = isExerciseComplete(date, exercise.id, exercise.sets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
-
   const logs = getExerciseLogs(date, exercise.id);
   const doneSets = Object.values(logs).filter(l => l.done).length;
+  const personalNote = exerciseNotes[exercise.id] || '';
 
   return (
     <div
@@ -44,7 +45,6 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center gap-3 px-4 py-3 text-left"
       >
-        {/* Completion circle */}
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all"
           style={complete
@@ -70,6 +70,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          {personalNote && <span className="text-accent-gold text-xs">📝</span>}
           <span
             className="text-xs px-2 py-0.5 rounded-full font-medium"
             style={{ backgroundColor: `${muscleColor}22`, color: muscleColor }}
@@ -80,12 +81,49 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         </div>
       </button>
 
-      {/* Expanded set logger */}
+      {/* Expanded */}
       {open && (
         <div className="px-3 pb-3 border-t border-white/5 pt-2">
-          {/* Exercise note */}
+          {/* Program note */}
           {exercise.note && (
-            <p className="text-xs italic text-accent-gold/80 mb-3 px-1">{exercise.note}</p>
+            <p className="text-xs italic text-accent-gold/80 mb-2 px-1">{exercise.note}</p>
+          )}
+
+          {/* Personal note */}
+          {showNoteInput ? (
+            <div className="mb-3">
+              <textarea
+                rows={2}
+                placeholder="Kişisel notun... (form ipucu, ağırlık geçmişi vb.)"
+                value={personalNote}
+                onChange={e => setExerciseNote(exercise.id, e.target.value)}
+                className="w-full bg-bg-dark border border-white/10 rounded-xl px-3 py-2 text-xs text-white resize-none focus:outline-none focus:border-accent-gold/50"
+              />
+              <button
+                onClick={() => setShowNoteInput(false)}
+                className="text-xs text-white/40 mt-1 px-1"
+              >
+                Kapat
+              </button>
+            </div>
+          ) : (
+            <div className="mb-3">
+              {personalNote ? (
+                <button
+                  onClick={() => setShowNoteInput(true)}
+                  className="w-full text-left text-xs text-accent-gold/70 bg-accent-gold/5 border border-accent-gold/20 rounded-xl px-3 py-2"
+                >
+                  📝 {personalNote}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowNoteInput(true)}
+                  className="text-xs text-white/25 px-1 hover:text-white/50 transition-colors"
+                >
+                  + Not ekle
+                </button>
+              )}
+            </div>
           )}
 
           {/* Set header */}
@@ -107,7 +145,6 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             />
           ))}
 
-          {/* Rest info */}
           {exercise.rest && (
             <p className="text-xs text-white/30 text-center mt-2">
               ⏱ {exercise.rest >= 60 ? `${exercise.rest / 60} dk` : `${exercise.rest} sn`} dinlenme
