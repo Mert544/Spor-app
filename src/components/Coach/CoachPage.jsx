@@ -49,7 +49,10 @@ export default function CoachPage() {
     if (!coachSessionId) {
       createSession()
         .then(id => { setCoachSessionId(id); })
-        .catch(e => { setError('Koç bağlantısı kurulamadı. İnternet bağlantını kontrol et.'); console.error(e); });
+        .catch(e => {
+          console.error(e);
+          setError('AI Koç bu sürümde aktif değil. Uygulamayı kendi sunucuna deploy edip Anthropic API anahtarı eklemen gerekiyor.');
+        });
     }
   }, [coachSessionId, setCoachSessionId]);
 
