@@ -19,6 +19,9 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   const entry = logs[setIndex] || {};
   const prevWeight = getPreviousWeight(exerciseId, setIndex);
 
+  // Quick copy from previous set in same session
+  const prevSetEntry = setIndex > 0 ? (logs[setIndex - 1] || {}) : null;
+
   const [weight, setWeight] = useState(entry.weight ?? '');
   const [reps, setReps] = useState(entry.reps ?? '');
   const [rpe, setRpe] = useState(entry.rpe ?? 8);
@@ -53,7 +56,21 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   return (
     <div className={`transition-all ${done ? 'opacity-60' : ''}`}>
       <div className="flex items-center gap-2 py-1.5 px-1">
-        <span className="text-xs text-white/40 w-5 text-center font-mono">{setIndex + 1}</span>
+        {/* Quick copy from previous set */}
+        {prevSetEntry?.weight && !entry.weight && !done ? (
+          <button
+            onClick={() => {
+              const w = prevSetEntry.weight;
+              const r = prevSetEntry.reps;
+              setWeight(w); setReps(r ?? reps);
+              save({ weight: w, reps: r ?? reps });
+            }}
+            className="w-5 text-center text-xs text-white/30 hover:text-accent-teal transition-colors flex-shrink-0"
+            title="Önceki seti kopyala"
+          >↓</button>
+        ) : (
+          <span className="text-xs text-white/40 w-5 text-center font-mono flex-shrink-0">{setIndex + 1}</span>
+        )}
 
         {/* Weight */}
         <div className="flex-1 relative">

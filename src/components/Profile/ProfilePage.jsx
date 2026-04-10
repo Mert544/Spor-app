@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import WeeklyCheckIn from './WeeklyCheckIn';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
@@ -12,6 +12,7 @@ export default function ProfilePage() {
   const [showReset, setShowReset] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({ name: '', height: '', startWeight: '', targetWeight: '' });
+  const importRef = useRef(null);
 
   const phase = getPhaseFromWeek(currentWeek);
   const phaseData = PHASES[phase];
@@ -68,6 +69,33 @@ export default function ProfilePage() {
     localStorage.removeItem('vtaper-progress');
     localStorage.removeItem('vtaper-settings');
     window.location.reload();
+  }
+
+  function handleImport(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.workoutLogs) {
+          localStorage.setItem('vtaper-workout-logs', JSON.stringify({ state: { logs: data.workoutLogs, exerciseNotes: data.exerciseNotes || {} }, version: 0 }));
+        }
+        if (data.progress) {
+          localStorage.setItem('vtaper-progress', JSON.stringify({ state: data.progress, version: 0 }));
+        }
+        alert('Veri başarıyla içe aktarıldı. Sayfa yenilenecek.');
+        window.location.reload();
+      } catch {
+        alert('Geçersiz dosya formatı. Daha önce dışa aktarılmış bir JSON dosyası kullanın.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  function handlePrint() {
+    window.print();
   }
 
   return (
@@ -193,6 +221,21 @@ export default function ProfilePage() {
           >
             <span className="text-lg">📤</span>
             <span>Veriyi Dışa Aktar (JSON)</span>
+          </button>
+          <button
+            onClick={() => importRef.current?.click()}
+            className="w-full bg-bg-card border border-white/10 text-white font-medium py-3 rounded-xl text-sm text-left px-4 flex items-center gap-3"
+          >
+            <span className="text-lg">📥</span>
+            <span>Yedekten Geri Yükle (JSON)</span>
+          </button>
+          <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+          <button
+            onClick={handlePrint}
+            className="w-full bg-bg-card border border-white/10 text-white font-medium py-3 rounded-xl text-sm text-left px-4 flex items-center gap-3"
+          >
+            <span className="text-lg">🖨️</span>
+            <span>PDF / Yazdır</span>
           </button>
           <button
             onClick={async () => {

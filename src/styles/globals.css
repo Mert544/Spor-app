@@ -52,3 +52,11 @@
 .bottom-nav-height {
   height: calc(4rem + env(safe-area-inset-bottom));
 }
+
+/* Print styles for PDF export */
+@media print {
+  nav, header, button, .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .bg-bg-card { background: #f8f9fa !important; border: 1px solid #dee2e6 !important; }
+  * { color: black !important; }
+}

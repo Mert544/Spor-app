@@ -6,14 +6,21 @@ import StrengthLog from './StrengthLog';
 import BodyMeasurements from './BodyMeasurements';
 import WorkoutCalendar from './WorkoutCalendar';
 import ExerciseHistory from './ExerciseHistory';
+import AchievementBadges from './AchievementBadges';
+import MuscleFatigueMap from './MuscleFatigueMap';
+import WeeklySummary from './WeeklySummary';
+import ProgressPhotos from './ProgressPhotos';
 
 const TABS = [
-  { id: 'Kilo', label: 'Kilo', icon: '⚖️' },
-  { id: 'Hacim', label: 'Hacim', icon: '📊' },
-  { id: 'Kuvvet', label: 'Kuvvet', icon: '💪' },
+  { id: 'Hafta',    label: 'Hafta',    icon: '📅' },
+  { id: 'Kilo',     label: 'Kilo',     icon: '⚖️' },
+  { id: 'Hacim',   label: 'Hacim',    icon: '📊' },
   { id: 'Egzersiz', label: 'Egzersiz', icon: '📈' },
-  { id: 'Takvim', label: 'Takvim', icon: '📅' },
-  { id: 'Ölçüm', label: 'Ölçüm', icon: '📐' },
+  { id: 'Kaslar',  label: 'Kaslar',   icon: '🫀' },
+  { id: 'Takvim',  label: 'Takvim',   icon: '🗓️' },
+  { id: 'Rozetler', label: 'Rozetler', icon: '🏅' },
+  { id: 'Fotoğraf', label: 'Fotoğraf', icon: '📸' },
+  { id: 'Ölçüm',  label: 'Ölçüm',    icon: '📐' },
 ];
 
 export default function ProgressPage() {
@@ -116,10 +123,12 @@ export default function ProgressPage() {
           </div>
         )}
 
+        {tab === 'Hafta' && <WeeklySummary />}
         {tab === 'Egzersiz' && <ExerciseHistory />}
-
+        {tab === 'Kaslar' && <MuscleFatigueMap />}
         {tab === 'Takvim' && <WorkoutCalendar />}
-
+        {tab === 'Rozetler' && <AchievementBadges />}
+        {tab === 'Fotoğraf' && <ProgressPhotos />}
         {tab === 'Ölçüm' && <BodyMeasurements />}
       </div>
     </div>

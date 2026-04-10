@@ -29,6 +29,7 @@ export default function CompletionCard({ date, exercises, accentColor }) {
   }, [date]);
 
   const name = user?.name || 'Sporcu';
+  const kcal = elapsed ? Math.round(elapsed * 5) : Math.round(totalSets * 12);
 
   return (
     <div className="mx-4 mb-4 rounded-3xl overflow-hidden"
@@ -45,11 +46,12 @@ export default function CompletionCard({ date, exercises, accentColor }) {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 divide-x divide-white/5"
+      <div className="grid grid-cols-4 divide-x divide-white/5"
         style={{ backgroundColor: '#0a0f1a' }}>
         <Stat label="Set" value={totalSets} icon="📋" color={accentColor} />
         <Stat label="Hacim" value={volume > 0 ? `${(volume / 1000).toFixed(1)}t` : '—'} icon="⚖️" color={accentColor} />
         <Stat label="Süre" value={elapsed ? `${elapsed}dk` : '—'} icon="⏱️" color={accentColor} />
+        <Stat label="Kalori" value={`~${kcal}`} icon="🔥" color="#F5A623" />
       </div>
     </div>
   );

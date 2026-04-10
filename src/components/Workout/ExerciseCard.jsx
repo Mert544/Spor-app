@@ -3,6 +3,7 @@ import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import { getVideoUrl } from '../../data/videos';
+import { getAlternatives } from '../../data/exerciseAlternatives';
 
 const MUSCLE_COLORS = {
   'Göğüs': '#E94560', 'Trisep': '#EC4899', 'Omuz': '#F5A623',
@@ -13,6 +14,8 @@ const MUSCLE_COLORS = {
 export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
+  const [showAlts, setShowAlts] = useState(false);
+  const alternatives = getAlternatives(exercise.name);
   const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord } = useWorkoutStore();
   const complete = isExerciseComplete(date, exercise.id, exercise.sets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
@@ -90,22 +93,47 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
       {/* Expanded */}
       {open && (
         <div className="px-3 pb-3 border-t border-white/5 pt-2">
-          {/* Program note + Video button */}
+          {/* Program note + Video + Alt buttons */}
           <div className="flex items-start gap-2 mb-2">
             {exercise.note && (
               <p className="text-xs italic text-accent-gold/80 px-1 flex-1">{exercise.note}</p>
             )}
-            <a
-              href={getVideoUrl(exercise.name)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
-              style={{ backgroundColor: '#FF000022', color: '#FF4444', border: '1px solid #FF444433' }}
-            >
-              ▶ Video
-            </a>
+            <div className="flex gap-1 flex-shrink-0">
+              {alternatives.length > 0 && (
+                <button
+                  onClick={() => setShowAlts(v => !v)}
+                  className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
+                  style={{ backgroundColor: '#F5A62320', color: '#F5A623', border: '1px solid #F5A62333' }}
+                >
+                  ⇄ Alt
+                </button>
+              )}
+              <a
+                href={getVideoUrl(exercise.name)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
+                style={{ backgroundColor: '#FF000022', color: '#FF4444', border: '1px solid #FF444433' }}
+              >
+                ▶ Video
+              </a>
+            </div>
           </div>
+
+          {/* Alternatives panel */}
+          {showAlts && (
+            <div className="mb-3 bg-bg-dark rounded-xl p-3">
+              <p className="text-xs font-semibold text-accent-gold mb-2">⇄ Alternatif Egzersizler</p>
+              <div className="space-y-1">
+                {alternatives.map((alt, i) => (
+                  <div key={i} className="text-xs text-white/60 px-1 py-0.5 flex items-center gap-1.5">
+                    <span className="text-white/25">•</span> {alt}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Personal note */}
           {showNoteInput ? (
