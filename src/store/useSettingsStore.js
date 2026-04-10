@@ -12,7 +12,7 @@ export const useSettingsStore = create(
       hapticEnabled: true,
       soundEnabled: false,
       timerVisible: false,
-      activeProgram: 'vtaper',
+      activeProgram: 'vtaper_orta',
 
       setOnboarded: (v) => set({ isOnboarded: v }),
       setUser: (patch) => set((s) => ({ user: { ...s.user, ...patch } })),

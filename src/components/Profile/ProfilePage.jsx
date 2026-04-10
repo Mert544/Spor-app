@@ -3,11 +3,11 @@ import WeeklyCheckIn from './WeeklyCheckIn';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
-import { PHASES, getPhaseFromWeek, ALL_PROGRAMS } from '../../data/program';
+import { PHASES, getPhaseFromWeek } from '../../data/program';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
-  const { activeProgram, setActiveProgram, user, setUser } = useSettingsStore();
+  const { user, setUser } = useSettingsStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -116,33 +116,6 @@ export default function ProfilePage() {
               </div>
             </>
           )}
-        </div>
-
-        {/* Program selector */}
-        <div className="bg-bg-card rounded-2xl p-4 mb-4">
-          <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Antrenman Programı</p>
-          <div className="space-y-2">
-            {Object.values(ALL_PROGRAMS).map(p => (
-              <button
-                key={p.id}
-                onClick={() => setActiveProgram(p.id)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl transition-all border"
-                style={activeProgram === p.id
-                  ? { borderColor: p.color, backgroundColor: `${p.color}15` }
-                  : { borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'transparent' }
-                }
-              >
-                <span className="text-2xl">{p.emoji}</span>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-white">{p.name}</p>
-                  <p className="text-xs text-white/40 mt-0.5">{p.description}</p>
-                </div>
-                {activeProgram === p.id && (
-                  <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: p.color, color: '#fff' }}>Aktif</span>
-                )}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Week selector */}

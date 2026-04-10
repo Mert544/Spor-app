@@ -1283,70 +1283,99 @@ export const CROSSFIT_PROGRAM = {
 };
 
 // ─────────────────────────────────────────────
-// TÜM PROGRAMLAR — Program seçimi için
+// PROGRAM KATEGORİLERİ — meta veri
 // ─────────────────────────────────────────────
-export const ALL_PROGRAMS = {
-  vtaper: {
-    id: "vtaper",
-    name: "V-Taper 12 Hafta",
-    description: "Yağ yakma + kas hipertrofisi — estetik vücut",
-    emoji: "💎",
-    color: "#E94560",
-    days: DAYS,
-    program: PROGRAM,
+export const PROGRAM_LIBRARY = [
+  { id: "vtaper",              name: "V-Taper",           emoji: "💎", color: "#E94560", description: "Yağ yakma + kas hipertrofisi — estetik vücut", baseDays: DAYS,                    baseProgram: PROGRAM },
+  { id: "genel_kuvvet",        name: "Genel Kuvvet",       emoji: "🏋️", color: "#3B82F6", description: "Upper/Lower split, lineer periodizasyon, 4 gün", baseDays: GENERAL_STRENGTH_DAYS,   baseProgram: GENERAL_STRENGTH_PROGRAM },
+  { id: "kuvvet_dayanikliligi",name: "Kuvvet Dayanıklılığı",emoji: "⚙️", color: "#10B981", description: "Yüksek hacim, süperset, kısa dinlenme, 5 gün", baseDays: STRENGTH_ENDURANCE_DAYS, baseProgram: STRENGTH_ENDURANCE_PROGRAM },
+  { id: "dayaniklilik",        name: "Dayanıklılık",       emoji: "🫀", color: "#14B8A6", description: "Polarize model, Zone 2 + HIIT, 6 gün",            baseDays: ENDURANCE_DAYS,          baseProgram: ENDURANCE_PROGRAM },
+  { id: "crossfit",            name: "CrossFit Stili",     emoji: "🏅", color: "#EF4444", description: "AMRAP, EMOM, For Time — mevcut ekipmanla, 5 gün",  baseDays: CROSSFIT_DAYS,           baseProgram: CROSSFIT_PROGRAM },
+  { id: "dovus_kuvvet",        name: "Dövüş Kuvveti",      emoji: "⚡", color: "#FF6B35", description: "Patlayıcı güç, kavrama, fonksiyonel kuvvet",       baseDays: COMBAT_STRENGTH_DAYS,    baseProgram: COMBAT_STRENGTH_PROGRAM },
+  { id: "dovus_kondisyon",     name: "Dövüş Kondisyonu",   emoji: "🔥", color: "#FF8C00", description: "Aerobik kapasite, HIIT, devre antrenmanı",         baseDays: COMBAT_CONDITIONING_DAYS,baseProgram: COMBAT_CONDITIONING_PROGRAM },
+];
+
+// ─────────────────────────────────────────────
+// SEVİYE AYARLARI
+// ─────────────────────────────────────────────
+export const LEVEL_CONFIG = {
+  kolay: {
+    label: "Başlangıç",
+    emoji: "🟢",
+    description: "0–6 ay · forma ve temele odaklan",
+    setsMod:  (s) => Math.max(2, Math.floor(s * 0.6)),
+    restMod:  (r) => Math.round(r * 1.5),
+    maxExercises: 4,
+    maxDays: 3,
+    removeSuperset: true,
+    notePrefix: "[Başlangıç] Hafif ağırlıkla başla, formaya odaklan. ",
   },
-  general_strength: {
-    id: "general_strength",
-    name: "Genel Kuvvet",
-    description: "Upper/Lower split, lineer periodizasyon, 4 gün",
-    emoji: "🏋️",
-    color: "#3B82F6",
-    days: GENERAL_STRENGTH_DAYS,
-    program: GENERAL_STRENGTH_PROGRAM,
+  orta: {
+    label: "Orta",
+    emoji: "🟡",
+    description: "1–2 yıl · program tam haliyle",
+    setsMod:  (s) => s,
+    restMod:  (r) => r,
+    maxExercises: 99,
+    maxDays: 99,
+    removeSuperset: false,
+    notePrefix: "",
   },
-  strength_endurance: {
-    id: "strength_endurance",
-    name: "Kuvvet Dayanıklılığı",
-    description: "Yüksek hacim, süperset, kısa dinlenme, 5 gün",
-    emoji: "⚙️",
-    color: "#10B981",
-    days: STRENGTH_ENDURANCE_DAYS,
-    program: STRENGTH_ENDURANCE_PROGRAM,
-  },
-  endurance: {
-    id: "endurance",
-    name: "Dayanıklılık",
-    description: "Polarize model, Zone 2 + HIIT, kürek/bisiklet/koşu, 6 gün",
-    emoji: "🫀",
-    color: "#14B8A6",
-    days: ENDURANCE_DAYS,
-    program: ENDURANCE_PROGRAM,
-  },
-  crossfit: {
-    id: "crossfit",
-    name: "CrossFit Stili",
-    description: "AMRAP, EMOM, For Time — mevcut ekipmanla, 5 gün",
-    emoji: "🏅",
-    color: "#EF4444",
-    days: CROSSFIT_DAYS,
-    program: CROSSFIT_PROGRAM,
-  },
-  combat_strength: {
-    id: "combat_strength",
-    name: "Dövüş Kuvveti",
-    description: "Patlayıcı güç, kavrama, fonksiyonel kuvvet",
-    emoji: "⚡",
-    color: "#FF6B35",
-    days: COMBAT_STRENGTH_DAYS,
-    program: COMBAT_STRENGTH_PROGRAM,
-  },
-  combat_conditioning: {
-    id: "combat_conditioning",
-    name: "Dövüş Kondisyonu",
-    description: "Aerobik kapasite, HIIT, devre antrenmanı",
-    emoji: "🔥",
-    color: "#FF8C00",
-    days: COMBAT_CONDITIONING_DAYS,
-    program: COMBAT_CONDITIONING_PROGRAM,
+  zor: {
+    label: "İleri",
+    emoji: "🔴",
+    description: "2+ yıl · maksimum yoğunluk",
+    setsMod:  (s) => s + 1,
+    restMod:  (r) => Math.max(30, Math.round(r * 0.75)),
+    maxExercises: 99,
+    maxDays: 99,
+    removeSuperset: false,
+    notePrefix: "[İleri] +1 set, kısa dinlenme, RPE sınırına götür. ",
   },
 };
+
+// ─────────────────────────────────────────────
+// OTOMATİK SEVİYE DÖNÜŞTÜRÜCÜ
+// ─────────────────────────────────────────────
+function applyDifficulty(lib, level) {
+  const cfg = LEVEL_CONFIG[level];
+  const days = lib.baseDays.slice(0, cfg.maxDays);
+  const program = {};
+  days.forEach((day) => {
+    const d = lib.baseProgram[day];
+    if (!d) return;
+    const exercises = d.exercises.slice(0, cfg.maxExercises).map((ex) => ({
+      ...ex,
+      id: `${ex.id}_${level[0]}`,
+      sets: cfg.setsMod(ex.sets),
+      rest: cfg.restMod(ex.rest),
+      superset: cfg.removeSuperset ? null : ex.superset,
+      note: cfg.notePrefix + ex.note,
+    }));
+    program[day] = { ...d, exercises };
+  });
+  return { days, program };
+}
+
+// ─────────────────────────────────────────────
+// TÜM PROGRAMLAR — programatik üretim
+// 7 kategori × 3 seviye = 21 program
+// ─────────────────────────────────────────────
+export const ALL_PROGRAMS = {};
+PROGRAM_LIBRARY.forEach((lib) => {
+  ["kolay", "orta", "zor"].forEach((level) => {
+    const key = `${lib.id}_${level}`;
+    const { days, program } = applyDifficulty(lib, level);
+    ALL_PROGRAMS[key] = {
+      id: key,
+      category: lib.id,
+      level,
+      name: lib.name,
+      emoji: lib.emoji,
+      color: lib.color,
+      description: lib.description,
+      days,
+      program,
+    };
+  });
+});
