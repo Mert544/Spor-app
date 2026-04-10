@@ -12,8 +12,22 @@ function getToday() {
 }
 
 export default function WorkoutPage() {
-  const { activeProgram } = useSettingsStore();
-  const programData = ALL_PROGRAMS[activeProgram] || ALL_PROGRAMS.vtaper;
+  const { activeProgram, setActiveProgram } = useSettingsStore();
+
+  // Migrate old format (e.g. "vtaper") → new format ("vtaper_orta")
+  const resolvedProgram = (() => {
+    if (!activeProgram) return 'vtaper_orta';
+    if (ALL_PROGRAMS[activeProgram]) return activeProgram;
+    // Old format without level suffix — append _orta
+    const withLevel = `${activeProgram}_orta`;
+    if (ALL_PROGRAMS[withLevel]) {
+      setActiveProgram(withLevel);
+      return withLevel;
+    }
+    return 'vtaper_orta';
+  })();
+
+  const programData = ALL_PROGRAMS[resolvedProgram];
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayDayIndex());
   const date = getToday();

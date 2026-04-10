@@ -6,10 +6,13 @@ export default function ProgramsPage() {
   const { activeProgram, setActiveProgram } = useSettingsStore();
   const [expanded, setExpanded] = useState(null);
 
-  // Parse "category_level" format
+  // Parse "category_level" format, handle legacy IDs without level
+  const LEVELS = ['kolay', 'orta', 'zor'];
   const lastUnderscore = activeProgram?.lastIndexOf('_') ?? -1;
-  const activeCategory = lastUnderscore > 0 ? activeProgram.slice(0, lastUnderscore) : activeProgram;
-  const activeLevel = lastUnderscore > 0 ? activeProgram.slice(lastUnderscore + 1) : 'orta';
+  const maybeLevelSuffix = lastUnderscore > 0 ? activeProgram.slice(lastUnderscore + 1) : '';
+  const hasLevel = LEVELS.includes(maybeLevelSuffix);
+  const activeCategory = hasLevel ? activeProgram.slice(0, lastUnderscore) : (activeProgram || 'vtaper');
+  const activeLevel = hasLevel ? maybeLevelSuffix : 'orta';
 
   function select(categoryId, level) {
     setActiveProgram(`${categoryId}_${level}`);
