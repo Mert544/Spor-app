@@ -13,8 +13,42 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <title>V-Taper Coach</title>
+
+    <!-- SW update → reload so fresh bundle loads from new SW cache -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        var _swReloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          if (!_swReloading) { _swReloading = true; window.location.reload(); }
+        });
+      }
+      // Fallback: if React never mounts within 8 seconds, offer SW clear + reload
+      setTimeout(function () {
+        var root = document.getElementById('root');
+        if (!root || root.children.length > 0) return;
+        root.innerHTML =
+          '<div style="padding:2rem;color:#fff;font-family:system-ui;text-align:center;padding-top:30vh;background:#0f172a;min-height:100vh">' +
+          '<div style="font-size:2.5rem;margin-bottom:1rem">⚠️</div>' +
+          '<p style="margin-bottom:0.5rem;font-size:1rem;font-weight:bold">Uygulama yüklenemedi</p>' +
+          '<p style="margin-bottom:1.5rem;color:rgba(255,255,255,0.5);font-size:0.875rem">Önbellek sorunu olabilir.</p>' +
+          '<button onclick="_clearAndReload()" style="padding:0.75rem 1.5rem;background:#E94560;color:#fff;border:none;border-radius:0.75rem;cursor:pointer;font-size:0.9rem;font-weight:bold">Temizle ve Yeniden Yükle</button>' +
+          '</div>';
+      }, 8000);
+      function _clearAndReload() {
+        var done = function () { window.location.reload(true); };
+        if (!('serviceWorker' in navigator)) { done(); return; }
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          return Promise.all(regs.map(function (r) { return r.unregister(); }));
+        }).then(function () {
+          if (!('caches' in window)) { done(); return; }
+          caches.keys().then(function (keys) {
+            Promise.all(keys.map(function (k) { return caches.delete(k); })).then(done);
+          });
+        }).catch(done);
+      }
+    </script>
   </head>
-  <body class="bg-bg text-white font-sans">
+  <body style="background:#0f172a">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
