@@ -15,6 +15,7 @@ export const useSettingsStore = create(
       activeProgram: 'vtaper_orta',
       notificationsEnabled: false,
       deloadDismissed: false,
+      coachSessionId: null,
 
       setOnboarded: (v) => set({ isOnboarded: v }),
       setUser: (patch) => set((s) => ({ user: { ...s.user, ...patch } })),
@@ -24,6 +25,7 @@ export const useSettingsStore = create(
       setActiveProgram: (id) => set({ activeProgram: id }),
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setDeloadDismissed: (v) => set({ deloadDismissed: v }),
+      setCoachSessionId: (id) => set({ coachSessionId: id }),
     }),
     { name: 'vtaper-settings' }
   )
