@@ -13,6 +13,7 @@ export const useSettingsStore = create(
       soundEnabled: false,
       timerVisible: false,
       activeProgram: 'vtaper_orta',
+      notificationsEnabled: false,
 
       setOnboarded: (v) => set({ isOnboarded: v }),
       setUser: (patch) => set((s) => ({ user: { ...s.user, ...patch } })),
@@ -20,6 +21,7 @@ export const useSettingsStore = create(
       setSoundEnabled: (v) => set({ soundEnabled: v }),
       setTimerVisible: (v) => set({ timerVisible: v }),
       setActiveProgram: (id) => set({ activeProgram: id }),
+      setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
     }),
     { name: 'vtaper-settings' }
   )

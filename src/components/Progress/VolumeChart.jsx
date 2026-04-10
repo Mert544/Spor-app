@@ -1,6 +1,7 @@
-import { BarChart, Bar, XAxis, YAxis, Cell, ReferenceLine, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import useWorkoutStore from '../../store/useWorkoutStore';
-import { VOLUME_TARGETS } from '../../data/program';
+import useSettingsStore from '../../store/useSettingsStore';
+import { ALL_PROGRAMS, VOLUME_TARGETS } from '../../data/program';
 
 const MUSCLE_COLOR = {
   'Göğüs': '#E94560', 'Sırt': '#3B82F6', 'Omuz': '#F5A623',
@@ -9,18 +10,23 @@ const MUSCLE_COLOR = {
 
 function getMondayOfWeek(dateStr) {
   const d = new Date(dateStr);
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1 - day);
+  const diff = (d.getDay() === 0 ? -6 : 1 - d.getDay());
   d.setDate(d.getDate() + diff);
   return d.toISOString().split('T')[0];
 }
 
 export default function VolumeChart() {
   const { getWeeklyVolume } = useWorkoutStore();
+  const activeProgram = useSettingsStore(s => s.activeProgram);
+
+  const resolvedProgram = (activeProgram && ALL_PROGRAMS[activeProgram]) ? activeProgram : 'vtaper_orta';
+  const programData = ALL_PROGRAMS[resolvedProgram];
+  const allExercises = Object.values(programData.program).flatMap(d => d.exercises);
+
   const monday = getMondayOfWeek(new Date().toISOString().split('T')[0]);
 
   const data = Object.entries(VOLUME_TARGETS).map(([muscle, target]) => {
-    const actual = getWeeklyVolume(monday, muscle);
+    const actual = getWeeklyVolume(monday, muscle, allExercises);
     return { muscle, actual, min: target.min, max: target.max, color: MUSCLE_COLOR[muscle] || '#fff' };
   });
 

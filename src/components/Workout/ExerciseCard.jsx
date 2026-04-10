@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import { getVideoUrl } from '../../data/videos';
@@ -12,12 +13,15 @@ const MUSCLE_COLORS = {
 export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
-  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote } = useWorkoutStore();
+  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord } = useWorkoutStore();
   const complete = isExerciseComplete(date, exercise.id, exercise.sets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
   const logs = getExerciseLogs(date, exercise.id);
   const doneSets = Object.values(logs).filter(l => l.done).length;
   const personalNote = exerciseNotes[exercise.id] || '';
+  const history = open ? getExerciseHistory(exercise.id) : [];
+  const pr = open ? getPersonalRecord(exercise.id) : null;
+  const chartData = history.slice(-10).map(h => ({ w: h.maxWeight }));
 
   return (
     <div
@@ -156,8 +160,28 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
               exerciseId={exercise.id}
               setIndex={i}
               accentColor={accentColor}
+              restSeconds={exercise.rest || 0}
             />
           ))}
+
+          {/* Exercise history sparkline */}
+          {chartData.length >= 2 && (
+            <div className="mt-3 pt-2 border-t border-white/5">
+              <div className="flex items-center justify-between mb-1 px-1">
+                <span className="text-xs text-white/30">İlerleme (son {chartData.length} seans)</span>
+                {pr && (
+                  <span className="text-xs font-semibold" style={{ color: '#F5A623' }}>
+                    🏅 PR: {pr.weight}kg × {pr.reps}
+                  </span>
+                )}
+              </div>
+              <ResponsiveContainer width="100%" height={48}>
+                <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
+                  <Line type="monotone" dataKey="w" stroke={accentColor} strokeWidth={2} dot={{ fill: accentColor, r: 2, strokeWidth: 0 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
 
           {exercise.rest && (
             <p className="text-xs text-white/30 text-center mt-2">

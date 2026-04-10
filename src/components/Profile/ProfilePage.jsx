@@ -7,7 +7,7 @@ import { PHASES, getPhaseFromWeek } from '../../data/program';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
-  const { user, setUser } = useSettingsStore();
+  const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -157,6 +157,36 @@ export default function ProfilePage() {
 
         {/* Actions */}
         <div className="space-y-2 mb-4">
+          <button
+            onClick={async () => {
+              if (!('Notification' in window)) {
+                alert('Tarayıcın bildirim desteklemiyor.');
+                return;
+              }
+              if (!notificationsEnabled) {
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') setNotificationsEnabled(true);
+                else alert('Bildirim izni reddedildi. Tarayıcı ayarlarından izin ver.');
+              } else {
+                setNotificationsEnabled(false);
+              }
+            }}
+            className="w-full bg-bg-card border border-white/10 text-white font-medium py-3 rounded-xl text-sm text-left px-4 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🔔</span>
+              <span>Antrenman Hatırlatıcısı</span>
+            </div>
+            <div
+              className="w-11 h-6 rounded-full transition-all flex-shrink-0"
+              style={{ backgroundColor: notificationsEnabled ? '#14B8A6' : '#1e293b', border: '1px solid rgba(255,255,255,0.15)' }}
+            >
+              <div
+                className="w-5 h-5 rounded-full bg-white transition-all mt-0.5"
+                style={{ transform: notificationsEnabled ? 'translateX(20px)' : 'translateX(2px)' }}
+              />
+            </div>
+          </button>
           <button
             onClick={handleExport}
             className="w-full bg-bg-card border border-white/10 text-white font-medium py-3 rounded-xl text-sm text-left px-4 flex items-center gap-3"

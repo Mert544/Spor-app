@@ -1,14 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { PROGRAM } from '../data/program.js';
+
+function e1rm(weight, reps) {
+  const w = parseFloat(weight), r = parseInt(reps);
+  if (!w || !r || r < 1) return 0;
+  return r === 1 ? w : Math.round(w * (1 + r / 30));
+}
+
+// Strip level suffix: 'pa1_o' → 'pa1', 'pa1_k' → 'pa1'
+function baseId(id) {
+  return id.replace(/_(k|o|z)$/, '');
+}
 
 export const useWorkoutStore = create(
   persist(
     (set, get) => ({
-      // { "2026-04-09": { "pa1": { 0: {weight:80, reps:6, rpe:8, done:true} } } }
       logs: {},
-
-      // Kişisel egzersiz notları: { "pa1": "Dirsekleri içerde tut" }
       exerciseNotes: {},
 
       logSet: (date, exerciseId, setIndex, data) =>
@@ -22,6 +29,7 @@ export const useWorkoutStore = create(
                 [setIndex]: {
                   ...state.logs[date]?.[exerciseId]?.[setIndex],
                   ...data,
+                  ts: Date.now(),
                 },
               },
             },
@@ -48,7 +56,75 @@ export const useWorkoutStore = create(
         return { completed, total: exercises.length };
       },
 
-      // Streak: kaç gün üst üste en az 1 set tamamlandı
+      // Auto-fill: last recorded weight for same exercise + set index (before today)
+      getPreviousWeight: (exerciseId, setIndex) => {
+        const logs = get().logs;
+        const today = new Date().toISOString().split('T')[0];
+        const dates = Object.keys(logs).filter(d => d < today).sort().reverse();
+        for (const date of dates) {
+          const w = logs[date]?.[exerciseId]?.[setIndex]?.weight;
+          if (w != null && w !== '') return Number(w);
+        }
+        return null;
+      },
+
+      // Best e1RM across ALL sessions (any level suffix for same base exercise)
+      getPersonalRecord: (exerciseId) => {
+        const logs = get().logs;
+        const base = baseId(exerciseId);
+        let best = null;
+        for (const [date, dayLogs] of Object.entries(logs)) {
+          for (const [exId, exLogs] of Object.entries(dayLogs)) {
+            if (exId !== exerciseId && baseId(exId) !== base) continue;
+            for (const setData of Object.values(exLogs)) {
+              if (!setData?.done || !setData.weight || !setData.reps) continue;
+              const est = e1rm(setData.weight, setData.reps);
+              if (!best || est > best.e1rm) {
+                best = {
+                  weight: Number(setData.weight),
+                  reps: Number(setData.reps),
+                  e1rm: est,
+                  date,
+                };
+              }
+            }
+          }
+        }
+        return best;
+      },
+
+      // Chronological history of max weight per session (for sparkline)
+      getExerciseHistory: (exerciseId) => {
+        const logs = get().logs;
+        const base = baseId(exerciseId);
+        const byDate = {};
+        for (const [date, dayLogs] of Object.entries(logs)) {
+          for (const [exId, exLogs] of Object.entries(dayLogs)) {
+            if (exId !== exerciseId && baseId(exId) !== base) continue;
+            for (const setData of Object.values(exLogs)) {
+              if (!setData?.done || !setData.weight) continue;
+              const w = Number(setData.weight);
+              const est = e1rm(setData.weight, setData.reps);
+              if (!byDate[date] || w > byDate[date].maxWeight) {
+                byDate[date] = { date, maxWeight: w, maxE1RM: est };
+              }
+            }
+          }
+        }
+        return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+      },
+
+      // All dates with at least one completed set (for calendar)
+      getLoggedDates: () => {
+        const logs = get().logs;
+        return Object.keys(logs).filter(date => {
+          const dl = logs[date];
+          return Object.values(dl).some(exLogs =>
+            Object.values(exLogs).some(s => s?.done)
+          );
+        });
+      },
+
       getStreak: () => {
         const logs = get().logs;
         let streak = 0;
@@ -64,14 +140,14 @@ export const useWorkoutStore = create(
           if (hasActivity) {
             streak++;
           } else if (i > 0) {
-            break; // Bugün antrenman yoksa streak hâlâ devam edebilir (i=0 geç)
+            break;
           }
         }
         return streak;
       },
 
-      // Kas grubu için haftalık tamamlanan set sayısı
-      getWeeklyVolume: (weekStartDate, muscle) => {
+      // Weekly volume — allExercises: [{id, muscle}] from active program
+      getWeeklyVolume: (weekStartDate, muscle, allExercises = []) => {
         const logs = get().logs;
         let totalSets = 0;
         const startDate = new Date(weekStartDate);
@@ -81,20 +157,16 @@ export const useWorkoutStore = create(
           const dateStr = d.toISOString().split('T')[0];
           const dayLogs = logs[dateStr];
           if (!dayLogs) continue;
-          for (const dayName of Object.keys(PROGRAM)) {
-            const exercises = PROGRAM[dayName].exercises;
-            for (const ex of exercises) {
-              if (ex.muscle !== muscle && !ex.muscle?.includes(muscle)) continue;
-              const exLogs = dayLogs[ex.id];
-              if (!exLogs) continue;
-              totalSets += Object.values(exLogs).filter((s) => s?.done).length;
-            }
+          for (const ex of allExercises) {
+            if (ex.muscle !== muscle) continue;
+            const exLogs = dayLogs[ex.id];
+            if (!exLogs) continue;
+            totalSets += Object.values(exLogs).filter((s) => s?.done).length;
           }
         }
         return totalSets;
       },
 
-      // Toplam antrenman hacmi (bir seans için)
       getSessionVolume: (date, exercises) => {
         const logs = get().logs[date] || {};
         let totalVolume = 0;

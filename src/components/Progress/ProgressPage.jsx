@@ -4,8 +4,17 @@ import WeightChart from './WeightChart';
 import VolumeChart from './VolumeChart';
 import StrengthLog from './StrengthLog';
 import BodyMeasurements from './BodyMeasurements';
+import WorkoutCalendar from './WorkoutCalendar';
+import ExerciseHistory from './ExerciseHistory';
 
-const TABS = ['Kilo', 'Hacim', 'Kuvvet', 'Ölçüm'];
+const TABS = [
+  { id: 'Kilo', label: 'Kilo', icon: '⚖️' },
+  { id: 'Hacim', label: 'Hacim', icon: '📊' },
+  { id: 'Kuvvet', label: 'Kuvvet', icon: '💪' },
+  { id: 'Egzersiz', label: 'Egzersiz', icon: '📈' },
+  { id: 'Takvim', label: 'Takvim', icon: '📅' },
+  { id: 'Ölçüm', label: 'Ölçüm', icon: '📐' },
+];
 
 export default function ProgressPage() {
   const [tab, setTab] = useState('Kilo');
@@ -31,11 +40,7 @@ export default function ProgressPage() {
 
         <div className="grid grid-cols-3 gap-2 mb-4">
           <StatCard label="Başlangıç" value={startWeight ? `${startWeight} kg` : '—'} color="rgba(255,255,255,0.3)" />
-          <StatCard
-            label="Bugün"
-            value={todayWeight ? `${todayWeight} kg` : '—'}
-            color="#14B8A6"
-          />
+          <StatCard label="Bugün" value={todayWeight ? `${todayWeight} kg` : '—'} color="#14B8A6" />
           <StatCard
             label="Hedef"
             value={targetWeight ? `${targetWeight} kg` : '—'}
@@ -48,6 +53,7 @@ export default function ProgressPage() {
         <div className="flex gap-2 mb-4">
           <input
             type="number"
+            inputMode="decimal"
             placeholder="Bugünkü kilo (kg)"
             value={weightInput}
             onChange={e => setWeightInput(e.target.value)}
@@ -63,19 +69,20 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 px-4 mb-4">
+      {/* Tabs — horizontal scroll */}
+      <div className="flex gap-1 px-4 mb-4 overflow-x-auto scrollbar-hide">
         {TABS.map(t => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className="flex-1 py-2 rounded-xl text-sm font-medium transition-all"
-            style={tab === t
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className="flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+            style={tab === t.id
               ? { backgroundColor: '#14B8A6', color: '#fff' }
               : { backgroundColor: '#1e293b', color: 'rgba(255,255,255,0.4)' }
             }
           >
-            {t}
+            <span>{t.icon}</span>
+            <span>{t.label}</span>
           </button>
         ))}
       </div>
@@ -109,6 +116,10 @@ export default function ProgressPage() {
           </div>
         )}
 
+        {tab === 'Egzersiz' && <ExerciseHistory />}
+
+        {tab === 'Takvim' && <WorkoutCalendar />}
+
         {tab === 'Ölçüm' && <BodyMeasurements />}
       </div>
     </div>
@@ -130,7 +141,7 @@ function Legend({ color, label, dashed }) {
     <div className="flex items-center gap-1.5">
       <div
         className="w-4 h-0.5 rounded"
-        style={{ backgroundColor: color, borderTop: dashed ? `2px dashed ${color}` : undefined, background: dashed ? 'none' : color }}
+        style={{ background: dashed ? 'none' : color, borderTop: dashed ? `2px dashed ${color}` : undefined }}
       />
       <span className="text-xs text-white/40">{label}</span>
     </div>
