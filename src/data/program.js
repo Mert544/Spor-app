@@ -1207,6 +1207,82 @@ export const ENDURANCE_PROGRAM = {
 };
 
 // ─────────────────────────────────────────────
+// CROSSFIT STİLİ — Mevcut Ekipmanla, 5 gün
+// AMRAP / EMOM / For Time formatları
+// Smith, Cable, Pull-up/Dips, DB 5-20kg, Kürek/Bisiklet/Koşu
+// ─────────────────────────────────────────────
+export const CROSSFIT_DAYS = [
+  "Pzt - KUVVET + AMRAP",
+  "Sal - EMOM + ALT",
+  "Çar - BENCHMARK WOD",
+  "Per - HERO WOD",
+  "Cum - KARIŞIK MODAL",
+];
+
+export const CROSSFIT_PROGRAM = {
+  "Pzt - KUVVET + AMRAP": {
+    color: "#EF4444", emoji: "🔴",
+    subtitle: "Kuvvet Blok (15 dk) → AMRAP 20 dk",
+    morning: "5 dk dinamik ısınma + 3 tur: 5 inchworm, 10 pull-apart, 10 squat",
+    exercises: [
+      { id: "cf_a1", name: "Smith Press (Kuvvet Blok)", sets: 5, reps: "3", tempo: "2:1:X:0", rpe: "8-9", rest: 180, muscle: "Göğüs", note: "15 dk kuvvet blok — her set ağırlaş. AMRAP öncesi CNS aktivasyonu.", superset: null },
+      { id: "cf_a2", name: "Weighted Pull-Up (Kuvvet Blok)", sets: 5, reps: "3", tempo: "2:1:X:0", rpe: "8-9", rest: 180, muscle: "Sırt", note: "Smith ile aynı kuvvet blok. Push-pull denge.", superset: null },
+      { id: "cf_a3", name: "AMRAP 20 dk: Pull-Up", sets: 99, reps: "5", tempo: "-", rpe: "8-9", rest: 0, muscle: "Sırt", note: "AMRAP: 5 Pull-Up → 10 Push-Up → 15 DB Squat → tekrar. Tur sayısını not et. Her hafta geç.", superset: "cf_a4" },
+      { id: "cf_a4", name: "AMRAP 20 dk: Push-Up", sets: 99, reps: "10", tempo: "-", rpe: "8-9", rest: 0, muscle: "Göğüs", note: "AMRAP devam — yorgunlukta form koru, rep kalitesi önce.", superset: "cf_a5" },
+      { id: "cf_a5", name: "AMRAP 20 dk: DB Goblet Squat", sets: 99, reps: "15", tempo: "-", rpe: "8", rest: 0, muscle: "Kuadriseps", note: "Devre tamamlanınca başa dön. Toplam tur + kısmi rep kaydet.", superset: null },
+    ],
+  },
+  "Sal - EMOM + ALT": {
+    color: "#F97316", emoji: "🟠",
+    subtitle: "EMOM 16 dk + Alt Vücut Kuvveti",
+    morning: "3 tur: 10 bant pull-apart, 10 goblet squat, 200m yürüyüş",
+    exercises: [
+      { id: "cf_b1", name: "EMOM 16 dk: Kürek (Tek/çift dk)", sets: 16, reps: "tekli: 200m / çiftli: 10 push-up", tempo: "-", rpe: "8-9", rest: 0, muscle: "Kardiyovasküler", note: "Tek dakikalar: 200m kürek sprint. Çift dakikalar: 10 push-up. Her dakika başında başla — dinlenme kalan süre.", superset: null },
+      { id: "cf_b2", name: "Smith Squat (Ağır)", sets: 4, reps: "5", tempo: "3:1:X:0", rpe: "8-9", rest: 180, muscle: "Kuadriseps", note: "EMOM sonrası ağır squat blok. Bacak kuvveti — her haftada +2.5kg.", superset: null },
+      { id: "cf_b3", name: "DB Romanian Deadlift", sets: 3, reps: "8", tempo: "3:2:1:0", rpe: "8", rest: 120, muscle: "Hamstring", note: "20kg DB — posterior zincir kuvveti.", superset: "cf_b4" },
+      { id: "cf_b4", name: "Hip Thrust Smith", sets: 3, reps: "10", tempo: "1:2:X:0", rpe: "8", rest: 120, muscle: "Kalça", note: "Süperset — kalça gücü ve posterior zincir.", superset: "cf_b3" },
+      { id: "cf_b5", name: "Nordic Curl", sets: 3, reps: "5", tempo: "4:0:0:0", rpe: "8-9", rest: 90, muscle: "Hamstring", note: "Hamstring yaralanma önleme — yavaş negatif.", superset: null },
+    ],
+  },
+  "Çar - BENCHMARK WOD": {
+    color: "#EAB308", emoji: "🟡",
+    subtitle: "Benchmark WOD — Süre Kaydı Tut, Haftalık Karşılaştır",
+    morning: "5 dk mobilite + ısınma seti",
+    exercises: [
+      { id: "cf_c1", name: "For Time: Kürek (500m)", sets: 1, reps: "500m", tempo: "-", rpe: "9-10", rest: 0, muscle: "Kardiyovasküler", note: "MAX hız 500m — süreyi kaydet. Bu benchmark — haftalık iyileşmeyi izle.", superset: null },
+      { id: "cf_c2", name: "For Time: Pull-Up (21-15-9)", sets: 3, reps: "21 / 15 / 9", tempo: "-", rpe: "9", rest: 0, muscle: "Sırt", note: "Klasik CrossFit formatı: 21 pull-up → 21 thruster → 15 pull-up → 15 thruster → 9 pull-up → 9 thruster. Toplam süre = benchmark.", superset: "cf_c3" },
+      { id: "cf_c3", name: "For Time: DB Thruster (21-15-9)", sets: 3, reps: "21 / 15 / 9", tempo: "-", rpe: "9", rest: 0, muscle: "Full Body", note: "Fran benzeri WOD — DB ile adapte. 10kg DB her elde. Benchmark süreyi not et.", superset: null },
+      { id: "cf_c4", name: "For Time: Dips (50 tekrar)", sets: 1, reps: "50 (bölünebilir)", tempo: "-", rpe: "8-9", rest: 0, muscle: "Göğüs+Tri", note: "50 dips — istediğin sette böl ama dur. Toplam süre kaydet.", superset: null },
+      { id: "cf_c5", name: "For Time: Bisiklet Sprint (1 km)", sets: 1, reps: "1 km", tempo: "-", rpe: "9-10", rest: 0, muscle: "Kardiyovasküler", note: "Finişör — max güç 1km. Süre kaydet.", superset: null },
+    ],
+  },
+  "Per - HERO WOD": {
+    color: "#8B5CF6", emoji: "🟣",
+    subtitle: "Hero WOD Formatı — Uzun, Ağır, Tam Vücut",
+    morning: "10 dk mobilite + kapsamlı ısınma",
+    exercises: [
+      { id: "cf_d1", name: "Cindy (20 dk AMRAP)", sets: 99, reps: "5+10+15", tempo: "-", rpe: "8-9", rest: 0, muscle: "Full Body", note: "20 dk AMRAP: 5 Pull-Up + 10 Push-Up + 15 Air Squat. CrossFit'in en klasik benchmark'ı. Tur sayısını kaydet.", superset: null },
+      { id: "cf_d2", name: "EMOM 10 dk: Smith Squat", sets: 10, reps: "3", tempo: "3:1:X:0", rpe: "8", rest: 0, muscle: "Kuadriseps", note: "Cindy sonrası ağır squat EMOM — yorgunlukta kuvvet dayanıklılığı. %70 1RM.", superset: null },
+      { id: "cf_d3", name: "EMOM 10 dk: Kürek Sprint", sets: 10, reps: "200m", tempo: "-", rpe: "8-9", rest: 0, muscle: "Kardiyovasküler", note: "Her dk 200m kürek — kalan süre dinlenme. Süreler tutarlı olmalı.", superset: null },
+      { id: "cf_d4", name: "Kor Devresi: Hanging Leg Raise", sets: 3, reps: "15", tempo: "2:1:1:0", rpe: "8", rest: 30, muscle: "Karın", note: "→ 45sn Plank → 15 Cable Woodchop/taraf. 30sn geçiş.", superset: "cf_d5" },
+      { id: "cf_d5", name: "Kor Devresi: Plank + Woodchop", sets: 3, reps: "45sn + 15/taraf", tempo: "-", rpe: "8", rest: 60, muscle: "Kor", note: "Süperset devam — Hero WOD finişörü.", superset: null },
+    ],
+  },
+  "Cum - KARIŞIK MODAL": {
+    color: "#14B8A6", emoji: "🔄",
+    subtitle: "Mixed Modal — Kardiyo + Kuvvet + Kor Karışımı",
+    morning: null,
+    exercises: [
+      { id: "cf_e1", name: "3 Tur For Time: Kürek 500m", sets: 3, reps: "500m", tempo: "-", rpe: "9", rest: 0, muscle: "Kardiyovasküler", note: "3 tur for time: 500m kürek → 15 pull-up → 20 push-up → 500m kürek → ... Toplam süre benchmark.", superset: "cf_e2" },
+      { id: "cf_e2", name: "3 Tur For Time: Pull-Up + Push-Up", sets: 3, reps: "15 + 20", tempo: "-", rpe: "9", rest: 0, muscle: "Sırt+Göğüs", note: "Kürek ile dönüşümlü — dur. Toplam süre kaydet.", superset: null },
+      { id: "cf_e3", name: "EMOM 12 dk: DB Thruster", sets: 12, reps: "tekli: 10 thruster / çiftli: 10 burpee", tempo: "-", rpe: "8-9", rest: 0, muscle: "Full Body", note: "Tek dk: 10 DB thruster (10kg). Çift dk: 10 push-up + squat jump. Her dk başında başla.", superset: null },
+      { id: "cf_e4", name: "Bisiklet Tabata (8 tur)", sets: 8, reps: "20sn ON / 10sn OFF", tempo: "-", rpe: "9-10", rest: 0, muscle: "Kardiyovasküler", note: "Tabata protokolü — 20sn max bisiklet, 10sn dur, 8 tekrar = 4 dk. VO2max zirve stimülusu.", superset: null },
+      { id: "cf_e5", name: "Soğuma: Band + Hanging Stretch", sets: 2, reps: "20 + 30sn", tempo: "-", rpe: "3", rest: 45, muscle: "Omuz+Sırt", note: "Band pull-apart + pull-up bara asılı ger. Zorunlu soğuma.", superset: null },
+    ],
+  },
+};
+
+// ─────────────────────────────────────────────
 // TÜM PROGRAMLAR — Program seçimi için
 // ─────────────────────────────────────────────
 export const ALL_PROGRAMS = {
@@ -1245,6 +1321,15 @@ export const ALL_PROGRAMS = {
     color: "#14B8A6",
     days: ENDURANCE_DAYS,
     program: ENDURANCE_PROGRAM,
+  },
+  crossfit: {
+    id: "crossfit",
+    name: "CrossFit Stili",
+    description: "AMRAP, EMOM, For Time — mevcut ekipmanla, 5 gün",
+    emoji: "🏅",
+    color: "#EF4444",
+    days: CROSSFIT_DAYS,
+    program: CROSSFIT_PROGRAM,
   },
   combat_strength: {
     id: "combat_strength",
