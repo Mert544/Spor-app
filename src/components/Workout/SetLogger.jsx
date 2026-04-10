@@ -11,6 +11,20 @@ function calc1RM(weight, reps) {
   return r === 1 ? w : Math.round(w * (1 + r / 30));
 }
 
+// RPE-to-next-session weight suggestion
+// Formula: nextWeight = round(weight × (1 + (10 - rpe) × 0.025), 2.5)
+// RPE 10 → +0%, RPE 9 → +2.5%, RPE 8 → +5%, RPE 7 → +7.5%
+function calcNextWeight(weight, rpe) {
+  const w = parseFloat(weight);
+  const r = parseFloat(rpe);
+  if (!w || !r) return null;
+  const factor = 1 + (10 - r) * 0.025;
+  const raw = w * factor;
+  // Round to nearest 2.5kg
+  const rounded = Math.round(raw / 2.5) * 2.5;
+  return rounded === w ? null : rounded; // only show if actually different
+}
+
 export default function SetLogger({ date, exerciseId, setIndex, accentColor, restSeconds }) {
   const { logSet, getExerciseLogs, getPreviousWeight } = useWorkoutStore();
   const setTimerVisible = useSettingsStore(s => s.setTimerVisible);
@@ -29,6 +43,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   const [isPR, setIsPR] = useState(false);
 
   const estimated1RM = calc1RM(weight, reps);
+  const nextWeight = done ? calcNextWeight(weight, rpe) : null;
 
   function save(patch) {
     logSet(date, exerciseId, setIndex, { weight, reps, rpe, done, ...patch });
@@ -132,9 +147,9 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
         </button>
       </div>
 
-      {/* 1RM + PR badge */}
-      {(estimated1RM || isPR) && weight && reps && (
-        <div className="flex justify-end gap-2 pr-1 pb-1">
+      {/* Badges row: PR + 1RM + next weight suggestion */}
+      {weight && reps && (isPR || estimated1RM || nextWeight) && (
+        <div className="flex items-center gap-2 pr-1 pb-1 flex-wrap justify-end">
           {isPR && (
             <span className="text-xs px-2 py-0.5 rounded-full font-bold"
               style={{ backgroundColor: '#F5A62330', color: '#F5A623' }}>
@@ -145,6 +160,13 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
             <span className="text-xs px-2 py-0.5 rounded-full"
               style={{ backgroundColor: `${accentColor}18`, color: accentColor }}>
               ~1RM: {estimated1RM} kg
+            </span>
+          )}
+          {nextWeight && done && (
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+              style={{ backgroundColor: '#3B82F620', color: '#3B82F6', border: '1px solid #3B82F640' }}
+              title="RPE'ye göre sonraki seans hedefi">
+              → {nextWeight} kg sonraki seans
             </span>
           )}
         </div>

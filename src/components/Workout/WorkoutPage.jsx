@@ -3,9 +3,10 @@ import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
 import CompletionCard from './CompletionCard';
-import { ALL_PROGRAMS, getTodayDayIndex } from '../../data/program';
+import { ALL_PROGRAMS, getTodayDayIndex, PHASES } from '../../data/program';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useProgressStore from '../../store/useProgressStore';
 import useCustomStore from '../../store/useCustomStore';
 
 const MUSCLES = ['Göğüs', 'Sırt', 'Omuz', 'Trisep', 'Bisep', 'Bacak', 'Kor'];
@@ -32,9 +33,17 @@ function useDeloadSuggestion(logs) {
   return { show, count, dismiss: () => setDeloadDismissed(true) };
 }
 
+function getCurrentPhase(week) {
+  for (const [num, phase] of Object.entries(PHASES)) {
+    if (phase.weeks.includes(week)) return { num: parseInt(num), ...phase };
+  }
+  return null;
+}
+
 export default function WorkoutPage() {
   const { activeProgram, setActiveProgram } = useSettingsStore();
   const { logs, getDayProgress } = useWorkoutStore();
+  const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
 
   const resolvedProgram = (() => {
@@ -67,6 +76,8 @@ export default function WorkoutPage() {
   const [customForm, setCustomForm] = useState({ name: '', muscle: 'Göğüs', sets: 3, reps: '8-10' });
 
   const { show: showDeload, count: deloadCount, dismiss: dismissDeload } = useDeloadSuggestion(logs);
+  const currentPhase = getCurrentPhase(currentWeek);
+  const isDeloadWeek = currentPhase && currentPhase.deload === currentWeek;
 
   if (!dayData) {
     return (
@@ -98,6 +109,38 @@ export default function WorkoutPage() {
         days={programData.days}
         program={programData.program}
       />
+
+      {/* Phase / Week context banner */}
+      {currentPhase && (
+        <div
+          className="mx-4 mb-3 rounded-xl px-4 py-2.5"
+          style={{
+            background: isDeloadWeek
+              ? 'linear-gradient(135deg, #F5A62308, #F5A62318)'
+              : 'linear-gradient(135deg, #14B8A608, #14B8A618)',
+            border: `1px solid ${isDeloadWeek ? '#F5A62330' : '#14B8A630'}`,
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: isDeloadWeek ? '#F5A62325' : '#14B8A625', color: isDeloadWeek ? '#F5A623' : '#14B8A6' }}>
+                Hf {currentWeek}
+              </span>
+              <span className="text-xs font-semibold text-white/60">
+                Faz {currentPhase.num}: {currentPhase.name}
+                {isDeloadWeek && ' · DELOAD'}
+              </span>
+            </div>
+            <span className="text-xs text-white/30">
+              RPE ≤{currentPhase.rpeMax}
+            </span>
+          </div>
+          {isDeloadWeek && (
+            <p className="text-xs text-accent-gold/70 mt-1.5 leading-relaxed">{currentPhase.deloadNote}</p>
+          )}
+        </div>
+      )}
 
       {/* Deload suggestion banner */}
       {showDeload && (
