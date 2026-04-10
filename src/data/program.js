@@ -1306,7 +1306,7 @@ export const LEVEL_CONFIG = {
     setsMod:  (s) => Math.max(2, Math.floor(s * 0.6)),
     restMod:  (r) => Math.round(r * 1.5),
     maxExercises: 4,
-    maxDays: 3,
+    maxDays: 99,
     removeSuperset: true,
     notePrefix: "[Başlangıç] Hafif ağırlıkla başla, formaya odaklan. ",
   },

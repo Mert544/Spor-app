@@ -33,7 +33,8 @@ export default function WorkoutPage() {
   const date = getToday();
   const { getDayProgress } = useWorkoutStore();
 
-  const dayKey = programData.days[selectedDayIndex];
+  const safeIndex = Math.min(selectedDayIndex, programData.days.length - 1);
+  const dayKey = programData.days[safeIndex];
   const dayData = programData.program[dayKey];
 
   if (!dayData) return null;
