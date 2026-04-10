@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({ name: '', height: '', startWeight: '', targetWeight: '' });
   const importRef = useRef(null);
@@ -181,6 +182,42 @@ export default function ProfilePage() {
         {/* Weekly check-in */}
         <div className="mb-4">
           <WeeklyCheckIn week={currentWeek} />
+        </div>
+
+        {/* Switch user / logout */}
+        <div className="bg-bg-card rounded-2xl p-4 mb-4">
+          <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Kullanıcı</p>
+          <p className="text-xs text-white/40 mb-3">
+            Veriler yalnızca bu cihazda saklanır. Farklı bir kullanıcı başlatmak için oturumu kapatabilirsin.
+          </p>
+          {!showLogout ? (
+            <button
+              onClick={() => setShowLogout(true)}
+              className="w-full py-2.5 rounded-xl text-sm font-medium border border-white/10 text-white/60 flex items-center justify-center gap-2"
+            >
+              <span>🚪</span> Oturumu Kapat / Farklı Kullanıcı
+            </button>
+          ) : (
+            <div>
+              <p className="text-xs text-white/50 mb-3">
+                Mevcut verilerini önce dışa aktarmanı öneririz. Devam edersen tüm veriler silinir.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowLogout(false)}
+                  className="flex-1 py-2.5 rounded-xl text-sm bg-bg-dark text-white/50"
+                >İptal</button>
+                <button
+                  onClick={() => {
+                    localStorage.clear();
+                    window.location.reload();
+                  }}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white"
+                  style={{ backgroundColor: '#14B8A6' }}
+                >Oturumu Kapat</button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
