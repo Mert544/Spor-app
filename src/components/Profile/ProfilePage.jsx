@@ -164,6 +164,23 @@ export default function ProfilePage() {
             <span className="text-lg">📤</span>
             <span>Veriyi Dışa Aktar (JSON)</span>
           </button>
+          <button
+            onClick={async () => {
+              if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+              }
+              if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(k => caches.delete(k)));
+              }
+              window.location.reload(true);
+            }}
+            className="w-full bg-bg-card border border-white/10 text-white font-medium py-3 rounded-xl text-sm text-left px-4 flex items-center gap-3"
+          >
+            <span className="text-lg">🔄</span>
+            <span>Güncelleme Kontrol Et / Önbelleği Temizle</span>
+          </button>
         </div>
 
         {/* Danger zone */}
@@ -197,7 +214,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.0</p>
+        <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
       </div>
     </div>
   );
