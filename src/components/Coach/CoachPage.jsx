@@ -3,7 +3,7 @@ import MessageBubble from './MessageBubble';
 import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
-import { DAYS, PROGRAM, getTodayDayIndex } from '../../data/program';
+import { ALL_PROGRAMS, getTodayDayIndex } from '../../data/program';
 import { createSession, sendMessage } from '../../utils/api';
 
 const QUICK_PROMPTS = [
@@ -14,12 +14,14 @@ const QUICK_PROMPTS = [
 ];
 
 export default function CoachPage() {
-  const { coachSessionId, setCoachSessionId } = useSettingsStore();
+  const { coachSessionId, setCoachSessionId, activeProgram, user } = useSettingsStore();
   const { currentWeek, getTodayWeight } = useProgressStore();
   const { getDayProgress } = useWorkoutStore();
 
+  const userName = user?.name || 'Sporcu';
+
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Merhaba Mert! 💪 Bugün nasıl hissediyorsun? Antrenman, beslenme veya toparlanma hakkında sormak istediğin bir şey var mı?' },
+    { role: 'assistant', text: `Merhaba ${userName}! 💪 Bugün nasıl hissediyorsun? Antrenman, beslenme veya toparlanma hakkında sormak istediğin bir şey var mı?` },
   ]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
@@ -32,10 +34,13 @@ export default function CoachPage() {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Build workout context
+  // Build workout context from current program
+  const resolvedProgram = (activeProgram && ALL_PROGRAMS[activeProgram]) ? activeProgram : 'vtaper_orta';
+  const programData = ALL_PROGRAMS[resolvedProgram];
   const todayIndex = getTodayDayIndex();
-  const dayKey = DAYS[todayIndex];
-  const dayData = PROGRAM[dayKey];
+  const safeIndex = Math.min(todayIndex, programData.days.length - 1);
+  const dayKey = programData.days[safeIndex];
+  const dayData = programData.program[dayKey];
   const today = new Date().toISOString().split('T')[0];
   const { completed, total } = dayData ? getDayProgress(today, dayData.exercises) : { completed: 0, total: 0 };
   const currentWeight = getTodayWeight();
