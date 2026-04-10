@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
@@ -18,16 +18,21 @@ export default function WorkoutPage() {
   const resolvedProgram = (() => {
     if (!activeProgram) return 'vtaper_orta';
     if (ALL_PROGRAMS[activeProgram]) return activeProgram;
-    // Old format without level suffix — append _orta
     const withLevel = `${activeProgram}_orta`;
-    if (ALL_PROGRAMS[withLevel]) {
-      setActiveProgram(withLevel);
-      return withLevel;
-    }
+    if (ALL_PROGRAMS[withLevel]) return withLevel;
     return 'vtaper_orta';
   })();
 
-  const programData = ALL_PROGRAMS[resolvedProgram];
+  // Persist migration outside render
+  useEffect(() => {
+    if (activeProgram && !ALL_PROGRAMS[activeProgram]) {
+      const withLevel = `${activeProgram}_orta`;
+      if (ALL_PROGRAMS[withLevel]) setActiveProgram(withLevel);
+      else setActiveProgram('vtaper_orta');
+    }
+  }, [activeProgram, setActiveProgram]);
+
+  const programData = ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'];
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayDayIndex());
   const date = getToday();
@@ -37,7 +42,13 @@ export default function WorkoutPage() {
   const dayKey = programData.days[safeIndex];
   const dayData = programData.program[dayKey];
 
-  if (!dayData) return null;
+  if (!dayData) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-white/40 text-sm">Antrenman bulunamadı.</p>
+      </div>
+    );
+  }
 
   const exercises = dayData.exercises;
   const { completed, total } = getDayProgress(date, exercises);
