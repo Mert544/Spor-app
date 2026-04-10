@@ -60,25 +60,26 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className={`font-semibold text-sm leading-tight ${complete ? 'text-white/60 line-through' : 'text-white'}`}>
+          <p className={`font-semibold text-sm leading-tight ${complete ? 'text-white/50 line-through' : 'text-white'}`}>
             {exercise.name}
           </p>
-          <p className="text-xs text-white/40 mt-0.5">
-            {exercise.sets} set × {exercise.reps}
-            {exercise.tempo && <span> · {exercise.tempo}</span>}
-            {exercise.technique && <span className="text-accent-gold"> · {exercise.technique}</span>}
-          </p>
+          {/* Chips row */}
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            <Chip text={`${exercise.sets}×${exercise.reps}`} color="rgba(255,255,255,0.12)" textColor="rgba(255,255,255,0.6)" />
+            {exercise.rpe && <Chip text={`RPE ${exercise.rpe}`} color={accentColor + '22'} textColor={accentColor + 'cc'} />}
+            {exercise.rest > 0 && <Chip text={`${exercise.rest}sn ⏱`} color="rgba(255,255,255,0.06)" textColor="rgba(255,255,255,0.35)" />}
+            {personalNote && <Chip text="📝" color="#F5A62320" textColor="#F5A623" />}
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {personalNote && <span className="text-accent-gold text-xs">📝</span>}
           <span
             className="text-xs px-2 py-0.5 rounded-full font-medium"
             style={{ backgroundColor: `${muscleColor}22`, color: muscleColor }}
           >
             {exercise.muscle}
           </span>
-          <span className="text-white/30 text-xs">{open ? '▲' : '▼'}</span>
+          <span className="text-white/20 text-xs">{open ? '▲' : '▼'}</span>
         </div>
       </button>
 
@@ -166,5 +167,14 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         </div>
       )}
     </div>
+  );
+}
+
+function Chip({ text, color, textColor }) {
+  return (
+    <span className="text-xs px-1.5 py-0.5 rounded-md font-medium"
+      style={{ backgroundColor: color, color: textColor }}>
+      {text}
+    </span>
   );
 }
