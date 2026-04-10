@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
+import { getVideoUrl } from '../../data/videos';
 
 const MUSCLE_COLORS = {
   'Göğüs': '#E94560', 'Trisep': '#EC4899', 'Omuz': '#F5A623',
@@ -84,10 +85,22 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
       {/* Expanded */}
       {open && (
         <div className="px-3 pb-3 border-t border-white/5 pt-2">
-          {/* Program note */}
-          {exercise.note && (
-            <p className="text-xs italic text-accent-gold/80 mb-2 px-1">{exercise.note}</p>
-          )}
+          {/* Program note + Video button */}
+          <div className="flex items-start gap-2 mb-2">
+            {exercise.note && (
+              <p className="text-xs italic text-accent-gold/80 px-1 flex-1">{exercise.note}</p>
+            )}
+            <a
+              href={getVideoUrl(exercise.name)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
+              style={{ backgroundColor: '#FF000022', color: '#FF4444', border: '1px solid #FF444433' }}
+            >
+              ▶ Video
+            </a>
+          </div>
 
           {/* Personal note */}
           {showNoteInput ? (
