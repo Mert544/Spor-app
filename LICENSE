@@ -1,21 +1,64 @@
-MIT License
+V-Taper Coach — Source Available License
+Copyright (c) 2026 Mert
 
-Copyright (c) 2026 Mert (V-Taper Coach)
+──────────────────────────────────────────────────────────────
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. PERMITTED USES (FREE)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+   The following uses are permitted free of charge:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+   a) Personal use — individuals using the software for their own
+      fitness tracking, with no monetization involved.
+
+   b) Non-commercial community use — sharing, deploying for a
+      free community, open study groups, or educational purposes,
+      provided no revenue is generated directly or indirectly.
+
+   c) Modification and forking for personal or non-commercial use,
+      provided this license and copyright notice are retained in
+      all copies and substantial portions of the software.
+
+──────────────────────────────────────────────────────────────
+
+2. COMMERCIAL USE REQUIRES WRITTEN PERMISSION
+
+   The following uses require prior written permission from the
+   copyright holder:
+
+   a) Offering the software (or a derivative) as a paid product
+      or service (SaaS, subscription, one-time purchase, etc.).
+
+   b) Integrating the software into a commercial product or
+      service where revenue is generated.
+
+   c) Licensing or sublicensing to third parties for commercial
+      purposes.
+
+   To request a commercial license, contact the copyright holder.
+
+──────────────────────────────────────────────────────────────
+
+3. RESTRICTIONS
+
+   a) You may not remove or alter this license or copyright notices.
+
+   b) You may not use the name "V-Taper Coach", its logo, or
+      associated branding without written permission.
+
+   c) Redistribution of unmodified copies must include this license.
+
+──────────────────────────────────────────────────────────────
+
+4. DISCLAIMER
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NON-INFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM
+   THE USE OF THIS SOFTWARE.
+
+──────────────────────────────────────────────────────────────
+
+For commercial licensing inquiries, open an issue at:
+https://github.com/Mert544/Spor-app
