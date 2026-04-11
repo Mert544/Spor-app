@@ -8,6 +8,7 @@ export const useSettingsStore = create(
       user: {
         name: '',
         height: '',
+        gender: null, // 'male' | 'female' | null
       },
       hapticEnabled: true,
       soundEnabled: false,

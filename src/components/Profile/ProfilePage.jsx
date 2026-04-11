@@ -22,6 +22,7 @@ export default function ProfilePage() {
     setEditValues({
       name: user?.name || '',
       height: user?.height || '',
+      gender: user?.gender || null,
       startWeight: startWeight || '',
       targetWeight: targetWeight || '',
     });
@@ -31,7 +32,7 @@ export default function ProfilePage() {
   function saveEdit() {
     const sw = parseFloat(editValues.startWeight);
     const tw = parseFloat(editValues.targetWeight);
-    setUser({ name: editValues.name.trim(), height: editValues.height.trim() });
+    setUser({ name: editValues.name.trim(), height: editValues.height.trim(), gender: editValues.gender });
     if (sw > 0) {
       setStartWeight(sw);
       const today = new Date().toISOString().split('T')[0];
@@ -113,6 +114,25 @@ export default function ProfilePage() {
               <EditField label="Boy (cm)" value={editValues.height} onChange={v => setEditValues(p => ({ ...p, height: v }))} placeholder="180" type="number" />
               <EditField label="Başlangıç Kilo (kg)" value={editValues.startWeight} onChange={v => setEditValues(p => ({ ...p, startWeight: v }))} placeholder="85.0" type="number" />
               <EditField label="Hedef Kilo (kg)" value={editValues.targetWeight} onChange={v => setEditValues(p => ({ ...p, targetWeight: v }))} placeholder="78.0" type="number" />
+              <div>
+                <p className="text-xs text-white/40 mb-1.5">Cinsiyet</p>
+                <div className="flex gap-2">
+                  {[{ val: 'male', label: 'Erkek', emoji: '♂️' }, { val: 'female', label: 'Kadın', emoji: '♀️' }].map(g => (
+                    <button
+                      key={g.val}
+                      type="button"
+                      onClick={() => setEditValues(p => ({ ...p, gender: p.gender === g.val ? null : g.val }))}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition-all"
+                      style={editValues.gender === g.val
+                        ? { backgroundColor: g.val === 'male' ? '#3B82F620' : '#EC489920', color: g.val === 'male' ? '#3B82F6' : '#EC4899', border: `1px solid ${g.val === 'male' ? '#3B82F650' : '#EC489950'}` }
+                        : { backgroundColor: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }
+                      }
+                    >
+                      <span>{g.emoji}</span> {g.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="flex gap-2 pt-1">
                 <button onClick={() => setEditing(false)} className="flex-1 py-2.5 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
                 <button onClick={saveEdit} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-accent-teal">Kaydet</button>
@@ -121,12 +141,19 @@ export default function ProfilePage() {
           ) : (
             <>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-14 h-14 rounded-full bg-accent-teal flex items-center justify-center text-2xl">
-                  💪
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+                  style={{ backgroundColor: user?.gender === 'female' ? '#EC489920' : user?.gender === 'male' ? '#3B82F620' : '#14B8A620' }}
+                >
+                  {user?.gender === 'female' ? '🌸' : '💪'}
                 </div>
                 <div className="flex-1">
                   <p className="text-lg font-bold text-white">{user?.name || 'Sporcu'}</p>
-                  <p className="text-xs text-white/40">{user?.height ? `${user.height} cm · ` : ''}V-Taper Programı</p>
+                  <p className="text-xs text-white/40">
+                    {user?.height ? `${user.height} cm · ` : ''}
+                    {user?.gender === 'female' ? 'Kadın · ' : user?.gender === 'male' ? 'Erkek · ' : ''}
+                    Sporcu Programı
+                  </p>
                 </div>
                 <button onClick={startEdit} className="text-xs text-accent-teal px-2 py-1 rounded-lg border border-accent-teal/30">
                   Düzenle

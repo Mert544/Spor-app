@@ -2,6 +2,7 @@
 // 6 günlük Push/Pull split, 12 haftalık program
 import { HIBRIT_ATLET_DAYS, HIBRIT_ATLET_PROGRAM } from './programs/hibrit.js';
 import { TAKTIK_ATLET_DAYS, TAKTIK_ATLET_PROGRAM } from './programs/taktik.js';
+import { BIKINI_FIT_DAYS, BIKINI_FIT_PROGRAM, GUC_SEKIL_DAYS, GUC_SEKIL_PROGRAM } from './programs/kadin.js';
 
 export const DAYS = [
   "Pzt - PUSH A",
@@ -1341,15 +1342,17 @@ export const CROSSFIT_PROGRAM = {
 // PROGRAM KATEGORİLERİ — meta veri
 // ─────────────────────────────────────────────
 export const PROGRAM_LIBRARY = [
-  { id: "vtaper",              name: "V-Taper",           emoji: "💎", color: "#E94560", description: "6 gün Push/Pull split · Blok periodizasyon (Faz 1-2-3) · MEV→MRV hacim · Stretch-mediated hipertrofi · Myo-rep finişer", baseDays: DAYS,                    baseProgram: PROGRAM },
-  { id: "genel_kuvvet",        name: "Genel Kuvvet",       emoji: "🏋️", color: "#3B82F6", description: "Upper/Lower split 4 gün · Prilepin tablosuna göre yük · %85 1RM baza + hacim günü · Nordic curl + rotator cuff koruma", baseDays: GENERAL_STRENGTH_DAYS,   baseProgram: GENERAL_STRENGTH_PROGRAM },
-  { id: "kuvvet_dayanikliligi",name: "Kuvvet Dayanıklılığı",emoji: "⚙️", color: "#10B981", description: "5 gün Push/Pull/Full · %60-75 1RM yüksek tekrar · Laktik eşik adaptasyonu · Kısa dinlenme süperset sistemi", baseDays: STRENGTH_ENDURANCE_DAYS, baseProgram: STRENGTH_ENDURANCE_PROGRAM },
-  { id: "dayaniklilik",        name: "Dayanıklılık",       emoji: "🫀", color: "#14B8A6", description: "6 gün Polarize model · %80 Zone 2 + %20 VO2max · Mitokondri biogenezi · Concurrent training (kardiyo + hafif kuvvet)", baseDays: ENDURANCE_DAYS,          baseProgram: ENDURANCE_PROGRAM },
-  { id: "crossfit",            name: "CrossFit Stili",     emoji: "🏅", color: "#EF4444", description: "5 gün AMRAP / EMOM / For Time · Benchmark WOD sistemi · Mevcut ekipmanla adapte · Haftalık süre takibi", baseDays: CROSSFIT_DAYS,           baseProgram: CROSSFIT_PROGRAM },
-  { id: "dovus_kuvvet",        name: "Dövüş Kuvveti",      emoji: "⚡", color: "#FF6B35", description: "6 gün · PAP kompleks (ağır→patlayıcı, 4-6dk bekleme) · Kavrama + boyun kuvveti · Nordic curl yaralanma önleme · Phil Daru metodolojisi", baseDays: COMBAT_STRENGTH_DAYS,    baseProgram: COMBAT_STRENGTH_PROGRAM },
-  { id: "dovus_kondisyon",     name: "Dövüş Kondisyonu",   emoji: "🔥", color: "#FF8C00", description: "6 gün · Jamieson enerji sistemi: Alaktik Güç → Laktik Kapasite → Aerobik Kapasite → Alaktik Kapasite → Aerobik Güç", baseDays: COMBAT_CONDITIONING_DAYS,baseProgram: COMBAT_CONDITIONING_PROGRAM },
-  { id: "hibrit_atlet",        name: "Hibrit Atlet",        emoji: "⚔️", color: "#6366f1", description: "7 gün · Sabah Zone 2 bisiklet + akşam kuvvet (6-8h ayrım) · Interferans yok: bisiklet seçimi (Wilson 2012) · DUP kuvvet + polarize kardiyo · Hedef: Squat 1.5×BW + 5km sub-25dk", baseDays: HIBRIT_ATLET_DAYS, baseProgram: HIBRIT_ATLET_PROGRAM },
-  { id: "taktik_atlet",        name: "Taktik Atlet",        emoji: "🎯", color: "#1d4ed8", description: "6 gün · NSCA TSAC çerçevesi · Relatif kuvvet: DL 2×BW + Pull-up +%25BW · Jamieson enerji: Alaktik→Glikolitik→Aerobik · Rucking + yük taşıma · FMS yaralanma önleme", baseDays: TAKTIK_ATLET_DAYS,  baseProgram: TAKTIK_ATLET_PROGRAM },
+  { id: "vtaper",              name: "V-Taper",            emoji: "💎", color: "#E94560", targetGender: "male",   description: "6 gün Push/Pull split · Blok periodizasyon (Faz 1-2-3) · MEV→MRV hacim · Stretch-mediated hipertrofi · Myo-rep finişer", baseDays: DAYS,                    baseProgram: PROGRAM },
+  { id: "genel_kuvvet",        name: "Genel Kuvvet",        emoji: "🏋️", color: "#3B82F6", targetGender: "all",    description: "Upper/Lower split 4 gün · Prilepin tablosuna göre yük · %85 1RM baza + hacim günü · Nordic curl + rotator cuff koruma", baseDays: GENERAL_STRENGTH_DAYS,   baseProgram: GENERAL_STRENGTH_PROGRAM },
+  { id: "kuvvet_dayanikliligi",name: "Kuvvet Dayanıklılığı",emoji: "⚙️", color: "#10B981", targetGender: "all",    description: "5 gün Push/Pull/Full · %60-75 1RM yüksek tekrar · Laktik eşik adaptasyonu · Kısa dinlenme süperset sistemi", baseDays: STRENGTH_ENDURANCE_DAYS, baseProgram: STRENGTH_ENDURANCE_PROGRAM },
+  { id: "dayaniklilik",        name: "Dayanıklılık",        emoji: "🫀", color: "#14B8A6", targetGender: "all",    description: "6 gün Polarize model · %80 Zone 2 + %20 VO2max · Mitokondri biogenezi · Concurrent training (kardiyo + hafif kuvvet)", baseDays: ENDURANCE_DAYS,          baseProgram: ENDURANCE_PROGRAM },
+  { id: "crossfit",            name: "CrossFit Stili",      emoji: "🏅", color: "#EF4444", targetGender: "all",    description: "5 gün AMRAP / EMOM / For Time · Benchmark WOD sistemi · Mevcut ekipmanla adapte · Haftalık süre takibi", baseDays: CROSSFIT_DAYS,           baseProgram: CROSSFIT_PROGRAM },
+  { id: "dovus_kuvvet",        name: "Dövüş Kuvveti",       emoji: "⚡", color: "#FF6B35", targetGender: "all",    description: "6 gün · PAP kompleks (ağır→patlayıcı, 4-6dk bekleme) · Kavrama + boyun kuvveti · Nordic curl yaralanma önleme · Phil Daru metodolojisi", baseDays: COMBAT_STRENGTH_DAYS,    baseProgram: COMBAT_STRENGTH_PROGRAM },
+  { id: "dovus_kondisyon",     name: "Dövüş Kondisyonu",    emoji: "🔥", color: "#FF8C00", targetGender: "all",    description: "6 gün · Jamieson enerji sistemi: Alaktik Güç → Laktik Kapasite → Aerobik Kapasite → Alaktik Kapasite → Aerobik Güç", baseDays: COMBAT_CONDITIONING_DAYS,baseProgram: COMBAT_CONDITIONING_PROGRAM },
+  { id: "hibrit_atlet",        name: "Hibrit Atlet",         emoji: "⚔️", color: "#6366f1", targetGender: "all",    description: "7 gün · Sabah Zone 2 bisiklet + akşam kuvvet (6-8h ayrım) · Interferans yok: bisiklet seçimi (Wilson 2012) · DUP kuvvet + polarize kardiyo · Hedef: Squat 1.5×BW + 5km sub-25dk", baseDays: HIBRIT_ATLET_DAYS, baseProgram: HIBRIT_ATLET_PROGRAM },
+  { id: "taktik_atlet",        name: "Taktik Atlet",         emoji: "🎯", color: "#1d4ed8", targetGender: "all",    description: "6 gün · NSCA TSAC çerçevesi · Relatif kuvvet: DL 2×BW + Pull-up +%25BW · Jamieson enerji: Alaktik→Glikolitik→Aerobik · Rucking + yük taşıma · FMS yaralanma önleme", baseDays: TAKTIK_ATLET_DAYS,  baseProgram: TAKTIK_ATLET_PROGRAM },
+  { id: "bikini_fit",          name: "Bikini Fit",            emoji: "🍑", color: "#EC4899", targetGender: "female", description: "5 gün · Glute + omuz estetik · Hip thrust ağırlıklı · Bret Contreras Strong Curves çerçevesi · Pump günü + kuvvet günü ayrımı", baseDays: BIKINI_FIT_DAYS,  baseProgram: BIKINI_FIT_PROGRAM },
+  { id: "guc_sekil",           name: "Güç & Şekil",           emoji: "💪", color: "#8B5CF6", targetGender: "female", description: "4 gün Upper/Lower split · Compound kuvvet + hipertrofi hacmi · Nordic curl + farmer's walk · Progressif overload tabanlı kadın programı", baseDays: GUC_SEKIL_DAYS,   baseProgram: GUC_SEKIL_PROGRAM },
 ];
 
 // ─────────────────────────────────────────────
@@ -1416,7 +1419,7 @@ function applyDifficulty(lib, level) {
 
 // ─────────────────────────────────────────────
 // TÜM PROGRAMLAR — programatik üretim
-// 9 kategori × 3 seviye = 27 program
+// 11 kategori × 3 seviye = 33 program (9 unisex, 1 erkek, 2 kadın)
 // ─────────────────────────────────────────────
 export const ALL_PROGRAMS = {};
 PROGRAM_LIBRARY.forEach((lib) => {
