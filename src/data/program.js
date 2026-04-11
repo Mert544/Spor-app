@@ -1,5 +1,7 @@
 // V-Taper Coach — Tam Program Datası
 // 6 günlük Push/Pull split, 12 haftalık program
+import { HIBRIT_ATLET_DAYS, HIBRIT_ATLET_PROGRAM } from './programs/hibrit.js';
+import { TAKTIK_ATLET_DAYS, TAKTIK_ATLET_PROGRAM } from './programs/taktik.js';
 
 export const DAYS = [
   "Pzt - PUSH A",
@@ -8,11 +10,12 @@ export const DAYS = [
   "Per - PUSH B",
   "Cum - PULL B",
   "Cmt - BACAK",
+  "Paz - AKTİF DİNLENME",
 ];
 
 // JS getDay(): 0=Pazar, 1=Pazartesi...6=Cumartesi
-// DAYS[0] = Pazartesi (index 1 → 0)
-export const DAY_INDEX_MAP = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 };
+// DAYS[0] = Pazartesi (index 1 → 0), Pazar = DAYS[6]
+export const DAY_INDEX_MAP = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 0: 6 };
 
 export const PROGRAM = {
   "Pzt - PUSH A": {
@@ -375,6 +378,12 @@ export const PROGRAM = {
         note: "Kol finişer",
         technique: "myorep",
       },
+      { id: "pc10", name: "DB Arnold Press", sets: 3, reps: "10-12", tempo: "2:1:1:0", rpe: "8", rest: 90, muscle: "Omuz", note: "Döndürme hareketi — ön + lateral + arka delt tümü aktif. Tam ROM. V-taper omuz genişliği için en kapsamlı egzersiz.", superset: "pc11" },
+      { id: "pc11", name: "Cable Y-Raise (Alt Kablo)", sets: 3, reps: "12-15", tempo: "2:1:2:0", rpe: "8", rest: 90, muscle: "Omuz", note: "Alt kablo, kollar Y açısı — alt trapez + posterior kapsül. Omuz sağlığı + V-taper yüksekliği.", superset: "pc10" },
+      { id: "pc12", name: "DB Zottman Curl", sets: 3, reps: "10-12", tempo: "3:1:2:0", rpe: "8", rest: 75, muscle: "Biseps", note: "Üste supinasyon curl → aşağı pronasyon — uzun + kısa baş + brakioradialis tek harekette. Bütün biseps için.", superset: "pc13" },
+      { id: "pc13", name: "DB Lying Skull Crusher", sets: 3, reps: "12-15", tempo: "3:1:1:0", rpe: "8-9", rest: 75, muscle: "Triseps", note: "Uzun baş stretch — çubuğu alnın arkasına indir, germe pozisyonunda duraklama. Maeo 2023: overhead > pushdown hipertrofi.", superset: "pc12" },
+      { id: "pc14", name: "DB Concentration Curl", sets: 3, reps: "10-12", tempo: "3:2:2:0", rpe: "8-9", rest: 60, muscle: "Biseps", note: "Dirsek dize yaslanmış — izole edilmiş, tam kasılma. Zirve kasılmada 2sn tut. Kısa baş tepe noktası.", superset: "pc15" },
+      { id: "pc15", name: "Close-Grip Push-Up + DB Kickback", sets: 3, reps: "12 + 12", tempo: "2:1:1:0", rpe: "8", rest: 75, muscle: "Triseps", note: "Dar tutuş şınavı (lateral + medial baş) → hemen DB kickback (uzun baş). Triseps tam volüm.", superset: null },
     ],
   },
 
@@ -738,6 +747,28 @@ export const PROGRAM = {
         note: "Kablo — progresif yük mümkün",
         superset: "pf9",
       },
+      { id: "pf11", name: "Pallof Press (Kablo Anti-Rotasyon)", sets: 3, reps: "12/taraf", tempo: "2:2:1:0", rpe: "7-8", rest: 60, muscle: "Kor", note: "Kablo omuz hizasında — gövdeyi döndürmeye direniş. Stuart McGill: fonksiyonel kor kuvvetinin temeli. Atletik performans için kritik.", superset: "pf12" },
+      { id: "pf12", name: "Cable Woodchop (Çapraz Çekiş)", sets: 3, reps: "12/taraf", tempo: "2:0:1:0", rpe: "8", rest: 60, muscle: "Kor", note: "Rotasyonel güç — kalçadan döndür, kor aktif. Atletik transfer en yüksek kor egzersizlerinden.", superset: "pf11" },
+      { id: "pf13", name: "DB Bulgarian Split Squat", sets: 3, reps: "10/bacak", tempo: "3:1:1:0", rpe: "8-9", rest: 90, muscle: "Kuad+Kalça", note: "Arka ayak bench/kürsüye — tek bacak dominant, derin stretch. Stretch-mediated hipertrofi için ideal (%12+ daha fazla kuad büyümesi).", superset: null },
+      { id: "pf14", name: "DB Step-Up (Yüksek)", sets: 3, reps: "12/bacak", tempo: "2:1:1:0", rpe: "8", rest: 75, muscle: "Kuad+Kalça", note: "Yüksek step (diz hizası) — unilateral güç + denge. MTI taktik atletler için temel fonksiyonel hareket.", superset: "pf15" },
+      { id: "pf15", name: "Band Hip Thrust (Diz Bandı)", sets: 3, reps: "15-20", tempo: "2:1:2:0", rpe: "8", rest: 75, muscle: "Kalça", note: "Direnç bandını dizlere tak + kalça itiş — glute med + min aktivasyonu. Kalça abduktör güçlendirme.", superset: "pf14" },
+      { id: "pf16", name: "Dead Bug", sets: 3, reps: "8/taraf", tempo: "3:2:1:0", rpe: "6-7", rest: 60, muscle: "Kor", note: "Sırt üstü, kol + karşı bacak uzat — anti-ekstansiyon kor stabilitesi. Bel sağlığı için en bilimsel kor egzersizi.", superset: "pf17" },
+      { id: "pf17", name: "RKC Plank (Köklenmiş)", sets: 3, reps: "20-30 sn", tempo: "-", rpe: "8-9", rest: 60, muscle: "Kor", note: "Standart planktan çok daha zor: yumruklar, dirsekler öne, kalça sıkıştır, omuzlar sırt yönüne çek, diz düzleştir. Pavel Tsatsouline protokolü.", superset: "pf16" },
+    ],
+  },
+
+  "Paz - AKTİF DİNLENME": {
+    color: "#8B5CF6", emoji: "🧘",
+    subtitle: "Aktif Toparlanma · Mobilite · Yaralanma Önleme",
+    morning: null,
+    exercises: [
+      { id: "pg1", name: "Koşu Bandı Yürüyüş (Aktif Toparlanma)", sets: 1, reps: "20-25 dk", tempo: "-", rpe: "3-4", rest: 0, muscle: "Kardiyovasküler", note: "Zone 1 — %50 max KAH. Laktik asit temizleme, parasempatik aktivasyon. Konuşabilecek kadar yavaş.", superset: null },
+      { id: "pg2", name: "Hanging Stretch + Traksiyon", sets: 3, reps: "45 sn", tempo: "-", rpe: "2", rest: 30, muscle: "Sırt", note: "Pull-up barına asıl — omurga dekompresyonu, latissimus gevşetme. Kol kaslarını bilinçli bırak.", superset: null },
+      { id: "pg3", name: "Band Shoulder Circle (Dış Rotasyon)", sets: 3, reps: "15/yön", tempo: "2:1:2:0", rpe: "3", rest: 45, muscle: "Omuz", note: "Direnç bandıyla omuz çevrimi → dış rotasyon — rotator cuff sağlığı bakımı. Her ağır antrenman sonrası zorunlu.", superset: "pg4" },
+      { id: "pg4", name: "Band Pull-Apart", sets: 3, reps: "25", tempo: "1:1:1:0", rpe: "3", rest: 45, muscle: "Arka Delt", note: "Postür kasları aktivasyonu — arka delt + rhomboid. Masa başı hayatının zararlarını tersine çevirir.", superset: "pg3" },
+      { id: "pg5", name: "DB Goblet Squat (Derin Mobilite)", sets: 3, reps: "8", tempo: "5:3:1:0", rpe: "3", rest: 60, muscle: "Kuadriseps", note: "Kilo değil derinlik — kalça mobilite ve dirsekler dizlere yaslanmış. Çok yavaş in, eklem sağlığı odağı.", superset: null },
+      { id: "pg6", name: "Hip 90/90 Stretch", sets: 2, reps: "5/taraf", tempo: "yavaş", rpe: "2", rest: 60, muscle: "Kalça", note: "Yerde otur, her iki kalça 90° — kalça iç/dış rotasyon esnekliği. Sporcuların en çok ihmal ettiği mobilite.", superset: "pg7" },
+      { id: "pg7", name: "Köpük Rulo (Foam Roll) — Sırt+Bacak", sets: 1, reps: "3-4 dk", tempo: "-", rpe: "2", rest: 0, muscle: "Fonksiyonel", note: "Torakal omurga + IT bandı + kuadriseps + baldır. Her sıkı noktada 20-30sn dur. Miyofasyal açılım.", superset: null },
     ],
   },
 };
@@ -1317,6 +1348,8 @@ export const PROGRAM_LIBRARY = [
   { id: "crossfit",            name: "CrossFit Stili",     emoji: "🏅", color: "#EF4444", description: "5 gün AMRAP / EMOM / For Time · Benchmark WOD sistemi · Mevcut ekipmanla adapte · Haftalık süre takibi", baseDays: CROSSFIT_DAYS,           baseProgram: CROSSFIT_PROGRAM },
   { id: "dovus_kuvvet",        name: "Dövüş Kuvveti",      emoji: "⚡", color: "#FF6B35", description: "6 gün · PAP kompleks (ağır→patlayıcı, 4-6dk bekleme) · Kavrama + boyun kuvveti · Nordic curl yaralanma önleme · Phil Daru metodolojisi", baseDays: COMBAT_STRENGTH_DAYS,    baseProgram: COMBAT_STRENGTH_PROGRAM },
   { id: "dovus_kondisyon",     name: "Dövüş Kondisyonu",   emoji: "🔥", color: "#FF8C00", description: "6 gün · Jamieson enerji sistemi: Alaktik Güç → Laktik Kapasite → Aerobik Kapasite → Alaktik Kapasite → Aerobik Güç", baseDays: COMBAT_CONDITIONING_DAYS,baseProgram: COMBAT_CONDITIONING_PROGRAM },
+  { id: "hibrit_atlet",        name: "Hibrit Atlet",        emoji: "⚔️", color: "#6366f1", description: "7 gün · Sabah Zone 2 bisiklet + akşam kuvvet (6-8h ayrım) · Interferans yok: bisiklet seçimi (Wilson 2012) · DUP kuvvet + polarize kardiyo · Hedef: Squat 1.5×BW + 5km sub-25dk", baseDays: HIBRIT_ATLET_DAYS, baseProgram: HIBRIT_ATLET_PROGRAM },
+  { id: "taktik_atlet",        name: "Taktik Atlet",        emoji: "🎯", color: "#1d4ed8", description: "6 gün · NSCA TSAC çerçevesi · Relatif kuvvet: DL 2×BW + Pull-up +%25BW · Jamieson enerji: Alaktik→Glikolitik→Aerobik · Rucking + yük taşıma · FMS yaralanma önleme", baseDays: TAKTIK_ATLET_DAYS,  baseProgram: TAKTIK_ATLET_PROGRAM },
 ];
 
 // ─────────────────────────────────────────────
@@ -1383,7 +1416,7 @@ function applyDifficulty(lib, level) {
 
 // ─────────────────────────────────────────────
 // TÜM PROGRAMLAR — programatik üretim
-// 7 kategori × 3 seviye = 21 program
+// 9 kategori × 3 seviye = 27 program
 // ─────────────────────────────────────────────
 export const ALL_PROGRAMS = {};
 PROGRAM_LIBRARY.forEach((lib) => {
