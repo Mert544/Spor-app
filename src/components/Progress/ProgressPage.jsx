@@ -14,13 +14,14 @@ import ProgressPhotos from './ProgressPhotos';
 const TABS = [
   { id: 'Hafta',    label: 'Hafta',    icon: '📅' },
   { id: 'Kilo',     label: 'Kilo',     icon: '⚖️' },
-  { id: 'Hacim',   label: 'Hacim',    icon: '📊' },
+  { id: 'Hacim',    label: 'Hacim',    icon: '📊' },
+  { id: 'Kuvvet',   label: 'Kuvvet',   icon: '💪' },
   { id: 'Egzersiz', label: 'Egzersiz', icon: '📈' },
-  { id: 'Kaslar',  label: 'Kaslar',   icon: '🫀' },
-  { id: 'Takvim',  label: 'Takvim',   icon: '🗓️' },
+  { id: 'Kaslar',   label: 'Kaslar',   icon: '🫀' },
+  { id: 'Takvim',   label: 'Takvim',   icon: '🗓️' },
   { id: 'Rozetler', label: 'Rozetler', icon: '🏅' },
   { id: 'Fotoğraf', label: 'Fotoğraf', icon: '📸' },
-  { id: 'Ölçüm',  label: 'Ölçüm',    icon: '📐' },
+  { id: 'Ölçüm',   label: 'Ölçüm',    icon: '📐' },
 ];
 
 export default function ProgressPage() {
