@@ -15,6 +15,7 @@ const TABS = [
   { id: 'Hafta',    label: 'Hafta',    icon: '📅' },
   { id: 'Kilo',     label: 'Kilo',     icon: '⚖️' },
   { id: 'Hacim',   label: 'Hacim',    icon: '📊' },
+  { id: 'Kuvvet',   label: 'Kuvvet',   icon: '🏋️' },
   { id: 'Egzersiz', label: 'Egzersiz', icon: '📈' },
   { id: 'Kaslar',  label: 'Kaslar',   icon: '🫀' },
   { id: 'Takvim',  label: 'Takvim',   icon: '🗓️' },
@@ -117,7 +118,7 @@ export default function ProgressPage() {
         )}
 
         {tab === 'Kuvvet' && (
-          <div>
+          <div className="bg-bg-card rounded-2xl p-4">
             <p className="text-xs text-white/40 mb-3 font-semibold uppercase tracking-wider">En İyi Setler</p>
             <StrengthLog />
           </div>

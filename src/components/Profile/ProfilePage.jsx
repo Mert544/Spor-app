@@ -6,13 +6,14 @@ import useSettingsStore from '../../store/useSettingsStore';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
 
 export default function ProfilePage() {
-  const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
+  const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight } = useProgressStore();
   const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({ name: '', height: '', startWeight: '', targetWeight: '' });
+  const [editError, setEditError] = useState('');
   const importRef = useRef(null);
 
   const phase = getPhaseFromWeek(currentWeek);
@@ -25,19 +26,21 @@ export default function ProfilePage() {
       startWeight: startWeight || '',
       targetWeight: targetWeight || '',
     });
+    setEditError('');
     setEditing(true);
   }
 
   function saveEdit() {
     const sw = parseFloat(editValues.startWeight);
     const tw = parseFloat(editValues.targetWeight);
-    setUser({ name: editValues.name.trim(), height: editValues.height.trim() });
-    if (sw > 0) {
-      setStartWeight(sw);
-      const today = new Date().toISOString().split('T')[0];
-      addWeight(today, sw);
+    if (sw > 0 && tw > 0 && Math.abs(sw - tw) < 0.5) {
+      setEditError('Hedef kilo başlangıç kilosundan farklı olmalı.');
+      return;
     }
+    setUser({ name: editValues.name.trim(), height: editValues.height.trim() });
+    if (sw > 0) setStartWeight(sw);
     if (tw > 0) useProgressStore.setState({ targetWeight: tw });
+    setEditError('');
     setEditing(false);
   }
 
@@ -113,8 +116,9 @@ export default function ProfilePage() {
               <EditField label="Boy (cm)" value={editValues.height} onChange={v => setEditValues(p => ({ ...p, height: v }))} placeholder="180" type="number" />
               <EditField label="Başlangıç Kilo (kg)" value={editValues.startWeight} onChange={v => setEditValues(p => ({ ...p, startWeight: v }))} placeholder="85.0" type="number" />
               <EditField label="Hedef Kilo (kg)" value={editValues.targetWeight} onChange={v => setEditValues(p => ({ ...p, targetWeight: v }))} placeholder="78.0" type="number" />
+              {editError && <p className="text-accent-red text-xs">{editError}</p>}
               <div className="flex gap-2 pt-1">
-                <button onClick={() => setEditing(false)} className="flex-1 py-2.5 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
+                <button onClick={() => { setEditing(false); setEditError(''); }} className="flex-1 py-2.5 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
                 <button onClick={saveEdit} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-accent-teal">Kaydet</button>
               </div>
             </div>

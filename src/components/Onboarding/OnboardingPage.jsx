@@ -28,7 +28,13 @@ export default function OnboardingPage() {
       if (isNaN(n) || n <= 0) return 'Geçerli bir sayı gir.';
       if (current.id === 'height' && (n < 100 || n > 250)) return 'Boy 100-250 cm arasında olmalı.';
       if (current.id === 'weight' && (n < 30 || n > 300)) return 'Geçerli bir kilo gir.';
-      if (current.id === 'target' && (n < 30 || n > 300)) return 'Geçerli bir hedef kilo gir.';
+      if (current.id === 'target') {
+        if (n < 30 || n > 300) return 'Geçerli bir hedef kilo gir.';
+        const cw = parseFloat(values.weight);
+        if (!isNaN(cw) && Math.abs(n - cw) < 0.5) {
+          return 'Hedef kilo mevcut kilodan farklı olmalı.';
+        }
+      }
     }
     return '';
   }
