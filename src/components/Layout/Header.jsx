@@ -38,7 +38,7 @@ export default function Header() {
               {programMeta?.emoji || '💪'}
             </div>
             <div>
-              <p className="text-sm font-bold text-white leading-tight">
+              <p className="text-base font-bold text-white leading-tight">
                 {user?.name ? `Merhaba, ${user.name}` : 'V-Taper Coach'}
               </p>
               {programMeta && (

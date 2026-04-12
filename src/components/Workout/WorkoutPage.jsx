@@ -100,7 +100,7 @@ export default function WorkoutPage() {
   if (!dayData) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-white/40 text-sm">Antrenman bulunamadı.</p>
+        <p className="text-white/40 text-sm">Program verisi yüklenemedi.</p>
       </div>
     );
   }
@@ -278,7 +278,7 @@ export default function WorkoutPage() {
       <div className="mx-4 mb-4">
         {showCustomForm ? (
           <div className="bg-bg-card rounded-2xl p-4 space-y-3">
-            <p className="text-xs font-semibold text-accent-teal">+ Özel Egzersiz Ekle</p>
+            <p className="text-xs font-semibold text-accent-teal uppercase tracking-widest">Egzersiz Ekle</p>
             <input
               type="text"
               placeholder="Egzersiz adı"
@@ -310,8 +310,8 @@ export default function WorkoutPage() {
               />
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowCustomForm(false)} className="flex-1 py-2 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
-              <button onClick={handleAddCustom} className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-accent-teal">Ekle</button>
+              <button onClick={() => setShowCustomForm(false)} className="flex-1 py-2 rounded-xl text-sm text-white/50 bg-bg-dark">Vazgeç</button>
+              <button onClick={handleAddCustom} className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-accent-teal">Programa Ekle</button>
             </div>
           </div>
         ) : (
@@ -319,7 +319,7 @@ export default function WorkoutPage() {
             onClick={() => setShowCustomForm(true)}
             className="w-full py-3 rounded-2xl border border-dashed border-white/10 text-white/30 text-sm flex items-center justify-center gap-2 active:border-accent-teal/40 transition-colors"
           >
-            <span>+</span> Özel Egzersiz Ekle
+            <span className="text-base">+</span> Egzersiz Ekle
           </button>
         )}
       </div>

@@ -372,7 +372,9 @@ export default function ProgramsPage() {
 
               {visiblePrograms.length === 0 && (
                 <div className="text-center py-10">
-                  <p className="text-white/30 text-sm">Bu filtre için program bulunamadı.</p>
+                  <p className="text-3xl mb-3">🔍</p>
+                  <p className="text-white/50 text-sm font-medium">Bu kriterde program yok.</p>
+                  <p className="text-white/25 text-xs mt-1">Filtre seçimini değiştirmeyi dene.</p>
                 </div>
               )}
 

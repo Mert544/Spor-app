@@ -29,7 +29,7 @@ function PageLoader() {
     <div className="flex-1 flex items-center justify-center py-20">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
-        <p className="text-xs text-white/30">Yükleniyor…</p>
+        <p className="text-xs text-white/30 tracking-widest uppercase">Hazırlanıyor</p>
       </div>
     </div>
   );
@@ -137,7 +137,7 @@ export default function App() {
     if (!hasTrainedToday) {
       const name = user?.name ? `, ${user.name}` : '';
       new Notification(`💪 Antrenman zamanı${name}!`, {
-        body: 'Bugünkü antrenmanını henüz tamamlamadın. Hazır mısın?',
+        body: 'Bugünkü antrenmanın seni bekliyor. Hadi gidelim.',
         icon: '/icons/icon-192.png',
         badge: '/icons/icon-192.png',
         tag: 'workout-reminder',

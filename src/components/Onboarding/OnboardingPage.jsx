@@ -61,13 +61,13 @@ export default function OnboardingPage() {
   function validate() {
     if (!current) return '';
     const val = values[current.id]?.trim?.() ?? values[current.id];
-    if (!val && val !== 0) return 'Bu alan boş bırakılamaz.';
+    if (!val && val !== 0) return `${current.label} gerekiyor.`;
     if (current.type === 'number') {
       const n = parseFloat(val);
-      if (isNaN(n) || n <= 0) return 'Geçerli bir sayı gir.';
+      if (isNaN(n) || n <= 0) return 'Geçerli bir değer gir.';
       if (current.id === 'height' && (n < 100 || n > 250)) return 'Boy 100–250 cm arasında olmalı.';
-      if (current.id === 'weight' && (n < 30 || n > 300)) return 'Geçerli bir kilo gir.';
-      if (current.id === 'target' && (n < 30 || n > 300)) return 'Geçerli bir hedef kilo gir.';
+      if (current.id === 'weight' && (n < 30 || n > 300)) return 'Kilo 30–300 kg arasında olmalı.';
+      if (current.id === 'target' && (n < 30 || n > 300)) return 'Hedef kilo 30–300 kg arasında olmalı.';
     }
     return '';
   }
@@ -80,7 +80,7 @@ export default function OnboardingPage() {
   function handleNext() {
     if (step === 0) { advance(); return; }
     if (step === 1) {
-      if (!gender) { setError('Lütfen bir seçim yap.'); return; }
+      if (!gender) { setError('Cinsiyet seçimi gerekiyor.'); return; }
       setError('');
       advance();
       return;
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
                 : 'linear-gradient(135deg, #14B8A6, #3B82F6)',
             }}
           >
-            {step < TOTAL_STEPS - 1 ? 'Devam Et →' : 'Başlayalım!'}
+            {step < TOTAL_STEPS - 1 ? 'Devam →' : 'Başlayalım →'}
           </button>
         </div>
       )}

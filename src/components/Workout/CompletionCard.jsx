@@ -39,9 +39,9 @@ export default function CompletionCard({ date, exercises, accentColor }) {
       <div className="p-5 text-center"
         style={{ background: `linear-gradient(135deg, ${accentColor}28 0%, ${accentColor}10 100%)` }}>
         <div className="text-5xl mb-2">🏆</div>
-        <h2 className="text-lg font-bold text-white">Antrenman Tamamlandı!</h2>
+        <h2 className="text-lg font-bold text-white">Antrenman Bitti!</h2>
         <p className="text-sm mt-0.5" style={{ color: accentColor + 'cc' }}>
-          Muhteşem iş çıkardın {name}! 💪
+          {name}, harika bir seans. Devam et! 💪
         </p>
       </div>
 
