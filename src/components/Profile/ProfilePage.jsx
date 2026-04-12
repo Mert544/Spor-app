@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WeeklyCheckIn from './WeeklyCheckIn';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
@@ -17,6 +18,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({ name: '', height: '', startWeight: '', targetWeight: '' });
   const importRef = useRef(null);
+  const navigate = useNavigate();
 
   const phase = getPhaseFromWeek(currentWeek);
   const phaseData = PHASES[phase];
@@ -261,6 +263,23 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
+
+        {/* Supplement Guide card */}
+        <button
+          onClick={() => navigate('/takviye')}
+          className="w-full flex items-center gap-3 p-4 rounded-2xl mb-4 transition-all text-left"
+          style={{ background: '#1E293B', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+            style={{ background: '#14B8A615', border: '1px solid #14B8A630' }}>
+            💊
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-white">Supplement Rehberi</p>
+            <p className="text-xs text-white/40">Seviyene göre takviye önerileri</p>
+          </div>
+          <span className="text-white/25 text-sm">›</span>
+        </button>
 
         {/* Actions */}
         <div className="space-y-2 mb-4">

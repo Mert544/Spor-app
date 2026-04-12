@@ -21,7 +21,8 @@ const ProfilePage      = lazy(() => import('./components/Profile/ProfilePage.jsx
 const ProgramsPage     = lazy(() => import('./components/Programs/ProgramsPage.jsx'));
 const CreateProgramPage= lazy(() => import('./components/Programs/CreateProgramPage.jsx'));
 const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalytics.jsx'));
-const OnboardingPage   = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
+const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
+const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
 
 function PageLoader() {
   return (
@@ -192,6 +193,7 @@ export default function App() {
             <Route path="/programlar/duzenle/:editId" element={<CreateProgramPage />} />
             <Route path="/programlar/:programId/analiz" element={<ProgramAnalytics />} />
             <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/takviye" element={<SupplementGuide />} />
           </Routes>
         </Suspense>
       </main>
