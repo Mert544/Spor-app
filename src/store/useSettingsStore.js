@@ -17,6 +17,7 @@ export const useSettingsStore = create(
       notificationsEnabled: false,
       deloadDismissed: false,
       coachSessionId: null,
+      anthropicApiKey: '',
 
       setOnboarded: (v) => set({ isOnboarded: v }),
       setUser: (patch) => set((s) => ({ user: { ...s.user, ...patch } })),
@@ -27,6 +28,7 @@ export const useSettingsStore = create(
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setDeloadDismissed: (v) => set({ deloadDismissed: v }),
       setCoachSessionId: (id) => set({ coachSessionId: id }),
+      setAnthropicApiKey: (key) => set({ anthropicApiKey: key }),
     }),
     { name: 'vtaper-settings' }
   )

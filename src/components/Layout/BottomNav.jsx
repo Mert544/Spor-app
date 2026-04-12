@@ -29,14 +29,20 @@ const Icons = {
       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
   ),
+  Coach: ({ active }) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
 };
 
 const ACTIVE_COLOR = '#14B8A6'; // teal — more premium than red for nav
 
 const tabs = [
-  { to: '/antrenman', Icon: Icons.Workout, label: 'Antrenman' },
+  { to: '/antrenman', Icon: Icons.Workout,  label: 'Antrenman' },
   { to: '/ilerleme',  Icon: Icons.Progress, label: 'İlerleme' },
   { to: '/programlar', Icon: Icons.Programs, label: 'Programlar' },
+  { to: '/koc',       Icon: Icons.Coach,    label: 'Koç' },
   { to: '/profil',    Icon: Icons.Profile,  label: 'Profil' },
 ];
 

@@ -7,7 +7,7 @@ import { PHASES, getPhaseFromWeek } from '../../data/program';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
-  const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
+  const { user, setUser, notificationsEnabled, setNotificationsEnabled, anthropicApiKey, setAnthropicApiKey } = useSettingsStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -211,6 +211,9 @@ export default function ProfilePage() {
           <WeeklyCheckIn week={currentWeek} />
         </div>
 
+        {/* AI Coach API key */}
+        <ApiKeyCard apiKey={anthropicApiKey} onSave={setAnthropicApiKey} />
+
         {/* Switch user / logout */}
         <div className="bg-bg-card rounded-2xl p-4 mb-4">
           <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Kullanıcı</p>
@@ -353,6 +356,92 @@ export default function ProfilePage() {
 
         <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
       </div>
+    </div>
+  );
+}
+
+function ApiKeyCard({ apiKey, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [show, setShow] = useState(false);
+
+  function startEdit() {
+    setDraft(apiKey || '');
+    setEditing(true);
+  }
+
+  function save() {
+    const trimmed = draft.trim();
+    if (trimmed && !trimmed.startsWith('sk-ant-')) return;
+    onSave(trimmed);
+    setEditing(false);
+    setShow(false);
+  }
+
+  const masked = apiKey ? `${apiKey.slice(0, 12)}${'•'.repeat(16)}` : null;
+
+  return (
+    <div className="bg-bg-card rounded-2xl p-4 mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">AI Koç</p>
+        {apiKey && !editing && (
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[#14B8A6]/15 text-[#14B8A6]">Aktif</span>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="space-y-2">
+          <div className="relative">
+            <input
+              autoFocus
+              type={show ? 'text' : 'password'}
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              placeholder="sk-ant-..."
+              className="w-full bg-bg-dark border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white
+                         placeholder:text-white/20 focus:outline-none focus:border-[#14B8A6]/50 pr-14"
+            />
+            <button
+              type="button"
+              onClick={() => setShow(s => !s)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-xs"
+            >
+              {show ? 'Gizle' : 'Göster'}
+            </button>
+          </div>
+          {draft && !draft.startsWith('sk-ant-') && (
+            <p className="text-xs text-[#E94560]">Geçerli bir Anthropic API anahtarı gir (sk-ant- ile başlar)</p>
+          )}
+          <div className="flex gap-2">
+            <button onClick={() => { setEditing(false); setShow(false); }}
+              className="flex-1 py-2 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
+            <button onClick={save}
+              className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-[#14B8A6]">Kaydet</button>
+          </div>
+        </div>
+      ) : apiKey ? (
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-mono text-white/40">{masked}</p>
+          <div className="flex gap-2">
+            <button onClick={startEdit} className="text-xs text-[#14B8A6] px-2 py-1 rounded-lg border border-[#14B8A6]/30">
+              Değiştir
+            </button>
+            <button onClick={() => onSave('')} className="text-xs text-[#E94560]/70 px-2 py-1 rounded-lg border border-[#E94560]/20">
+              Sil
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p className="text-xs text-white/40 mb-3">
+            API anahtarı ekleyerek AI Koç özelliğini etkinleştir. Anahtar yalnızca bu cihazda saklanır.
+          </p>
+          <button onClick={startEdit}
+            className="w-full py-2.5 rounded-xl text-sm font-medium border border-[#14B8A6]/30 text-[#14B8A6] flex items-center justify-center gap-2">
+            <span>🤖</span> API Anahtarı Ekle
+          </button>
+        </div>
+      )}
     </div>
   );
 }

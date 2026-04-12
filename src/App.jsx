@@ -14,6 +14,7 @@ const ProgramsPage     = lazy(() => import('./components/Programs/ProgramsPage.j
 const CreateProgramPage= lazy(() => import('./components/Programs/CreateProgramPage.jsx'));
 const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalytics.jsx'));
 const OnboardingPage   = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
+const CoachPage        = lazy(() => import('./components/Coach/CoachPage.jsx'));
 
 function PageLoader() {
   return (
@@ -80,6 +81,7 @@ export default function App() {
             <Route path="/programlar/olustur" element={<CreateProgramPage />} />
             <Route path="/programlar/duzenle/:editId" element={<CreateProgramPage />} />
             <Route path="/programlar/:programId/analiz" element={<ProgramAnalytics />} />
+            <Route path="/koc" element={<CoachPage />} />
             <Route path="/profil" element={<ProfilePage />} />
           </Routes>
         </Suspense>
