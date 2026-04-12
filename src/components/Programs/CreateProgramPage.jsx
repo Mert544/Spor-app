@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
 import MesocycleView from './MesocycleView';
+import ExercisePicker from './ExercisePicker';
 import {
   MESOCYCLE_PRESETS,
   DEFAULT_VOLUME_LANDMARKS,
@@ -230,7 +231,7 @@ function StepVolume({ form, onChange }) {
 
 // ─── Exercise Row ─────────────────────────────────────────────────────────
 
-function ExerciseRow({ exercise, idx, onUpdate, onRemove }) {
+function ExerciseRow({ exercise, idx, onUpdate, onRemove, onPickFromLibrary }) {
   return (
     <div className="bg-bg rounded-xl p-3 border border-white/8 space-y-2">
       <div className="flex items-center gap-2">
@@ -238,6 +239,11 @@ function ExerciseRow({ exercise, idx, onUpdate, onRemove }) {
           placeholder="Egzersiz adı"
           className="flex-1 bg-bg-card rounded-lg px-3 py-2 text-sm text-white
                      placeholder:text-white/25 border border-white/8 outline-none" />
+        <button onClick={() => onPickFromLibrary(idx)}
+          title="Kütüphaneden seç"
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#14B8A6]/10 text-[#14B8A6] text-sm shrink-0">
+          ⊕
+        </button>
         <button onClick={() => onRemove(idx)}
           className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 shrink-0">
           ×
@@ -283,6 +289,7 @@ function ExerciseRow({ exercise, idx, onUpdate, onRemove }) {
 
 function StepDays({ form, onChange }) {
   const [openDay, setOpenDay] = useState(null);
+  const [pickerTarget, setPickerTarget] = useState(null); // { dayKey, exIdx }
 
   const addDay = useCallback((template) => {
     const count = form.days.filter(d => d.startsWith(template.key)).length;
@@ -379,20 +386,54 @@ function StepDays({ form, onChange }) {
                   {(day.exercises || []).map((ex, eIdx) => (
                     <ExerciseRow key={eIdx} exercise={ex} idx={eIdx}
                       onUpdate={(i, f, v) => updateEx(dayKey, i, f, v)}
-                      onRemove={(i) => removeEx(dayKey, i)} />
+                      onRemove={(i) => removeEx(dayKey, i)}
+                      onPickFromLibrary={(i) => setPickerTarget({ dayKey, exIdx: i })} />
                   ))}
-                  <button onClick={() => addExercise(dayKey)}
-                    className="w-full py-2.5 rounded-xl text-sm text-[#14B8A6]
-                               bg-[#14B8A6]/8 border border-[#14B8A6]/20
-                               hover:bg-[#14B8A6]/15 transition-all">
-                    + Egzersiz Ekle
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => addExercise(dayKey)}
+                      className="flex-1 py-2.5 rounded-xl text-sm text-[#14B8A6]
+                                 bg-[#14B8A6]/8 border border-[#14B8A6]/20
+                                 hover:bg-[#14B8A6]/15 transition-all">
+                      + Egzersiz Ekle
+                    </button>
+                    <button onClick={() => {
+                      addExercise(dayKey);
+                      setPickerTarget({ dayKey, exIdx: (day.exercises || []).length });
+                    }}
+                      className="px-3 py-2.5 rounded-xl text-sm text-white/50
+                                 bg-white/5 border border-white/8 hover:bg-white/8 transition-all">
+                      Kütüphane
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* Exercise picker modal */}
+      {pickerTarget && (
+        <ExercisePicker
+          onClose={() => setPickerTarget(null)}
+          onSelect={(picked) => {
+            const { dayKey, exIdx } = pickerTarget;
+            const exs = [...(form.program[dayKey]?.exercises || [])];
+            const base = exs[exIdx] || { ...EX_DEFAULTS };
+            exs[exIdx] = {
+              ...base,
+              name:   picked.name,
+              muscle: picked.muscle,
+              sets:   picked.sets,
+              reps:   picked.reps,
+              rpe:    picked.rpe,
+              rest:   picked.rest,
+            };
+            onChange('program', { ...form.program, [dayKey]: { ...form.program[dayKey], exercises: exs } });
+            setPickerTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 }
