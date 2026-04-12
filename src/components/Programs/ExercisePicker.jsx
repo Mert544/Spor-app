@@ -75,7 +75,7 @@ export default function ExercisePicker({ onSelect, onClose }) {
           onChange={e => setSearch(e.target.value)}
           placeholder="Egzersiz ara…"
           className="w-full bg-bg-card rounded-xl px-4 py-2.5 text-sm text-white
-                     placeholder:text-white/25 border border-white/10
+                     placeholder:text-white/30 border border-white/10
                      focus:border-[#14B8A6]/50 outline-none"
         />
       </div>
@@ -103,7 +103,7 @@ export default function ExercisePicker({ onSelect, onClose }) {
         {filtered.length === 0 && (
           <div className="py-12 text-center">
             <p className="text-white/30 text-sm">Egzersiz bulunamadı.</p>
-            <p className="text-white/20 text-xs mt-1">Arama terimini değiştir.</p>
+            <p className="text-white/30 text-xs mt-1">Arama terimini değiştir.</p>
           </div>
         )}
 
@@ -121,14 +121,14 @@ export default function ExercisePicker({ onSelect, onClose }) {
                 <p className="text-sm font-medium text-white truncate">{ex.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs" style={{ color }}>{ex.muscle}</span>
-                  <span className="text-xs text-white/25">·</span>
+                  <span className="text-xs text-white/30">·</span>
                   <span className="text-xs text-white/40">{ex.sets}×{ex.reps}</span>
                   {ex.rpe && <span className="text-xs text-white/30">RPE {ex.rpe}</span>}
                 </div>
               </div>
 
               {/* Select arrow */}
-              <span className="text-white/20 text-sm shrink-0">›</span>
+              <span className="text-white/30 text-sm shrink-0">›</span>
             </button>
           );
         })}

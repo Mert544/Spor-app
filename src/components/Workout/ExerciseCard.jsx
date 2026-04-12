@@ -139,7 +139,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           >
             {exercise.muscle}
           </span>
-          <span className="text-white/20 text-xs">{open ? '▲' : '▼'}</span>
+          <span className="text-white/30 text-xs">{open ? '▲' : '▼'}</span>
         </div>
       </button>
 
@@ -181,7 +181,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
               <div className="space-y-1">
                 {alternatives.map((alt, i) => (
                   <div key={i} className="text-xs text-white/60 px-1 py-0.5 flex items-center gap-1.5">
-                    <span className="text-white/25">•</span> {alt}
+                    <span className="text-white/30">•</span> {alt}
                   </div>
                 ))}
               </div>
@@ -217,7 +217,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
               ) : (
                 <button
                   onClick={() => setShowNoteInput(true)}
-                  className="text-xs text-white/25 px-1 hover:text-white/50 transition-colors"
+                  className="text-xs text-white/30 px-1 hover:text-white/50 transition-colors"
                 >
                   + Not ekle
                 </button>

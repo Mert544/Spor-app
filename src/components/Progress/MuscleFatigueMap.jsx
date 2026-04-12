@@ -129,22 +129,22 @@ export default function MuscleFatigueMap() {
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-bg-card rounded-xl p-3 text-center">
           <p className="text-base font-bold text-accent-teal">{totalSets}</p>
-          <p className="text-xs text-white/35 mt-0.5">Toplam Set</p>
+          <p className="text-xs text-white/40 mt-0.5">Toplam Set</p>
         </div>
         <div className="bg-bg-card rounded-xl p-3 text-center">
           <p className="text-base font-bold" style={{ color: '#10B981' }}>{musclesAboveMEV}</p>
-          <p className="text-xs text-white/35 mt-0.5">MEV üstü kas</p>
+          <p className="text-xs text-white/40 mt-0.5">MEV üstü kas</p>
         </div>
         <div className="bg-bg-card rounded-xl p-3 text-center">
           <p className="text-base font-bold" style={{ color: '#F5A623' }}>Hf {currentWeek}</p>
-          <p className="text-xs text-white/35 mt-0.5">Aktif hafta</p>
+          <p className="text-xs text-white/40 mt-0.5">Aktif hafta</p>
         </div>
       </div>
 
       {/* Muscle volume bars */}
       <div className="bg-bg-card rounded-2xl p-4">
         <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-0.5">Haftalık Hacim Takibi</p>
-        <p className="text-xs text-white/25 mb-4">RP Strength MEV → MAV → MRV eşikleri</p>
+        <p className="text-xs text-white/30 mb-4">RP Strength MEV → MAV → MRV eşikleri</p>
 
         {displayMuscles.length === 0 ? (
           <p className="text-center text-white/30 text-xs py-6">Bu hafta antrenman kaydı yok.</p>

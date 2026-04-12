@@ -62,9 +62,9 @@ function MuscleBar({ muscle, sets, mev, mav, mrv, status }) {
       </div>
 
       <div className="flex justify-between mt-1">
-        <span className="text-xs text-white/25">MEV {mev}</span>
-        <span className="text-xs text-white/25">MAV {mav}</span>
-        <span className="text-xs text-white/25">MRV {mrv}</span>
+        <span className="text-xs text-white/30">MEV {mev}</span>
+        <span className="text-xs text-white/30">MAV {mav}</span>
+        <span className="text-xs text-white/30">MRV {mrv}</span>
       </div>
     </div>
   );

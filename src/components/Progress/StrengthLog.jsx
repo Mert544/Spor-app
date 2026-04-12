@@ -49,7 +49,7 @@ export default function StrengthLog() {
       <div className="bg-bg-card rounded-2xl px-4 py-3 flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">Kişisel Rekorlar · e1RM</p>
-          <p className="text-xs text-white/25 mt-0.5">Epley: ağırlık × (1 + tekrar/30)</p>
+          <p className="text-xs text-white/30 mt-0.5">Epley: ağırlık × (1 + tekrar/30)</p>
         </div>
         <div className="text-right">
           <p className="text-xl font-black" style={{ color: '#F5A623' }}>{prCount}</p>

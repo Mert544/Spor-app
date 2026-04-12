@@ -194,7 +194,7 @@ function CategorySection({ category, stats }) {
               style={{ width: `${isNaN(pct) ? 0 : pct}%`, backgroundColor: category.color }}
             />
           </div>
-          <span className="text-xs text-white/25 whitespace-nowrap min-w-max">{next.name} →</span>
+          <span className="text-xs text-white/30 whitespace-nowrap min-w-max">{next.name} →</span>
         </div>
       )}
 
@@ -247,7 +247,7 @@ function MiniStat({ label, value, color }) {
   return (
     <div className="bg-bg-card rounded-xl p-2.5 text-center">
       <p className="text-sm font-bold leading-tight" style={{ color }}>{value}</p>
-      <p className="text-xs text-white/35 mt-0.5">{label}</p>
+      <p className="text-xs text-white/40 mt-0.5">{label}</p>
     </div>
   );
 }

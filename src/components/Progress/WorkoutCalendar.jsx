@@ -99,7 +99,7 @@ export default function WorkoutCalendar() {
         {/* Day labels */}
         <div className="grid grid-cols-7 mb-2">
           {DAY_LABELS.map(l => (
-            <div key={l} className="text-center text-xs text-white/25 font-medium">{l}</div>
+            <div key={l} className="text-center text-xs text-white/30 font-medium">{l}</div>
           ))}
         </div>
 

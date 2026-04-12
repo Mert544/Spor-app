@@ -206,7 +206,7 @@ export default function BodyMeasurements() {
               <tbody>
                 {[...sorted].reverse().slice(0, 6).map((row, i) => (
                   <tr key={row.date}>
-                    <td className="text-white/35 py-1.5 pr-2">{row.label}</td>
+                    <td className="text-white/40 py-1.5 pr-2">{row.label}</td>
                     {activeFields.map(f => (
                       <td
                         key={f.key}

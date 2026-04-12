@@ -41,7 +41,7 @@ function SetupScreen({ onSave }) {
             onChange={e => setKey(e.target.value)}
             placeholder="sk-ant-..."
             className="w-full bg-bg-card border border-white/10 rounded-2xl px-4 py-3 text-sm text-white
-                       placeholder:text-white/25 focus:outline-none focus:border-[#14B8A6]/50 pr-12"
+                       placeholder:text-white/30 focus:outline-none focus:border-[#14B8A6]/50 pr-12"
           />
           <button
             type="button"
@@ -64,7 +64,7 @@ function SetupScreen({ onSave }) {
           Koçu Etkinleştir
         </button>
 
-        <p className="text-xs text-white/25 text-center">
+        <p className="text-xs text-white/30 text-center">
           API anahtarını{' '}
           <span className="text-[#14B8A6]/70">console.anthropic.com</span>
           {' '}adresinden alabilirsin.
@@ -231,7 +231,7 @@ export default function CoachPage() {
     <div className="flex flex-col h-full">
       {/* API key badge */}
       <div className="px-4 pt-2 pb-1 flex items-center justify-between">
-        <p className="text-xs text-white/25">AI Koç · claude-opus-4-6</p>
+        <p className="text-xs text-white/30">AI Koç · claude-opus-4-6</p>
         <button
           onClick={() => setAnthropicApiKey('')}
           className="text-xs text-white/20 hover:text-accent-red transition-colors"

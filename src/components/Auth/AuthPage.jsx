@@ -198,7 +198,7 @@ export default function AuthPage() {
           <>
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-white/8" />
-              <span className="text-xs text-white/25">veya</span>
+              <span className="text-xs text-white/30">veya</span>
               <div className="flex-1 h-px bg-white/8" />
             </div>
             <button

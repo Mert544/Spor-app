@@ -182,7 +182,7 @@ export default function WeeklySummary() {
               return (
                 <div key={muscle} className="flex items-center gap-2.5 bg-bg-dark rounded-xl p-2.5">
                   <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                  <p className="text-xs text-white/65 flex-1 truncate">{muscle}</p>
+                  <p className="text-xs text-white/60 flex-1 truncate">{muscle}</p>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-bold leading-none" style={{ color }}>{sets}</p>
                     {lastSets > 0 && diff !== 0 && (
@@ -228,7 +228,7 @@ export default function WeeklySummary() {
 
       {thisWeek.totalSets === 0 && muscleEntries.length === 0 && !checkIn && (
         <div className="text-center py-8">
-          <p className="text-white/25 text-sm">Bu hafta antrenman verisi yok.</p>
+          <p className="text-white/30 text-sm">Bu hafta antrenman verisi yok.</p>
           <p className="text-white/15 text-xs mt-1">Egzersiz kayıtla ve burada görün.</p>
         </div>
       )}

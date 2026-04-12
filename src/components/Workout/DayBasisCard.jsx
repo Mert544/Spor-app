@@ -168,7 +168,7 @@ export default function DayBasisCard({ dayKey, accentColor }) {
               {basis.refs.length} kaynak
             </span>
           )}
-          <span className="text-white/25 text-xs">{open ? '▲' : '▼'}</span>
+          <span className="text-white/30 text-xs">{open ? '▲' : '▼'}</span>
         </div>
       </button>
 
@@ -191,7 +191,7 @@ export default function DayBasisCard({ dayKey, accentColor }) {
 
           {/* References */}
           <div className="space-y-1">
-            <p className="text-xs text-white/25 uppercase tracking-wider font-semibold px-1">
+            <p className="text-xs text-white/30 uppercase tracking-wider font-semibold px-1">
               Kaynaklar
             </p>
             {basis.refs.map((r, i) => (
@@ -199,8 +199,8 @@ export default function DayBasisCard({ dayKey, accentColor }) {
                 key={i}
                 className="flex items-start gap-2 px-1"
               >
-                <span className="text-white/20 text-xs mt-0.5 flex-shrink-0">{i + 1}.</span>
-                <p className="text-xs text-white/35 leading-snug">{r}</p>
+                <span className="text-white/30 text-xs mt-0.5 flex-shrink-0">{i + 1}.</span>
+                <p className="text-xs text-white/40 leading-snug">{r}</p>
               </div>
             ))}
           </div>

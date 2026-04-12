@@ -197,7 +197,7 @@ function OptionCard({ selected, onClick, emoji, label, desc, accentColor, recomm
             </span>
           )}
         </div>
-        <p className="text-xs text-white/45 mt-0.5 leading-relaxed">{desc}</p>
+        <p className="text-xs text-white/50 mt-0.5 leading-relaxed">{desc}</p>
       </div>
 
       {/* Check */}

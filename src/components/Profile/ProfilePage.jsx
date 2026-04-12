@@ -278,7 +278,7 @@ export default function ProfilePage() {
             <p className="text-sm font-semibold text-white">Supplement Rehberi</p>
             <p className="text-xs text-white/40">Seviyene göre takviye önerileri</p>
           </div>
-          <span className="text-white/25 text-sm">›</span>
+          <span className="text-white/30 text-sm">›</span>
         </button>
 
         {/* Actions */}
@@ -385,7 +385,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
+        <p className="text-center text-white/30 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
       </div>
     </div>
   );

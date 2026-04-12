@@ -67,7 +67,7 @@ export default function MesocycleView({ mesocycle, compact = false }) {
                   border: `1px solid ${bg}50`,
                 }}
               />
-              <span className="text-xs text-white/35">{w}</span>
+              <span className="text-xs text-white/40">{w}</span>
             </div>
           );
         })}

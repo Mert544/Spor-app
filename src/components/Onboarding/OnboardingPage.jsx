@@ -161,7 +161,7 @@ export default function OnboardingPage() {
             />
           </div>
           <div className="flex justify-between mt-1.5">
-            <span className="text-xs text-white/20">{step}/{TOTAL_STEPS - 1}</span>
+            <span className="text-xs text-white/30">{step}/{TOTAL_STEPS - 1}</span>
             {step > 1 && (
               <button
                 onClick={() => { setStep(s => s - 1); setError(''); }}
@@ -196,7 +196,7 @@ export default function OnboardingPage() {
             </p>
             <h2 className="text-2xl font-black text-white leading-tight">{current.title}</h2>
             {current.tip && (
-              <p className="text-sm text-white/35 mt-2 leading-relaxed">{current.tip}</p>
+              <p className="text-sm text-white/40 mt-2 leading-relaxed">{current.tip}</p>
             )}
           </div>
 
@@ -260,7 +260,7 @@ function WelcomeStep({ onNext }) {
           💪
         </div>
         <h1 className="text-3xl font-black text-white tracking-tight">V-Taper Coach</h1>
-        <p className="text-white/45 text-base mt-2 leading-relaxed">
+        <p className="text-white/50 text-base mt-2 leading-relaxed">
           Bilime dayalı kişisel antrenman planın
         </p>
       </div>
@@ -276,7 +276,7 @@ function WelcomeStep({ onNext }) {
             className="flex items-center gap-3 px-4 py-2.5 rounded-xl"
             style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <span className="text-lg">{f.icon}</span>
-            <span className="text-sm text-white/55">{f.label}</span>
+            <span className="text-sm text-white/60">{f.label}</span>
           </div>
         ))}
       </div>
@@ -301,7 +301,7 @@ function GenderStep({ gender, onSelect, error }) {
           Program özelleştirmesi
         </p>
         <h2 className="text-2xl font-black text-white">Cinsiyetini seç</h2>
-        <p className="text-sm text-white/35 mt-2">
+        <p className="text-sm text-white/40 mt-2">
           Program ve hacim hedefleri buna göre ayarlanır
         </p>
       </div>
@@ -334,7 +334,7 @@ function GenderStep({ gender, onSelect, error }) {
           </div>
           <div className="text-center">
             <p className="text-lg font-black text-white">Erkek</p>
-            <p className="text-xs text-white/35 mt-1 leading-tight">
+            <p className="text-xs text-white/40 mt-1 leading-tight">
               V-Taper · Hibrit<br />Taktik Atlet
             </p>
           </div>
@@ -367,7 +367,7 @@ function GenderStep({ gender, onSelect, error }) {
           </div>
           <div className="text-center">
             <p className="text-lg font-black text-white">Kadın</p>
-            <p className="text-xs text-white/35 mt-1 leading-tight">
+            <p className="text-xs text-white/40 mt-1 leading-tight">
               Bikini Fit<br />Güç & Şekil
             </p>
           </div>
@@ -376,7 +376,7 @@ function GenderStep({ gender, onSelect, error }) {
 
       {error && <p className="text-accent-red text-xs mt-3 text-center">{error}</p>}
 
-      <p className="text-white/20 text-xs text-center mt-5">
+      <p className="text-white/30 text-xs text-center mt-5">
         Bu seçim sonradan Profil'den değiştirilebilir
       </p>
     </div>

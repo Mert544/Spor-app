@@ -111,7 +111,7 @@ function StepMeta({ form, onChange }) {
           value={form.name}
           onChange={e => onChange('name', e.target.value)}
           placeholder="örn. Kütle Programım"
-          className="w-full bg-bg rounded-xl px-4 py-3 text-white placeholder:text-white/25
+          className="w-full bg-bg rounded-xl px-4 py-3 text-white placeholder:text-white/30
                      border border-white/10 focus:border-[#14B8A6]/50 outline-none text-sm"
         />
       </div>
@@ -238,7 +238,7 @@ function ExerciseRow({ exercise, idx, onUpdate, onRemove, onPickFromLibrary }) {
         <input value={exercise.name} onChange={e => onUpdate(idx, 'name', e.target.value)}
           placeholder="Egzersiz adı"
           className="flex-1 bg-bg-card rounded-lg px-3 py-2 text-sm text-white
-                     placeholder:text-white/25 border border-white/8 outline-none" />
+                     placeholder:text-white/30 border border-white/8 outline-none" />
         <button onClick={() => onPickFromLibrary(idx)}
           title="Kütüphaneden seç"
           className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#14B8A6]/10 text-[#14B8A6] text-sm shrink-0">

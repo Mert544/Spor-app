@@ -61,15 +61,15 @@ function ExProgressCard({ exercise, getHistory, getPR }) {
         </ResponsiveContainer>
       ) : (
         <div className="h-10 flex items-center">
-          <p className="text-xs text-white/20">Henüz log yok</p>
+          <p className="text-xs text-white/30">Henüz log yok</p>
         </div>
       )}
 
       <div className="flex justify-between mt-1 px-0.5">
-        <span className="text-xs text-white/25">
+        <span className="text-xs text-white/30">
           {exercise.sets}×{exercise.reps} · RPE {exercise.rpe}
         </span>
-        <span className="text-xs text-white/25">{history.length} seans</span>
+        <span className="text-xs text-white/30">{history.length} seans</span>
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ function VolumeTab({ programData, logs }) {
     return (
       <div className="px-4 py-12 text-center">
         <p className="text-white/30 text-sm">Henüz antrenman logu yok.</p>
-        <p className="text-white/20 text-xs mt-1">Program aktifleştirip antrenman yaptıkça burada görünecek.</p>
+        <p className="text-white/30 text-xs mt-1">Program aktifleştirip antrenman yaptıkça burada görünecek.</p>
       </div>
     );
   }

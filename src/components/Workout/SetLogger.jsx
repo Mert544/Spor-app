@@ -99,7 +99,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
             disabled={done}
           />
           {!weight && prevWeight && (
-            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-white/25 text-xs pointer-events-none">
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-white/30 text-xs pointer-events-none">
               ↑{prevWeight}
             </span>
           )}

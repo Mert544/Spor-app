@@ -169,15 +169,15 @@ export default function VolumeChart() {
       <div className="flex gap-4 mt-2 justify-center">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-2 rounded-sm bg-accent-teal" />
-          <span className="text-xs text-white/35">Bu hafta</span>
+          <span className="text-xs text-white/40">Bu hafta</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-2 rounded-sm bg-white/15" />
-          <span className="text-xs text-white/35">Geçen hafta</span>
+          <span className="text-xs text-white/40">Geçen hafta</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-0.5 bg-white/25" />
-          <span className="text-xs text-white/35">soluk = MEV altı</span>
+          <span className="text-xs text-white/40">soluk = MEV altı</span>
         </div>
       </div>
     </div>

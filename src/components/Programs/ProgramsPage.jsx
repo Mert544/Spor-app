@@ -121,7 +121,7 @@ function PersonalProgramCard({ program, isActive, onActivate, onRegenerate, onDe
               style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               <p className="text-xs font-semibold text-white">{s.value}</p>
-              <p className="text-xs text-white/35 mt-0.5">{s.label}</p>
+              <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
@@ -374,7 +374,7 @@ export default function ProgramsPage() {
                 <div className="text-center py-10">
                   <p className="text-3xl mb-3">🔍</p>
                   <p className="text-white/50 text-sm font-medium">Bu kriterde program yok.</p>
-                  <p className="text-white/25 text-xs mt-1">Filtre seçimini değiştirmeyi dene.</p>
+                  <p className="text-white/30 text-xs mt-1">Filtre seçimini değiştirmeyi dene.</p>
                 </div>
               )}
 
@@ -480,7 +480,7 @@ export default function ProgramsPage() {
                 + Kendi Programını Oluştur
               </button>
 
-              <p className="text-center text-white/20 text-xs mt-6 mb-2">
+              <p className="text-center text-white/30 text-xs mt-6 mb-2">
                 Program değiştirmek antrenman geçmişini etkilemez.
               </p>
             </div>

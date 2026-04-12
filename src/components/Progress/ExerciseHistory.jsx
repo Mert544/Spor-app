@@ -90,7 +90,7 @@ export default function ExerciseHistory() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-bold text-white">Egzersiz Geçmişi</p>
-          <p className="text-xs text-white/35 mt-0.5">
+          <p className="text-xs text-white/40 mt-0.5">
             {withDataCount} egzersiz · tüm programlar
           </p>
         </div>
@@ -178,7 +178,7 @@ export default function ExerciseHistory() {
                     style={{ backgroundColor: ex.hasData ? color : 'rgba(255,255,255,0.12)' }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${ex.hasData ? 'text-white' : 'text-white/35'}`}>
+                    <p className={`text-sm font-semibold truncate ${ex.hasData ? 'text-white' : 'text-white/40'}`}>
                       {ex.name}
                     </p>
                     <div className="flex items-center gap-1.5 mt-0.5">
@@ -323,7 +323,7 @@ export default function ExerciseHistory() {
                         </span>
                       )}
                       {ex.rest > 0 && (
-                        <span className="text-xs text-white/25">
+                        <span className="text-xs text-white/30">
                           {ex.rest >= 60 ? `${ex.rest / 60}dk` : `${ex.rest}sn`} dinlenme
                         </span>
                       )}

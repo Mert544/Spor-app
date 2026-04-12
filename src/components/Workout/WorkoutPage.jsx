@@ -269,7 +269,7 @@ export default function WorkoutPage() {
           />
           <button
             onClick={() => removeExercise(date, ex.id)}
-            className="absolute top-3 right-12 text-white/25 text-xs hover:text-accent-red transition-colors"
+            className="absolute top-3 right-12 text-white/30 text-xs hover:text-accent-red transition-colors"
           >✕</button>
         </div>
       ))}
