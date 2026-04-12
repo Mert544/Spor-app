@@ -5,10 +5,17 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey  = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// In production (Vercel), route Supabase requests through a same-origin proxy
+// defined in vercel.json — this eliminates CORS preflight issues entirely.
+// In development (Vite dev server), use the direct URL.
+const clientUrl = import.meta.env.PROD
+  ? `${window.location.origin}/supabase-proxy`
+  : supabaseUrl;
+
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseKey);
 
 export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseKey, {
+  ? createClient(clientUrl, supabaseKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,

@@ -7,6 +7,10 @@
     }
   },
   "rewrites": [
+    {
+      "source": "/supabase-proxy/:path*",
+      "destination": "https://sfnpefcxvmypfxzdzzzi.supabase.co/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
