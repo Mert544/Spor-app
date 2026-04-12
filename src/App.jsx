@@ -6,6 +6,7 @@ import WorkoutPage from './components/Workout/WorkoutPage.jsx';
 import ProgressPage from './components/Progress/ProgressPage.jsx';
 import ProfilePage from './components/Profile/ProfilePage.jsx';
 import ProgramsPage from './components/Programs/ProgramsPage.jsx';
+import CreateProgramPage from './components/Programs/CreateProgramPage.jsx';
 import RestTimer from './components/Timer/RestTimer.jsx';
 import OnboardingPage from './components/Onboarding/OnboardingPage.jsx';
 import useSettingsStore from './store/useSettingsStore.js';
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/antrenman" element={<WorkoutPage />} />
           <Route path="/ilerleme" element={<ProgressPage />} />
           <Route path="/programlar" element={<ProgramsPage />} />
+          <Route path="/programlar/olustur" element={<CreateProgramPage />} />
           <Route path="/profil" element={<ProfilePage />} />
         </Routes>
       </main>

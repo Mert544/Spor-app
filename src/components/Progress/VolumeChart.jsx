@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer, ReferenceLine, ComposedChart, ErrorBar } from 'recharts';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
 import { ALL_PROGRAMS } from '../../data/program';
 
 const MUSCLE_COLOR = {
@@ -67,8 +68,10 @@ export default function VolumeChart() {
   const { logs } = useWorkoutStore();
   const activeProgram = useSettingsStore(s => s.activeProgram);
 
-  const resolvedProgram = (activeProgram && ALL_PROGRAMS[activeProgram]) ? activeProgram : 'vtaper_orta';
-  const programData = ALL_PROGRAMS[resolvedProgram];
+  const customPrograms = useCustomProgramStore(s => s.programs);
+  const isCustom = activeProgram?.startsWith('custom_');
+  const resolvedProgram = (activeProgram && (ALL_PROGRAMS[activeProgram] || isCustom)) ? activeProgram : 'vtaper_orta';
+  const programData = isCustom ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']) : (ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']);
 
   // Build idToMuscle mapping from active program
   const idToMuscle = {};

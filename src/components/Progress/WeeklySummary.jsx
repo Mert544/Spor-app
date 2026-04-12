@@ -1,6 +1,7 @@
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
 import { ALL_PROGRAMS } from '../../data/program';
 
 const MUSCLE_COLORS = {
@@ -80,8 +81,10 @@ export default function WeeklySummary() {
   const { weeklyCheckIns, currentWeek } = useProgressStore();
   const streak = getStreak?.() ?? 0;
 
-  const resolvedProgram = (activeProgram && ALL_PROGRAMS[activeProgram]) ? activeProgram : 'vtaper_orta';
-  const programData = ALL_PROGRAMS[resolvedProgram];
+  const customPrograms = useCustomProgramStore(s => s.programs);
+  const isCustom = activeProgram?.startsWith('custom_');
+  const resolvedProgram = (activeProgram && (ALL_PROGRAMS[activeProgram] || isCustom)) ? activeProgram : 'vtaper_orta';
+  const programData = isCustom ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']) : (ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']);
 
   const idToMuscle = {};
   Object.values(programData.program).forEach(day =>

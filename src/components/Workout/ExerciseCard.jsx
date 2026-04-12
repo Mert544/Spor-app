@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
+import useProgressStore from '../../store/useProgressStore';
 import { getVideoUrl } from '../../data/videos';
 import { getAlternatives } from '../../data/exerciseAlternatives';
+import { getProgressionSuggestion } from '../../utils/progressionEngine';
 
 const MUSCLE_COLORS = {
   'Göğüs': '#E94560', 'Trisep': '#EC4899', 'Omuz': '#F5A623',
@@ -16,7 +18,8 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
   const alternatives = getAlternatives(exercise.name);
-  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord } = useWorkoutStore();
+  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord, logs: allLogs } = useWorkoutStore();
+  const { currentWeek } = useProgressStore();
   const complete = isExerciseComplete(date, exercise.id, exercise.sets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
   const logs = getExerciseLogs(date, exercise.id);
@@ -25,6 +28,13 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
   const history = open ? getExerciseHistory(exercise.id) : [];
   const pr = open ? getPersonalRecord(exercise.id) : null;
   const chartData = history.slice(-10).map(h => ({ w: h.maxWeight }));
+
+  // Progression suggestion — only for custom program exercises with progressionRule
+  const suggestion = useMemo(() => {
+    if (!exercise.progressionRule) return null;
+    try { return getProgressionSuggestion(exercise, allLogs, currentWeek); }
+    catch { return null; }
+  }, [exercise, allLogs, currentWeek]);
 
   return (
     <div
@@ -168,6 +178,21 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
                 >
                   + Not ekle
                 </button>
+              )}
+            </div>
+          )}
+
+          {/* Progression suggestion (custom programs) */}
+          {suggestion && (
+            <div className="mb-3 px-3 py-2 rounded-xl border flex items-center gap-2"
+              style={{ backgroundColor: '#14B8A608', borderColor: '#14B8A630' }}>
+              <span className="text-base">🎯</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#14B8A6]">Önerilen</p>
+                <p className="text-xs text-white/60">{suggestion.label}</p>
+              </div>
+              {suggestion.note && (
+                <span className="text-xs text-white/30 shrink-0">{suggestion.note}</span>
               )}
             </div>
           )}

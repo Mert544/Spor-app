@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PROGRAM_LIBRARY, LEVEL_CONFIG } from '../../data/program';
 import useSettingsStore from '../../store/useSettingsStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
 
 const GENDER_FILTERS = [
   { id: 'all',    label: 'Tümü',  emoji: '⚡' },
@@ -9,8 +11,12 @@ const GENDER_FILTERS = [
 ];
 
 export default function ProgramsPage() {
+  const navigate = useNavigate();
   const { activeProgram, setActiveProgram, user } = useSettingsStore();
+  const { programs: customPrograms, deleteProgram } = useCustomProgramStore();
+  const customList = Object.values(customPrograms);
   const [expanded, setExpanded] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   // Default filter based on user's gender setting; falls back to 'all'
   const defaultFilter = user?.gender || 'all';
   const [genderFilter, setGenderFilter] = useState(defaultFilter);
@@ -163,11 +169,79 @@ export default function ProgramsPage() {
           })}
         </div>
 
-        {visiblePrograms.length === 0 && (
+        {visiblePrograms.length === 0 && customList.length === 0 && (
           <div className="text-center py-10">
             <p className="text-white/30 text-sm">Bu filtre için program bulunamadı.</p>
           </div>
         )}
+
+        {/* Custom programs section */}
+        {customList.length > 0 && (
+          <div className="mt-6">
+            <p className="text-xs text-white/40 uppercase tracking-wide mb-3">Kendi Programların</p>
+            <div className="space-y-3">
+              {customList.map(cp => {
+                const isActive = activeProgram === cp.id;
+                return (
+                  <div key={cp.id}
+                    className="bg-bg-card rounded-2xl overflow-hidden border transition-all"
+                    style={{ borderColor: isActive ? cp.color : 'rgba(255,255,255,0.08)' }}>
+                    <div className="flex items-center gap-3 p-4">
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                        style={{ backgroundColor: `${cp.color}20` }}>
+                        {cp.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-bold text-white">{cp.name}</p>
+                          {isActive && (
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
+                              style={{ backgroundColor: cp.color }}>Aktif</span>
+                          )}
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/40">Özel</span>
+                        </div>
+                        <p className="text-xs text-white/40 mt-0.5">{cp.subtitle}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {!isActive && (
+                          <button onClick={() => setActiveProgram(cp.id)}
+                            className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-all"
+                            style={{ backgroundColor: cp.color + '25', border: `1px solid ${cp.color}40` }}>
+                            Seç
+                          </button>
+                        )}
+                        {confirmDelete === cp.id ? (
+                          <div className="flex gap-1">
+                            <button onClick={() => { deleteProgram(cp.id); if (isActive) setActiveProgram('vtaper_orta'); setConfirmDelete(null); }}
+                              className="px-2 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-400 border border-red-500/30">
+                              Sil
+                            </button>
+                            <button onClick={() => setConfirmDelete(null)}
+                              className="px-2 py-1.5 rounded-lg text-xs bg-white/5 text-white/50">
+                              İptal
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setConfirmDelete(cp.id)}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/5 text-white/30 text-sm">
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Create button */}
+        <button onClick={() => navigate('/programlar/olustur')}
+          className="w-full mt-5 py-3.5 rounded-2xl text-sm font-semibold text-[#14B8A6]
+                     border border-[#14B8A6]/30 bg-[#14B8A6]/8 hover:bg-[#14B8A6]/15 transition-all active:scale-[0.98]">
+          + Kendi Programını Oluştur
+        </button>
 
         <p className="text-center text-white/20 text-xs mt-6 mb-2">
           Program değiştirmek antrenman geçmişini etkilemez.

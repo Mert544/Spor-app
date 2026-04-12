@@ -9,6 +9,7 @@ import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
 import useCustomStore from '../../store/useCustomStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
 
 const MUSCLES = ['Göğüs', 'Sırt', 'Omuz', 'Trisep', 'Bisep', 'Bacak', 'Kor'];
 
@@ -46,9 +47,13 @@ export default function WorkoutPage() {
   const { logs, getDayProgress } = useWorkoutStore();
   const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
+  const customPrograms = useCustomProgramStore(s => s.programs);
+
+  const isCustom = activeProgram?.startsWith('custom_');
 
   const resolvedProgram = (() => {
     if (!activeProgram) return 'vtaper_orta';
+    if (isCustom) return activeProgram;
     if (ALL_PROGRAMS[activeProgram]) return activeProgram;
     const withLevel = `${activeProgram}_orta`;
     if (ALL_PROGRAMS[withLevel]) return withLevel;
@@ -56,14 +61,16 @@ export default function WorkoutPage() {
   })();
 
   useEffect(() => {
-    if (activeProgram && !ALL_PROGRAMS[activeProgram]) {
+    if (activeProgram && !isCustom && !ALL_PROGRAMS[activeProgram]) {
       const withLevel = `${activeProgram}_orta`;
       if (ALL_PROGRAMS[withLevel]) setActiveProgram(withLevel);
       else setActiveProgram('vtaper_orta');
     }
-  }, [activeProgram, setActiveProgram]);
+  }, [activeProgram, isCustom, setActiveProgram]);
 
-  const programData = ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'];
+  const programData = isCustom
+    ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'])
+    : (ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']);
   const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayDayIndex());
   const date = getToday();
 

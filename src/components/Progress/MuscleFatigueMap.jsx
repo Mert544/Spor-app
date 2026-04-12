@@ -1,6 +1,7 @@
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
 import { ALL_PROGRAMS } from '../../data/program';
 
 // RP Strength hacim eşikleri (set/hafta) — Israetel et al.
@@ -63,8 +64,10 @@ export default function MuscleFatigueMap() {
   const activeProgram = useSettingsStore(s => s.activeProgram);
   const currentWeek = useProgressStore(s => s.currentWeek);
 
-  const resolvedProgram = (activeProgram && ALL_PROGRAMS[activeProgram]) ? activeProgram : 'vtaper_orta';
-  const programData = ALL_PROGRAMS[resolvedProgram];
+  const customPrograms = useCustomProgramStore(s => s.programs);
+  const isCustom = activeProgram?.startsWith('custom_');
+  const resolvedProgram = (activeProgram && (ALL_PROGRAMS[activeProgram] || isCustom)) ? activeProgram : 'vtaper_orta';
+  const programData = isCustom ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']) : (ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']);
 
   // exerciseId → muscle
   const idToMuscle = {};
