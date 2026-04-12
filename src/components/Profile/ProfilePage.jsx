@@ -3,11 +3,14 @@ import WeeklyCheckIn from './WeeklyCheckIn';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useAuthStore from '../../store/useAuthStore';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
   const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
+  const { session, isGuest, clearAuth } = useAuthStore();
   const workoutStore = useWorkoutStore();
   const [showReset, setShowReset] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -217,6 +220,14 @@ export default function ProfilePage() {
           <p className="text-xs text-white/40 mb-3">
             Veriler yalnızca bu cihazda saklanır. Farklı bir kullanıcı başlatmak için oturumu kapatabilirsin.
           </p>
+          {/* Cloud account badge */}
+          {isSupabaseConfigured && session?.user && (
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#14B8A6]/15 text-[#14B8A6]">Bulut</span>
+              <span className="text-xs text-white/40 truncate">{session.user.email}</span>
+            </div>
+          )}
+
           {!showLogout ? (
             <button
               onClick={() => setShowLogout(true)}
@@ -235,7 +246,11 @@ export default function ProfilePage() {
                   className="flex-1 py-2.5 rounded-xl text-sm bg-bg-dark text-white/50"
                 >İptal</button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    if (isSupabaseConfigured && supabase && session) {
+                      await supabase.auth.signOut();
+                      clearAuth();
+                    }
                     localStorage.clear();
                     window.location.reload();
                   }}
