@@ -17,6 +17,8 @@ export const useSettingsStore = create(
       notificationsEnabled: false,
       deloadDismissed: false,
       coachSessionId: null,
+      tourShown: false,
+      userProfile: null,
 
       setOnboarded: (v) => set({ isOnboarded: v }),
       setUser: (patch) => set((s) => ({ user: { ...s.user, ...patch } })),
@@ -27,6 +29,8 @@ export const useSettingsStore = create(
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setDeloadDismissed: (v) => set({ deloadDismissed: v }),
       setCoachSessionId: (id) => set({ coachSessionId: id }),
+      setTourShown: (v) => set({ tourShown: v }),
+      setUserProfile: (v) => set({ userProfile: v }),
     }),
     { name: 'vtaper-settings' }
   )

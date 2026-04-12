@@ -5,6 +5,7 @@ import Header       from './components/Layout/Header.jsx';
 import RestTimer    from './components/Timer/RestTimer.jsx';
 import AuthPage          from './components/Auth/AuthPage.jsx';
 import PasswordResetPage from './components/Auth/PasswordResetPage.jsx';
+import AppTour           from './components/Onboarding/AppTour.jsx';
 import useSettingsStore      from './store/useSettingsStore.js';
 import useWorkoutStore       from './store/useWorkoutStore.js';
 import useProgressStore      from './store/useProgressStore.js';
@@ -77,6 +78,7 @@ function useDebouncedSync(userId) {
 
 export default function App() {
   const isOnboarded        = useSettingsStore(s => s.isOnboarded);
+  const tourShown          = useSettingsStore(s => s.tourShown);
   const notificationsEnabled = useSettingsStore(s => s.notificationsEnabled);
   const user               = useSettingsStore(s => s.user);
   const { session, loading, isGuest, isPasswordRecovery, setSession, setLoading, setPasswordRecovery, clearAuth } = useAuthStore();
@@ -178,6 +180,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg flex flex-col max-w-lg mx-auto relative">
       <Header />
+      {!tourShown && <AppTour />}
       <main className="flex-1 overflow-y-auto pb-20 pt-16">
         <Suspense fallback={<PageLoader />}>
           <Routes>
