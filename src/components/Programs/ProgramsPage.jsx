@@ -210,6 +210,14 @@ export default function ProgramsPage() {
                             Seç
                           </button>
                         )}
+                        <button onClick={() => navigate(`/programlar/${cp.id}/analiz`)}
+                          className="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white/5 text-white/50 border border-white/8">
+                          Analiz
+                        </button>
+                        <button onClick={() => navigate(`/programlar/duzenle/${cp.id}`)}
+                          className="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white/5 text-white/50 border border-white/8">
+                          Düzenle
+                        </button>
                         {confirmDelete === cp.id ? (
                           <div className="flex gap-1">
                             <button onClick={() => { deleteProgram(cp.id); if (isActive) setActiveProgram('vtaper_orta'); setConfirmDelete(null); }}

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
 import MesocycleView from './MesocycleView';
 import {
@@ -408,9 +408,26 @@ const INITIAL = {
 
 export default function CreateProgramPage() {
   const navigate = useNavigate();
-  const addProgram = useCustomProgramStore(s => s.addProgram);
+  const { editId } = useParams();
+  const { addProgram, updateProgram, programs } = useCustomProgramStore();
+  const isEdit = !!editId;
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState(INITIAL);
+  const [form, setForm] = useState(() => {
+    if (editId && programs[editId]) {
+      const p = programs[editId];
+      return {
+        name:            p.name            || '',
+        emoji:           p.emoji           || '💪',
+        color:           p.color           || '#14B8A6',
+        goal:            p.goal            || 'hypertrophy',
+        mesocycle:       p.mesocycle       || null,
+        volumeLandmarks: p.volumeLandmarks || { ...DEFAULT_VOLUME_LANDMARKS },
+        days:            p.days            || [],
+        program:         p.program         || {},
+      };
+    }
+    return INITIAL;
+  });
 
   const onChange = useCallback((field, value) => {
     setForm(f => ({ ...f, [field]: value }));
@@ -425,7 +442,7 @@ export default function CreateProgramPage() {
   }, [step, form.name, form.mesocycle, form.days]);
 
   const handleSave = useCallback(() => {
-    const programId = `custom_${Date.now()}`;
+    const programId = isEdit ? editId : `custom_${Date.now()}`;
     const finalProgram = {};
     form.days.forEach((dayKey, dIdx) => {
       const day = form.program[dayKey];
@@ -433,13 +450,13 @@ export default function CreateProgramPage() {
         ...day,
         exercises: (day?.exercises || []).map((ex, eIdx) => ({
           ...ex,
-          id: `cx_${programId}_${dIdx}_${eIdx}`,
+          id: ex.id || `cx_${programId}_${dIdx}_${eIdx}`,
           weeklySetRamp: generateSetRamp(ex.sets, form.mesocycle),
         })),
       };
     });
 
-    addProgram({
+    const payload = {
       id: programId,
       name: form.name.trim(),
       emoji: form.emoji,
@@ -452,12 +469,16 @@ export default function CreateProgramPage() {
       mesocycle: form.mesocycle,
       volumeLandmarks: form.volumeLandmarks,
       isCustom: true,
-      createdAt: Date.now(),
-    });
+      createdAt: isEdit ? (programs[editId]?.createdAt || Date.now()) : Date.now(),
+    };
+
+    if (isEdit) updateProgram(editId, payload);
+    else addProgram(payload);
     navigate('/programlar');
-  }, [form, addProgram, navigate]);
+  }, [form, isEdit, editId, addProgram, updateProgram, programs, navigate]);
 
   const STEP_LABELS = ['Bilgi', 'Mesocycle', 'Hacim', 'Günler'];
+  const pageTitle = isEdit ? 'Programı Düzenle' : 'Program Oluştur';
 
   return (
     <div className="min-h-screen bg-bg page-enter">
@@ -468,7 +489,7 @@ export default function CreateProgramPage() {
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 text-lg">
           ‹
         </button>
-        <h1 className="text-base font-semibold text-white flex-1">Program Oluştur</h1>
+        <h1 className="text-base font-semibold text-white flex-1">{pageTitle}</h1>
         <span className="text-xs text-white/40">{STEP_LABELS[step]}</span>
         {form.name && <span className="text-lg">{form.emoji}</span>}
       </div>
