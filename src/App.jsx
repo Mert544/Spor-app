@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import BottomNav    from './components/Layout/BottomNav.jsx';
 import Header       from './components/Layout/Header.jsx';
 import RestTimer    from './components/Timer/RestTimer.jsx';
-import AuthPage     from './components/Auth/AuthPage.jsx';
+import AuthPage          from './components/Auth/AuthPage.jsx';
+import PasswordResetPage from './components/Auth/PasswordResetPage.jsx';
 import useSettingsStore      from './store/useSettingsStore.js';
 import useWorkoutStore       from './store/useWorkoutStore.js';
 import useProgressStore      from './store/useProgressStore.js';
@@ -78,7 +79,7 @@ export default function App() {
   const isOnboarded        = useSettingsStore(s => s.isOnboarded);
   const notificationsEnabled = useSettingsStore(s => s.notificationsEnabled);
   const user               = useSettingsStore(s => s.user);
-  const { session, loading, isGuest, setSession, setLoading, clearAuth } = useAuthStore();
+  const { session, loading, isGuest, isPasswordRecovery, setSession, setLoading, setPasswordRecovery, clearAuth } = useAuthStore();
 
   // ── Supabase auth listener ─────────────────────────────────────────────────
   useEffect(() => {
@@ -100,6 +101,9 @@ export default function App() {
 
         if (event === 'SIGNED_IN' && session?.user) {
           await pullAndRestoreData(session.user.id);
+        }
+        if (event === 'PASSWORD_RECOVERY') {
+          setPasswordRecovery(true);
         }
         if (event === 'SIGNED_OUT') {
           clearAuth();
@@ -149,6 +153,11 @@ export default function App() {
         <div className="w-8 h-8 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
       </div>
     );
+  }
+
+  // ── Password recovery (user clicked reset link in email) ──────────────────
+  if (isPasswordRecovery) {
+    return <PasswordResetPage />;
   }
 
   // ── Auth gate (Supabase configured + not signed in + not guest) ───────────
