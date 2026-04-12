@@ -481,9 +481,9 @@ export default function CreateProgramPage() {
   const pageTitle = isEdit ? 'Programı Düzenle' : 'Program Oluştur';
 
   return (
-    <div className="min-h-screen bg-bg page-enter">
+    <div className="fixed inset-0 z-50 bg-bg overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-bg/95 backdrop-blur border-b border-white/8 px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-white/8 px-4 py-3 flex items-center gap-3">
         <button
           onClick={() => step > 0 ? setStep(s => s - 1) : navigate(-1)}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 text-lg">
@@ -495,7 +495,7 @@ export default function CreateProgramPage() {
       </div>
 
       {/* Content */}
-      <div className="px-4 pt-5 pb-32">
+      <div className="px-4 pt-5 pb-36">
         {step === 0 && <StepMeta      form={form} onChange={onChange} />}
         {step === 1 && <StepMesocycle form={form} onChange={onChange} />}
         {step === 2 && <StepVolume    form={form} onChange={onChange} />}
@@ -503,7 +503,7 @@ export default function CreateProgramPage() {
       </div>
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 px-4 py-4 pb-safe bg-bg/95 backdrop-blur border-t border-white/8">
+      <div className="sticky bottom-0 px-4 py-4 pb-safe bg-bg/95 backdrop-blur border-t border-white/8">
         <button
           onClick={step < 3 ? () => setStep(s => s + 1) : handleSave}
           disabled={!canNext}

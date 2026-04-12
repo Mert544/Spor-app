@@ -206,7 +206,7 @@ export default function ProgramAnalytics() {
 
   if (!programData) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-bg flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/40 text-sm">Program bulunamadı.</p>
           <button onClick={() => navigate('/programlar')} className="mt-4 text-[#14B8A6] text-sm">
@@ -223,9 +223,9 @@ export default function ProgramAnalytics() {
   );
 
   return (
-    <div className="min-h-screen bg-bg page-enter">
+    <div className="fixed inset-0 z-50 bg-bg overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-bg/95 backdrop-blur border-b border-white/8 px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-white/8 px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate('/programlar')}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 text-lg">
           ‹
