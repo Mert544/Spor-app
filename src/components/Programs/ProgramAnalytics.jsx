@@ -5,6 +5,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tool
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
 import { computeMultiWeekVolume } from '../../utils/volumeEngine';
+import MesocycleView from './MesocycleView';
 
 const MUSCLE_COLOR = {
   'Göğüs': '#E94560', 'Sırt': '#3B82F6', 'Omuz': '#F5A623',
@@ -190,19 +191,122 @@ function SummaryBanner({ programData, logs }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────
 
+// ─── Mesocycle Timeline Tab ───────────────────────────────────────────────
+
+function MesocycleTab({ programData, mesoWeek, onWeekChange, onNewMeso }) {
+  const meso = programData.mesocycle;
+  if (!meso) return (
+    <div className="px-4 py-10 text-center text-white/30 text-sm">
+      Bu programda mesocycle tanımlı değil.
+    </div>
+  );
+
+  const totalWeeks = meso.durationWeeks;
+  const phases = meso.phases || [];
+  const prevMesos = programData.previousMesocycles || [];
+
+  return (
+    <div className="px-4 space-y-4 pb-8">
+      {/* Timeline */}
+      <div className="bg-bg-card rounded-2xl p-4 border border-white/8">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold text-white">Mesocycle Takvimi</p>
+          <span className="text-xs text-white/40">{totalWeeks} hafta</span>
+        </div>
+        <MesocycleView mesocycle={meso} />
+      </div>
+
+      {/* Current week control */}
+      <div className="bg-bg-card rounded-2xl p-4 border border-white/8">
+        <p className="text-xs text-white/50 uppercase tracking-wide mb-3">Mevcut Hafta</p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => onWeekChange(Math.max(1, mesoWeek - 1))}
+            disabled={mesoWeek <= 1}
+            className="w-10 h-10 rounded-xl bg-white/5 text-white/60 text-lg disabled:opacity-30">
+            ‹
+          </button>
+          <div className="flex-1 text-center">
+            <p className="text-3xl font-bold text-white">{mesoWeek}</p>
+            <p className="text-xs text-white/40">/ {totalWeeks} hafta</p>
+          </div>
+          <button onClick={() => onWeekChange(Math.min(totalWeeks, mesoWeek + 1))}
+            disabled={mesoWeek >= totalWeeks}
+            className="w-10 h-10 rounded-xl bg-white/5 text-white/60 text-lg disabled:opacity-30">
+            ›
+          </button>
+        </div>
+
+        {/* Week set targets per exercise */}
+        <div className="mt-4 space-y-2">
+          {Object.values(programData.program || {}).flatMap(day => day.exercises || []).filter(ex => ex.weeklySetRamp?.length).map((ex, i) => {
+            const target = ex.weeklySetRamp[mesoWeek - 1] ?? ex.sets;
+            const max = Math.max(...ex.weeklySetRamp);
+            const pct = (target / max) * 100;
+            return (
+              <div key={ex.id || i} className="flex items-center gap-3">
+                <p className="text-xs text-white/60 w-32 truncate shrink-0">{ex.name}</p>
+                <div className="flex-1 h-1.5 rounded-full bg-white/8 overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${pct}%`, backgroundColor: programData.color }} />
+                </div>
+                <span className="text-xs font-bold text-white w-6 text-right">{target}</span>
+                <span className="text-xs text-white/30">set</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* New mesocycle CTA */}
+      {mesoWeek >= totalWeeks && (
+        <button onClick={onNewMeso}
+          className="w-full py-3.5 rounded-2xl text-sm font-semibold text-white transition-all active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #14B8A6, #3B82F6)' }}>
+          Yeni Mesocycle Başlat
+        </button>
+      )}
+
+      {/* Previous mesocycles */}
+      {prevMesos.length > 0 && (
+        <div className="bg-bg-card rounded-2xl p-4 border border-white/8">
+          <p className="text-xs text-white/50 uppercase tracking-wide mb-3">Geçmiş Mesocycle'lar</p>
+          <div className="space-y-2">
+            {prevMesos.slice().reverse().map((prev, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold bg-white/5 text-white/40">
+                  {prevMesos.length - i}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white/70">{prev.durationWeeks} hafta</p>
+                  <p className="text-xs text-white/30">
+                    {new Date(prev.completedAt).toLocaleDateString('tr-TR')}
+                  </p>
+                </div>
+                <span className="text-xs text-[#14B8A6]">Tamamlandı</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const TABS = [
   { id: 'exercise', label: 'Egzersizler' },
   { id: 'volume',   label: 'Hacim' },
+  { id: 'meso',     label: 'Meso' },
 ];
 
 export default function ProgramAnalytics() {
   const { programId } = useParams();
   const navigate = useNavigate();
-  const programs = useCustomProgramStore(s => s.programs);
+  const { programs, getMesocycleWeek, setMesocycleWeek, startNewMesocycle } = useCustomProgramStore();
   const { logs, getExerciseHistory, getPersonalRecord } = useWorkoutStore();
   const [tab, setTab] = useState('exercise');
 
   const programData = programs[programId];
+  const mesoWeek = getMesocycleWeek(programId);
 
   if (!programData) {
     return (
@@ -276,6 +380,15 @@ export default function ProgramAnalytics() {
 
       {tab === 'volume' && (
         <VolumeTab programData={programData} logs={logs} />
+      )}
+
+      {tab === 'meso' && (
+        <MesocycleTab
+          programData={programData}
+          mesoWeek={mesoWeek}
+          onWeekChange={(w) => setMesocycleWeek(programId, w)}
+          onNewMeso={() => { startNewMesocycle(programId); setTab('exercise'); }}
+        />
       )}
     </div>
   );

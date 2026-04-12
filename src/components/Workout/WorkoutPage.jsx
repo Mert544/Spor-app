@@ -47,7 +47,7 @@ export default function WorkoutPage() {
   const { logs, getDayProgress } = useWorkoutStore();
   const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
-  const customPrograms = useCustomProgramStore(s => s.programs);
+  const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle } = useCustomProgramStore();
 
   const isCustom = activeProgram?.startsWith('custom_');
 
@@ -71,6 +71,11 @@ export default function WorkoutPage() {
   const programData = isCustom
     ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'])
     : (ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']);
+
+  // For custom programs: use per-program mesocycle week
+  const customMesoWeek = isCustom ? getMesocycleWeek(resolvedProgram) : null;
+  const effectiveWeek = isCustom ? customMesoWeek : currentWeek;
+
   const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayDayIndex());
   const date = getToday();
 
@@ -86,6 +91,11 @@ export default function WorkoutPage() {
   const { show: showDeload, count: deloadCount, dismiss: dismissDeload } = useDeloadSuggestion(logs);
   const currentPhase = getCurrentPhase(currentWeek);
   const isDeloadWeek = currentPhase && currentPhase.deload === currentWeek;
+
+  // Custom program mesocycle phase
+  const customPhase = isCustom ? programData?.mesocycle?.phases?.find(p => p.weeks?.includes(effectiveWeek)) : null;
+  const customMesoTotal = programData?.mesocycle?.durationWeeks ?? 0;
+  const customIsDeload = !!(customPhase?.volumeMultiplier);
 
   if (!dayData) {
     return (
@@ -150,6 +160,48 @@ export default function WorkoutPage() {
         </div>
       )}
 
+      {/* Custom program mesocycle banner */}
+      {isCustom && customMesoTotal > 0 && (
+        <div className="mx-4 mb-3 rounded-xl px-4 py-2.5"
+          style={{
+            background: customIsDeload
+              ? 'linear-gradient(135deg, #F5A62308, #F5A62318)'
+              : `linear-gradient(135deg, ${programData.color}08, ${programData.color}18)`,
+            border: `1px solid ${customIsDeload ? '#F5A62330' : programData.color + '40'}`,
+          }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: (customIsDeload ? '#F5A623' : programData.color) + '25', color: customIsDeload ? '#F5A623' : programData.color }}>
+                Hf {effectiveWeek}/{customMesoTotal}
+              </span>
+              <span className="text-xs font-semibold text-white/60">
+                {customPhase?.name ?? 'Birikim'}
+                {customIsDeload && ' · DELOAD'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {customPhase?.rpeMax && (
+                <span className="text-xs text-white/30">RPE ≤{customPhase.rpeMax}</span>
+              )}
+              {effectiveWeek < customMesoTotal && (
+                <button onClick={() => incrementMesocycleWeek(resolvedProgram)}
+                  className="text-xs px-2 py-0.5 rounded-lg"
+                  style={{ backgroundColor: programData.color + '20', color: programData.color }}>
+                  Hf +1 →
+                </button>
+              )}
+              {effectiveWeek >= customMesoTotal && (
+                <button onClick={() => startNewMesocycle(resolvedProgram)}
+                  className="text-xs px-2 py-0.5 rounded-lg bg-[#14B8A6]/15 text-[#14B8A6]">
+                  Yeni Meso
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Deload suggestion banner */}
       {showDeload && (
         <div className="mx-4 mb-3 rounded-xl px-4 py-3 border border-accent-gold/30 bg-accent-gold/5">
@@ -202,6 +254,7 @@ export default function WorkoutPage() {
           date={date}
           accentColor={dayData.color}
           supersetPartnerName={ex.superset ? nameMap[ex.superset] : null}
+          mesoWeek={isCustom ? effectiveWeek : undefined}
         />
       ))}
 

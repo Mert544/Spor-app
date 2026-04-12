@@ -13,14 +13,20 @@ const MUSCLE_COLORS = {
   'Kor': '#14B8A6', 'Hamstring': '#10B981', 'Kalça': '#10B981',
 };
 
-export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName }) {
+export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
   const alternatives = getAlternatives(exercise.name);
   const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord, logs: allLogs } = useWorkoutStore();
   const { currentWeek } = useProgressStore();
-  const complete = isExerciseComplete(date, exercise.id, exercise.sets);
+
+  // Use weeklySetRamp if available (custom programs pass mesoWeek prop)
+  const effectiveWeek = mesoWeek ?? currentWeek;
+  const rampSets = exercise.weeklySetRamp?.[effectiveWeek - 1] ?? exercise.sets;
+  const isRampActive = !!(exercise.weeklySetRamp?.length);
+
+  const complete = isExerciseComplete(date, exercise.id, rampSets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
   const logs = getExerciseLogs(date, exercise.id);
   const doneSets = Object.values(logs).filter(l => l.done).length;
@@ -72,7 +78,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         >
           {complete
             ? <span className="text-white text-sm font-bold">✓</span>
-            : <span className="text-white/40 text-xs font-mono">{doneSets}/{exercise.sets}</span>
+            : <span className="text-white/40 text-xs font-mono">{doneSets}/{rampSets}</span>
           }
         </div>
 
@@ -82,7 +88,13 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           </p>
           {/* Chips row */}
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            <Chip text={`${exercise.sets}×${exercise.reps}`} color="rgba(255,255,255,0.12)" textColor="rgba(255,255,255,0.6)" />
+            <Chip
+              text={isRampActive ? `${rampSets}×${exercise.reps}` : `${exercise.sets}×${exercise.reps}`}
+              color="rgba(255,255,255,0.12)" textColor="rgba(255,255,255,0.6)"
+            />
+            {isRampActive && rampSets !== exercise.sets && (
+              <Chip text={`Hf${effectiveWeek}`} color="#14B8A618" textColor="#14B8A6" />
+            )}
             {exercise.rpe && <Chip text={`RPE ${exercise.rpe}`} color={accentColor + '22'} textColor={accentColor + 'cc'} />}
             {exercise.rest > 0 && <Chip text={`${exercise.rest}sn ⏱`} color="rgba(255,255,255,0.06)" textColor="rgba(255,255,255,0.35)" />}
             {personalNote && <Chip text="📝" color="#F5A62320" textColor="#F5A623" />}
@@ -206,7 +218,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             <span className="w-8" />
           </div>
 
-          {Array.from({ length: exercise.sets }, (_, i) => (
+          {Array.from({ length: rampSets }, (_, i) => (
             <SetLogger
               key={`${exercise.id}-set-${i}`}
               date={date}
