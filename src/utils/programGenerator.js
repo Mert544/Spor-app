@@ -519,9 +519,10 @@ function applyParams(exercise, params) {
 }
 
 // ─── Build exercises for a single day ──────────────────────────────────────
-function buildDayExercises(dayName, goal, experience, equipment, params, dayIdx) {
+function buildDayExercises(dayName, goal, experience, equipment, params, dayIdx, maxExOverride) {
   const slots = DAY_CONTENT[dayName] || DAY_CONTENT['Full Body A'];
-  const maxEx = experience === 'beginner' ? 4 : 6;
+  const experienceMax = experience === 'beginner' ? 4 : 6;
+  const maxEx = maxExOverride != null ? Math.min(maxExOverride, experienceMax) : experienceMax;
   const limitedSlots = slots.slice(0, maxEx);
 
   const usedInDay = new Set();
@@ -554,7 +555,7 @@ function buildDayExercises(dayName, goal, experience, equipment, params, dayIdx)
 
 // ─── Main generator ────────────────────────────────────────────────────────
 export function generateProgram(profile) {
-  const { goal, experience, days, equipment, gender, name } = profile;
+  const { goal, experience, days, equipment, sessionDuration, gender, name } = profile;
 
   // Reset used IDs for this generation
   usedIds.clear();
@@ -563,6 +564,10 @@ export function generateProgram(profile) {
   const params = (PARAMS[goal] || PARAMS.fitness)[experience] || PARAMS.fitness.intermediate;
   const progressionType = PROGRESSION_RULE[experience]?.type || 'double_progression';
 
+  // Max exercises per day based on session duration
+  const durationMaxMap = { short: 4, medium: 5, long: 7 };
+  const durationMax = sessionDuration ? (durationMaxMap[sessionDuration] ?? 5) : null;
+
   // Resolve day names
   const templates = DAY_TEMPLATES[days] || DAY_TEMPLATES[4];
   const dayNames = templates[goal] || templates[Object.keys(templates)[0]];
@@ -570,7 +575,7 @@ export function generateProgram(profile) {
   // Build program object
   const program = {};
   dayNames.forEach((dayName, dayIdx) => {
-    const exercises = buildDayExercises(dayName, goal, experience, equipment, params, dayIdx);
+    const exercises = buildDayExercises(dayName, goal, experience, equipment, params, dayIdx, durationMax);
     program[dayName] = {
       color: meta.color,
       emoji: DAY_EMOJIS[dayName] || meta.emoji,
@@ -612,7 +617,7 @@ export function generateProgram(profile) {
     subtitle: `${meta.label} · ${days} Gün/Hafta`,
     isCustom: true,
     isPersonal: true,
-    profile: { goal, experience, days, equipment, gender: gender || null },
+    profile: { goal, experience, days, equipment, sessionDuration: sessionDuration || 'medium', gender: gender || null },
     mesocycle: {
       durationWeeks,
       goal,
