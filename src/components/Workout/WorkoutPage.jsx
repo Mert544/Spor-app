@@ -49,7 +49,7 @@ export default function WorkoutPage() {
   const { getExercises, addExercise, removeExercise } = useCustomStore();
   const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle } = useCustomProgramStore();
 
-  const isCustom = activeProgram?.startsWith('custom_');
+  const isCustom = activeProgram?.startsWith('custom_') || activeProgram?.startsWith('personal_');
 
   const resolvedProgram = (() => {
     if (!activeProgram) return 'vtaper_orta';
