@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import WeeklyCheckIn from './WeeklyCheckIn';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useCustomStore from '../../store/useCustomStore';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
 
 export default function ProfilePage() {
@@ -17,6 +19,47 @@ export default function ProfilePage() {
 
   const phase = getPhaseFromWeek(currentWeek);
   const phaseData = PHASES[phase];
+
+  // Training stats
+  const trainingStats = useMemo(() => {
+    const logs = workoutStore.logs;
+    let totalSessions = 0;
+    let totalVolume = 0;
+    let totalSets = 0;
+    let prCount = 0;
+    const bestByExercise = {};
+
+    const dates = Object.keys(logs).sort();
+    for (const date of dates) {
+      const dayLogs = logs[date];
+      let hasDone = false;
+      for (const [exId, exLogs] of Object.entries(dayLogs)) {
+        for (const s of Object.values(exLogs)) {
+          if (!s?.done) continue;
+          hasDone = true;
+          totalSets++;
+          if (s.weight && s.reps) {
+            totalVolume += (Number(s.weight) || 0) * (parseInt(s.reps) || 0);
+            const est = s.reps === 1 ? Number(s.weight) : Math.round(Number(s.weight) * (1 + parseInt(s.reps) / 30));
+            if (!bestByExercise[exId] || est > bestByExercise[exId]) {
+              if (bestByExercise[exId]) prCount++;
+              bestByExercise[exId] = est;
+            }
+          }
+        }
+      }
+      if (hasDone) totalSessions++;
+    }
+
+    // This month sessions
+    const now = new Date();
+    const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const thisMonthSessions = dates.filter(d => d.startsWith(monthPrefix) && Object.values(logs[d]).some(ex => Object.values(ex).some(s => s?.done))).length;
+
+    return { totalSessions, totalVolume, totalSets, prCount, thisMonthSessions };
+  }, [workoutStore.logs]);
+
+  const streak = workoutStore.getStreak();
 
   function startEdit() {
     setEditValues({
@@ -44,8 +87,12 @@ export default function ProfilePage() {
 
   function handleExport() {
     const ps = useProgressStore.getState();
+    const ss = useSettingsStore.getState();
+    const cp = useCustomProgramStore.getState();
+    const ce = useCustomStore.getState();
     const data = {
       exportedAt: new Date().toISOString(),
+      version: 2,
       progress: {
         weights: ps.weights,
         measurements: ps.measurements,
@@ -56,6 +103,15 @@ export default function ProfilePage() {
       },
       workoutLogs: workoutStore.logs,
       exerciseNotes: useWorkoutStore.getState().exerciseNotes,
+      settings: {
+        user: ss.user,
+        activeProgram: ss.activeProgram,
+        hapticEnabled: ss.hapticEnabled,
+        soundEnabled: ss.soundEnabled,
+        notificationsEnabled: ss.notificationsEnabled,
+      },
+      customPrograms: cp.programs,
+      customExercises: ce.dayExercises,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -86,10 +142,21 @@ export default function ProfilePage() {
         if (data.progress) {
           localStorage.setItem('vtaper-progress', JSON.stringify({ state: data.progress, version: 0 }));
         }
-        alert('Veri başarıyla içe aktarıldı. Sayfa yenilenecek.');
+        if (data.settings) {
+          const currentSettings = JSON.parse(localStorage.getItem('vtaper-settings') || '{}');
+          const mergedState = { ...(currentSettings.state || {}), ...data.settings, isOnboarded: true };
+          localStorage.setItem('vtaper-settings', JSON.stringify({ state: mergedState, version: 0 }));
+        }
+        if (data.customPrograms) {
+          localStorage.setItem('vtaper-custom-programs', JSON.stringify({ state: { programs: data.customPrograms }, version: 0 }));
+        }
+        if (data.customExercises) {
+          localStorage.setItem('vtaper-custom-exercises', JSON.stringify({ state: { dayExercises: data.customExercises }, version: 0 }));
+        }
+        alert('Tum veriler basariyla ice aktarildi. Sayfa yenilenecek.');
         window.location.reload();
       } catch {
-        alert('Geçersiz dosya formatı. Daha önce dışa aktarılmış bir JSON dosyası kullanın.');
+        alert('Gecersiz dosya formati. Daha once disa aktarilmis bir JSON dosyasi kullanin.');
       }
     };
     reader.readAsText(file);
@@ -172,6 +239,21 @@ export default function ProfilePage() {
               </div>
             </>
           )}
+        </div>
+
+        {/* Training stats */}
+        <div className="bg-bg-card rounded-2xl p-4 mb-4">
+          <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Antrenman Istatistikleri</p>
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <StatCell icon="🏋️" value={trainingStats.totalSessions} label="Seans" color="#14B8A6" />
+            <StatCell icon="⚖️" value={trainingStats.totalVolume > 0 ? `${(trainingStats.totalVolume / 1000).toFixed(0)}t` : '0'} label="Toplam Hacim" color="#3B82F6" />
+            <StatCell icon="🏅" value={trainingStats.prCount} label="PR" color="#F5A623" />
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <StatCell icon="🔥" value={streak} label="Seri" color="#E94560" />
+            <StatCell icon="📋" value={trainingStats.totalSets} label="Toplam Set" color="#8B5CF6" />
+            <StatCell icon="📅" value={trainingStats.thisMonthSessions} label="Bu Ay" color="#10B981" />
+          </div>
         </div>
 
         {/* Week selector */}
@@ -351,7 +433,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
+        <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.3</p>
       </div>
     </div>
   );
@@ -362,6 +444,16 @@ function InfoCell({ label, value, color }) {
     <div className="bg-bg-dark rounded-xl p-2.5 text-center">
       <p className="text-xs text-white/40 mb-0.5">{label}</p>
       <p className="text-sm font-bold" style={{ color: color || 'rgba(255,255,255,0.8)' }}>{value}</p>
+    </div>
+  );
+}
+
+function StatCell({ icon, value, label, color }) {
+  return (
+    <div className="bg-bg-dark rounded-xl p-2.5 text-center">
+      <span className="text-base">{icon}</span>
+      <p className="text-sm font-bold mt-0.5" style={{ color }}>{value}</p>
+      <p className="text-xs text-white/35">{label}</p>
     </div>
   );
 }

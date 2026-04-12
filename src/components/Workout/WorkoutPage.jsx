@@ -97,6 +97,8 @@ export default function WorkoutPage() {
   const customMesoTotal = programData?.mesocycle?.durationWeeks ?? 0;
   const customIsDeload = !!(customPhase?.volumeMultiplier);
 
+  const streak = useWorkoutStore.getState().getStreak();
+
   if (!dayData) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -127,6 +129,15 @@ export default function WorkoutPage() {
         days={programData.days}
         program={programData.program}
       />
+
+      {/* Streak banner */}
+      {streak >= 2 && (
+        <div className="mx-4 mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#E94560]/8 border border-[#E94560]/20">
+          <span className="text-sm">🔥</span>
+          <span className="text-xs font-semibold text-[#E94560]">{streak} gun seri!</span>
+          <span className="text-xs text-white/30">Devam et, momentum senin!</span>
+        </div>
+      )}
 
       {/* Phase / Week context banner */}
       {currentPhase && (
