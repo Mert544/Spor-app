@@ -3,6 +3,7 @@ import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
 import CompletionCard from './CompletionCard';
+import DayBasisCard from './DayBasisCard';
 import { ALL_PROGRAMS, getTodayDayIndex, PHASES } from '../../data/program';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
@@ -169,6 +170,9 @@ export default function WorkoutPage() {
       </div>
 
       <ProgressBar completed={completed} total={total} color={dayData.color} />
+
+      {/* Scientific basis accordion */}
+      <DayBasisCard dayKey={dayKey} accentColor={dayData.color} />
 
       {/* Morning note */}
       {dayData.morning && (

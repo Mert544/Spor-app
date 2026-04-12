@@ -6,10 +6,11 @@ export default {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#0f172a',
-          card: '#1e293b',
-          dark: '#0a0f1a',
-          hover: '#263349',
+          DEFAULT: '#09111f',
+          card: '#111c2d',
+          dark: '#060d18',
+          hover: '#1a2840',
+          surface: '#0e1929',
         },
         accent: {
           red: '#E94560',
