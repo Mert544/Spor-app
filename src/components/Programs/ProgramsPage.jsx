@@ -27,11 +27,12 @@ const EXPERIENCE_LABELS = {
 
 // ─── PersonalProgramCard ───────────────────────────────────────────────────
 
-function PersonalProgramCard({ program, isActive, onActivate, onRegenerate }) {
+function PersonalProgramCard({ program, isActive, onActivate, onRegenerate, onDelete }) {
   const goal = program.profile?.goal;
   const experience = program.profile?.experience;
   const days = program.profile?.days;
   const color = program.color || '#14B8A6';
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const avgExercises = useMemo(() => {
     const entries = Object.values(program.program || {});
@@ -75,6 +76,35 @@ function PersonalProgramCard({ program, isActive, onActivate, onRegenerate }) {
             <p className="text-xs text-white/40 mt-0.5">
               {days} gün/hafta · {EXPERIENCE_LABELS[experience] || experience}
             </p>
+          </div>
+
+          {/* Delete button */}
+          <div className="flex-shrink-0">
+            {showDeleteConfirm ? (
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => { onDelete(); setShowDeleteConfirm(false); }}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold border"
+                  style={{ backgroundColor: 'rgba(233,69,96,0.15)', color: '#E94560', borderColor: 'rgba(233,69,96,0.30)' }}
+                >
+                  Sil
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-2.5 py-1.5 rounded-lg text-xs bg-white/5 text-white/50 border border-white/10"
+                >
+                  İptal
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors text-white/30 hover:text-[#E94560]"
+                style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+              >
+                🗑
+              </button>
+            )}
           </div>
         </div>
 
@@ -166,7 +196,7 @@ export default function ProgramsPage() {
   function handleWizardComplete(generatedProgram) {
     setShowWizard(false);
     setActiveProgram(generatedProgram.id);
-    setActiveTab('kisisel');
+    setTimeout(() => navigate('/antrenman'), 300);
   }
 
   return (
@@ -489,6 +519,10 @@ export default function ProgramsPage() {
                         isActive={activeProgram === prog.id}
                         onActivate={() => setActiveProgram(prog.id)}
                         onRegenerate={() => setShowWizard(true)}
+                        onDelete={() => {
+                          deleteProgram(prog.id);
+                          if (activeProgram === prog.id) setActiveProgram('vtaper_orta');
+                        }}
                       />
                     ))}
                   </div>
