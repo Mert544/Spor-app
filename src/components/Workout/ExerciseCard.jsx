@@ -75,15 +75,17 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
 
   return (
     <div
-      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all"
+      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all duration-300"
       style={{
-        backgroundColor: '#1e293b',
+        background: complete
+          ? `linear-gradient(135deg, ${accentColor}14 0%, #1e293b 55%)`
+          : '#1e293b',
         border: complete
-          ? `1.5px solid ${accentColor}`
+          ? `1.5px solid ${accentColor}90`
           : exercise.superset
           ? `1.5px solid ${accentColor}44`
-          : '1.5px solid transparent',
-        boxShadow: complete ? `0 0 12px ${accentColor}33` : 'none',
+          : '1.5px solid rgba(255,255,255,0.07)',
+        boxShadow: complete ? `0 0 18px ${accentColor}22` : 'none',
       }}
     >
       {/* Superset badge */}
@@ -98,7 +100,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
       {/* Header row */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
       >
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all"
@@ -139,13 +141,16 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           >
             {exercise.muscle}
           </span>
-          <span className="text-white/30 text-xs">{open ? '▲' : '▼'}</span>
+          <span
+            className="text-white/30 text-xs transition-transform duration-200 inline-block"
+            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          >▼</span>
         </div>
       </button>
 
       {/* Expanded */}
       {open && (
-        <div className="px-3 pb-3 border-t border-white/5 pt-2">
+        <div className="px-3 pb-3 border-t border-white/5 pt-2 animate-fadeInUp">
           {/* Program note + Video + Alt buttons */}
           <div className="flex items-start gap-2 mb-2">
             {exercise.note && (

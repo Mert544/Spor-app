@@ -69,7 +69,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   }
 
   return (
-    <div className={`transition-all ${done ? 'opacity-60' : ''}`}>
+    <div className={`transition-all duration-200 ${done ? 'opacity-50' : 'opacity-100'}`}>
       <div className="flex items-center gap-2 py-1.5 px-1">
         {/* Quick copy from previous set */}
         {prevSetEntry?.weight && !entry.weight && !done ? (
@@ -137,13 +137,13 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
         {/* Done toggle */}
         <button
           onClick={handleDone}
-          className="w-8 h-8 rounded-full flex items-center justify-center transition-all border flex-shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 border flex-shrink-0 active:scale-75"
           style={done
-            ? { backgroundColor: accentColor, borderColor: accentColor }
+            ? { backgroundColor: accentColor, borderColor: accentColor, boxShadow: `0 0 8px ${accentColor}55` }
             : { borderColor: 'rgba(255,255,255,0.2)', backgroundColor: 'transparent' }
           }
         >
-          {done && <span className="text-white text-xs">✓</span>}
+          {done && <span className="text-white text-xs font-bold">✓</span>}
         </button>
       </div>
 
