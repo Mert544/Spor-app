@@ -35,12 +35,43 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
   const pr = open ? getPersonalRecord(exercise.id) : null;
   const chartData = history.slice(-10).map(h => ({ w: h.maxWeight }));
 
-  // Progression suggestion — only for custom program exercises with progressionRule
+  // Infer a progression rule for static program exercises that lack one
+  const exerciseWithRule = useMemo(() => {
+    if (exercise.progressionRule) return exercise;
+    const reps = exercise.reps ?? '';
+    const rpe  = exercise.rpe  ?? '';
+    const repMax = parseInt(String(reps).split('-').pop()) || 0;
+
+    let rule;
+    if (repMax <= 6) {
+      // Heavy strength range → linear
+      rule = { type: 'linear', params: { loadIncrement: 2.5 } };
+    } else if (String(rpe).includes('7') || String(rpe).includes('8')) {
+      // Moderate RPE range → double progression
+      const repParts = String(reps).split('-');
+      rule = {
+        type: 'double_progression',
+        params: {
+          repRangeMin: parseInt(repParts[0]) || 8,
+          repRangeMax: parseInt(repParts[1]) || 12,
+          loadIncrement: 2.5,
+        },
+      };
+    } else {
+      // Default: double progression
+      rule = {
+        type: 'double_progression',
+        params: { repRangeMin: 10, repRangeMax: 15, loadIncrement: 2.5 },
+      };
+    }
+    return { ...exercise, progressionRule: rule };
+  }, [exercise]);
+
+  // Progression suggestion for all exercises
   const suggestion = useMemo(() => {
-    if (!exercise.progressionRule) return null;
-    try { return getProgressionSuggestion(exercise, allLogs, currentWeek); }
+    try { return getProgressionSuggestion(exerciseWithRule, allLogs, currentWeek); }
     catch { return null; }
-  }, [exercise, allLogs, currentWeek]);
+  }, [exerciseWithRule, allLogs, currentWeek]);
 
   return (
     <div
