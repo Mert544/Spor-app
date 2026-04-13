@@ -3,6 +3,15 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './styles/globals.css';
+import { useSettingsStore } from './store/useSettingsStore';
+import { applyTheme, loadTheme } from './styles/theme';
+
+// Apply theme on mount
+const { getCurrentTheme } = useSettingsStore.getState();
+const themeToApply = getCurrentTheme();
+if (themeToApply !== 'system') {
+  applyTheme(themeToApply);
+}
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

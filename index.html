@@ -48,7 +48,28 @@
       }
     </script>
   </head>
-  <body style="background:#0f172a">
+  <style>
+    :root {
+      --color-bg: #0f172a;
+      --color-bg-card: #1e293b;
+      --color-bg-card-hover: #334155;
+      --color-bg-input: #1e293b;
+      --color-text: #ffffff;
+      --color-text-muted: rgba(255,255,255,0.6);
+      --color-text-muted-light: rgba(255,255,255,0.3);
+      --color-primary: #14B8A6;
+      --color-primary-hover: #0d9488;
+      --color-accent: #E94560;
+      --color-accent-hover: #d63d52;
+      --color-border: rgba(255,255,255,0.1);
+      --color-border-hover: rgba(255,255,255,0.2);
+      --color-success: #10B981;
+      --color-warning: #F59E0B;
+      --color-error: #E94560;
+      --color-gradient: linear-gradient(135deg, #14B8A6 0%, #0d9488 100%);
+    }
+  </style>
+  <body style="background:#0f172a; transition: background-color 0.3s ease;">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

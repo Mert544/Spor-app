@@ -7,6 +7,7 @@ import useSettingsStore from '../../store/useSettingsStore';
 import useAuthStore from '../../store/useAuthStore';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
+import ThemeToggle from '../Settings/ThemeToggle';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
