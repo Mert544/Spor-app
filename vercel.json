@@ -1,4 +1,5 @@
 {
+  "name": "vtaper-coach",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
