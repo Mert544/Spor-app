@@ -23,6 +23,7 @@ const CreateProgramPage= lazy(() => import('./components/Programs/CreateProgramP
 const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalytics.jsx'));
 const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
 const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
+const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.jsx'));
 
 function PageLoader() {
   return (
@@ -194,6 +195,7 @@ export default function App() {
             <Route path="/programlar/:programId/analiz" element={<ProgramAnalytics />} />
             <Route path="/profil" element={<ProfilePage />} />
             <Route path="/takviye" element={<SupplementGuide />} />
+            <Route path="/premium" element={<PremiumPage />} />
           </Routes>
         </Suspense>
       </main>

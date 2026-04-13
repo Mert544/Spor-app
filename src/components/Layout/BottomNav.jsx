@@ -29,6 +29,12 @@ const Icons = {
       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
   ),
+  Premium: ({ active }) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 3-1.912 5.813a2 2 0 0 0-1.173-.056L7 8.277V5.5A2.5 2.5 0 0 0 4.5 3h-2A2.5 2.5 0 0 0 0 5.5v2.777l-1.915.48a2 2 0 0 0-1.173.056L12 3ZM6.5 13.5h11m-11 5a2.5 2.5 0 0 0 5 0v.5A2.5 2.5 0 0 0-5 0v-.5Zm0 4a2.5 2.5 0 0 0 5 0v.5A2.5 2.5 0 0 0-5 0v-.5Z" />
+      <path d="M14.5 9.5a2.5 2.5 0 0 0-5 0" />
+    </svg>
+  ),
 };
 
 const ACTIVE_COLOR = '#14B8A6'; // teal — more premium than red for nav
@@ -38,6 +44,7 @@ const tabs = [
   { to: '/ilerleme',  Icon: Icons.Progress, label: 'İlerleme' },
   { to: '/programlar', Icon: Icons.Programs, label: 'Programlar' },
   { to: '/profil',    Icon: Icons.Profile,  label: 'Profil' },
+  { to: '/premium',   Icon: Icons.Premium, label: 'Premium' },
 ];
 
 export default function BottomNav() {
