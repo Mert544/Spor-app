@@ -28,6 +28,9 @@ const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.
 const LandingPage        = lazy(() => import('./components/Landing/LandingPage.jsx'));
 const AnalyticsDashboard = lazy(() => import('./components/Admin/AnalyticsDashboard.jsx'));
 const Dashboard          = lazy(() => import('./components/Dashboard/Dashboard.jsx'));
+const ChallengePage      = lazy(() => import('./components/Challenge/ChallengePage.jsx'));
+const LeaderboardPage    = lazy(() => import('./components/Social/LeaderboardPage.jsx'));
+const NutritionPage      = lazy(() => import('./components/Nutrition/NutritionPage.jsx'));
 
 function PageLoader() {
   return (
@@ -287,6 +290,21 @@ export default function App() {
               <Route path="/analytics" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <AnalyticsDashboard />
+                </motion.div>
+              } />
+              <Route path="/challenges" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ChallengePage />
+                </motion.div>
+              } />
+              <Route path="/leaderboard" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <LeaderboardPage />
+                </motion.div>
+              } />
+              <Route path="/beslenme" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <NutritionPage />
                 </motion.div>
               } />
             </Routes>

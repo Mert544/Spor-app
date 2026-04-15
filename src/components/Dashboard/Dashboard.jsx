@@ -341,20 +341,35 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <SlideUp delay={0.4}>
-        <div className="grid grid-cols-2 gap-3">
+        <h3 className="text-sm font-semibold text-white/50 mb-3">Hızlı Erişim</h3>
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <Link
+            to="/challenges"
+            className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
+          >
+            <span className="text-xl mb-1 block">🏆</span>
+            <span className="text-xs text-white/70">Challenge</span>
+          </Link>
+          <Link
+            to="/leaderboard"
+            className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
+          >
+            <span className="text-xl mb-1 block">🏅</span>
+            <span className="text-xs text-white/70">Sıralama</span>
+          </Link>
+          <Link
+            to="/beslenme"
+            className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
+          >
+            <span className="text-xl mb-1 block">🥗</span>
+            <span className="text-xs text-white/70">Beslenme</span>
+          </Link>
           <Link
             to="/programlar"
             className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
           >
             <span className="text-xl mb-1 block">📋</span>
             <span className="text-xs text-white/70">Programlar</span>
-          </Link>
-          <Link
-            to="/ilerleme"
-            className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
-          >
-            <span className="text-xl mb-1 block">📊</span>
-            <span className="text-xs text-white/70">İlerleme</span>
           </Link>
         </div>
       </SlideUp>
