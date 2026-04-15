@@ -1,11 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthStore, SUBSCRIPTION_TIERS } from '../../store/useAuthStore';
 import { PLANS } from '../../lib/stripe';
+import { SlideUp } from '../UI/AnimatedCard.jsx';
 
 export default function PremiumPage() {
-  const { subscriptionTier, subscriptionExpiry, isPremium, getTier } = useAuthStore();
+  const { subscriptionTier, subscriptionExpiry, isPremium, getTier, stripeCustomerId } = useAuthStore();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  const success = searchParams.get('success');
+  const canceled = searchParams.get('canceled');
+
+  const handleManageSubscription = async () => {
+    if (!stripeCustomerId) {
+      alert('Müşteri bilgisi bulunamadı.');
+      return;
+    }
+    setPortalLoading(true);
+    try {
+      const response = await fetch('/api/customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: stripeCustomerId,
+          returnUrl: window.location.origin + '/premium',
+        }),
+      });
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      alert('Portal açılamadı. Tekrar dene.');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const currentTier = getTier();
   const isExpired = subscriptionExpiry && new Date(subscriptionExpiry) < new Date();
@@ -59,6 +93,44 @@ export default function PremiumPage() {
         </p>
       </div>
 
+      {/* Success Banner */}
+      {success && (
+        <SlideUp>
+          <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-2xl p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-[#10B981]/20 flex items-center justify-center text-2xl">
+                🎉
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-[#10B981] mb-1">Ödeme Başarılı!</h3>
+                <p className="text-xs text-white/60">
+                  Premium üyeliğin aktif hale geldi. Tüm özelliklerin keyini çıkar!
+                </p>
+              </div>
+            </div>
+          </div>
+        </SlideUp>
+      )}
+
+      {/* Cancel Banner */}
+      {canceled && (
+        <SlideUp>
+          <div className="bg-[#F59E0B]/10 border border-[#F59E0B]/30 rounded-2xl p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center text-2xl">
+                ℹ️
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-[#F59E0B] mb-1">Ödeme İptal Edildi</h3>
+                <p className="text-xs text-white/60">
+                  Ödeme işlemi iptal edildi. İstediğin zaman tekrar deneyebilirsin.
+                </p>
+              </div>
+            </div>
+          </div>
+        </SlideUp>
+      )}
+
       {/* Current Subscription Banner */}
       {isPremium && !isExpired && (
         <div className="bg-[#14B8A6]/10 border border-[#14B8A6]/30 rounded-2xl p-4 mb-6">
@@ -74,6 +146,15 @@ export default function PremiumPage() {
                 {subscriptionExpiry && formatDate(subscriptionExpiry)}'e kadar geçerli
               </p>
             </div>
+            {stripeCustomerId && (
+              <button
+                onClick={handleManageSubscription}
+                disabled={portalLoading}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
+              >
+                {portalLoading ? '...' : 'Yönet'}
+              </button>
+            )}
           </div>
         </div>
       )}

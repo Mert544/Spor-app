@@ -1,5 +1,6 @@
 import { useEffect, useRef, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import BottomNav    from './components/Layout/BottomNav.jsx';
 import Header       from './components/Layout/Header.jsx';
 import RestTimer    from './components/Timer/RestTimer.jsx';
@@ -24,6 +25,8 @@ const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalyti
 const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
 const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
 const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.jsx'));
+const LandingPage        = lazy(() => import('./components/Landing/LandingPage.jsx'));
+const AnalyticsDashboard = lazy(() => import('./components/Admin/AnalyticsDashboard.jsx'));
 
 function PageLoader() {
   return (
@@ -179,24 +182,86 @@ export default function App() {
   }
 
   // ── Main app ───────────────────────────────────────────────────────────────
+  const location = useLocation();
+
+  const pageVariants = {
+    initial: { opacity: 0, x: -10 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 10 },
+  };
+
+  const pageTransition = {
+    type: 'tween',
+    ease: 'easeInOut',
+    duration: 0.2,
+  };
+
   return (
     <div className="min-h-screen bg-bg flex flex-col max-w-lg mx-auto relative">
       <Header />
       {!tourShown && <AppTour />}
       <main className="flex-1 overflow-y-auto pb-20 pt-16">
         <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/antrenman" replace />} />
-            <Route path="/antrenman" element={<WorkoutPage />} />
-            <Route path="/ilerleme"  element={<ProgressPage />} />
-            <Route path="/programlar" element={<ProgramsPage />} />
-            <Route path="/programlar/olustur" element={<CreateProgramPage />} />
-            <Route path="/programlar/duzenle/:editId" element={<CreateProgramPage />} />
-            <Route path="/programlar/:programId/analiz" element={<ProgramAnalytics />} />
-            <Route path="/profil" element={<ProfilePage />} />
-            <Route path="/takviye" element={<SupplementGuide />} />
-            <Route path="/premium" element={<PremiumPage />} />
-          </Routes>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname.split('/')[1]}>
+              <Route path="/" element={<Navigate to="/antrenman" replace />} />
+              <Route path="/antrenman" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <WorkoutPage />
+                </motion.div>
+              } />
+              <Route path="/ilerleme" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProgressPage />
+                </motion.div>
+              } />
+              <Route path="/programlar" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProgramsPage />
+                </motion.div>
+              } />
+              <Route path="/programlar/olustur" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <CreateProgramPage />
+                </motion.div>
+              } />
+              <Route path="/programlar/duzenle/:editId" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <CreateProgramPage />
+                </motion.div>
+              } />
+              <Route path="/programlar/:programId/analiz" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProgramAnalytics />
+                </motion.div>
+              } />
+              <Route path="/profil" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProfilePage />
+                </motion.div>
+              } />
+              <Route path="/takviye" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <SupplementGuide />
+                </motion.div>
+              } />
+              <Route path="/premium" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <PremiumPage />
+                </motion.div>
+              } />
+              <Route path="/landing" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <LandingPage />
+                </motion.div>
+              } />
+              <Route path="/analytics" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <AnalyticsDashboard />
+                </motion.div>
+              } />
+            </Routes>
+          </AnimatePresence>
         </Suspense>
       </main>
       <BottomNav />
