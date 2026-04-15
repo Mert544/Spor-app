@@ -192,8 +192,6 @@ export default function App() {
   }
 
 // ── Main app ───────────────────────────────────────────────────────────────
-  const location = useLocation();
-
   const pageVariants = {
     initial: { opacity: 0, x: -10 },
     animate: { opacity: 1, x: 0 },
