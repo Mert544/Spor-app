@@ -2,6 +2,12 @@ import { NavLink } from 'react-router-dom';
 
 // Inline SVG icons — crisp, professional, no emoji rendering variance
 const Icons = {
+  Dashboard: ({ active }) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  ),
   Workout: ({ active }) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
       <path d="M6.5 6.5h1M16.5 6.5h1M6.5 17.5h1M16.5 17.5h1" />
@@ -23,36 +29,22 @@ const Icons = {
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
     </svg>
   ),
-  Analytics: ({ active }) => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 3v18h18" />
-      <path d="M18 17V9" />
-      <path d="M13 17V5" />
-      <path d="M8 17v-3" />
-    </svg>
-  ),
   Profile: ({ active }) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4" />
       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
   ),
-  Premium: ({ active }) => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <path d="m12 3-1.912 5.813a2 2 0 0 0-1.173-.056L7 8.277V5.5A2.5 2.5 0 0 0 4.5 3h-2A2.5 2.5 0 0 0 0 5.5v2.777l-1.915.48a2 2 0 0 0-1.173.056L12 3ZM6.5 13.5h11m-11 5a2.5 2.5 0 0 0 5 0v.5A2.5 2.5 0 0 0-5 0v-.5Zm0 4a2.5 2.5 0 0 0 5 0v.5A2.5 2.5 0 0 0-5 0v-.5Z" />
-      <path d="M14.5 9.5a2.5 2.5 0 0 0-5 0" />
-    </svg>
-  ),
 };
 
-const ACTIVE_COLOR = '#14B8A6'; // teal — more premium than red for nav
+const ACTIVE_COLOR = '#14B8A6';
 
 const tabs = [
-  { to: '/antenman', Icon: Icons.Workout,  label: 'Antrenman' },
-  { to: '/ilerleme',  Icon: Icons.Progress, label: 'İlerleme' },
-  { to: '/programlar', Icon: Icons.Programs, label: 'Programlar' },
-  { to: '/analytics',  Icon: Icons.Analytics, label: 'Analitik' },
-  { to: '/profil',    Icon: Icons.Profile,  label: 'Profil' },
+  { to: '/dashboard',  Icon: Icons.Dashboard, label: 'Ana Sayfa' },
+  { to: '/antenman',  Icon: Icons.Workout,   label: 'Antrenman' },
+  { to: '/ilerleme',  Icon: Icons.Progress,  label: 'İlerleme' },
+  { to: '/programlar',Icon: Icons.Programs,   label: 'Programlar' },
+  { to: '/profil',    Icon: Icons.Profile,    label: 'Profil' },
 ];
 
 export default function BottomNav() {

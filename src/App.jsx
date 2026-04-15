@@ -27,6 +27,7 @@ const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGu
 const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.jsx'));
 const LandingPage        = lazy(() => import('./components/Landing/LandingPage.jsx'));
 const AnalyticsDashboard = lazy(() => import('./components/Admin/AnalyticsDashboard.jsx'));
+const Dashboard          = lazy(() => import('./components/Dashboard/Dashboard.jsx'));
 
 function PageLoader() {
   return (
@@ -212,6 +213,12 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname.split('/')[1]}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <Dashboard />
+                </motion.div>
+              } />
               <Route path="/antenman" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <WorkoutPage />
