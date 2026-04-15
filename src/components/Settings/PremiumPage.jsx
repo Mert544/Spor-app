@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuthStore, SUBSCRIPTION_TIERS } from '../../store/useAuthStore';
+import useAuthStore, { SUBSCRIPTION_TIERS } from '../../store/useAuthStore';
 import { PLANS } from '../../lib/stripe';
 import { SlideUp } from '../UI/AnimatedCard.jsx';
 
