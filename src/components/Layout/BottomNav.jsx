@@ -23,6 +23,14 @@ const Icons = {
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
     </svg>
   ),
+  Analytics: ({ active }) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3v18h18" />
+      <path d="M18 17V9" />
+      <path d="M13 17V5" />
+      <path d="M8 17v-3" />
+    </svg>
+  ),
   Profile: ({ active }) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4" />
@@ -40,11 +48,11 @@ const Icons = {
 const ACTIVE_COLOR = '#14B8A6'; // teal — more premium than red for nav
 
 const tabs = [
-  { to: '/antrenman', Icon: Icons.Workout,  label: 'Antrenman' },
+  { to: '/antenman', Icon: Icons.Workout,  label: 'Antrenman' },
   { to: '/ilerleme',  Icon: Icons.Progress, label: 'İlerleme' },
   { to: '/programlar', Icon: Icons.Programs, label: 'Programlar' },
+  { to: '/analytics',  Icon: Icons.Analytics, label: 'Analitik' },
   { to: '/profil',    Icon: Icons.Profile,  label: 'Profil' },
-  { to: '/premium',   Icon: Icons.Premium, label: 'Premium' },
 ];
 
 export default function BottomNav() {

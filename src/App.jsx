@@ -172,6 +172,16 @@ export default function App() {
     return <AuthPage />;
   }
 
+  // ── Landing page (public, before onboarding) ───────────────────────────────
+  const location = useLocation();
+  if (location.pathname === '/landing' || location.pathname === '/') {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <LandingPage />
+      </Suspense>
+    );
+  }
+
   // ── Onboarding ─────────────────────────────────────────────────────────────
   if (!isOnboarded) {
     return (
@@ -181,7 +191,7 @@ export default function App() {
     );
   }
 
-  // ── Main app ───────────────────────────────────────────────────────────────
+// ── Main app ───────────────────────────────────────────────────────────────
   const location = useLocation();
 
   const pageVariants = {
@@ -204,10 +214,29 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname.split('/')[1]}>
-              <Route path="/" element={<Navigate to="/antrenman" replace />} />
-              <Route path="/antrenman" element={
+              <Route path="/antenman" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <WorkoutPage />
+                </motion.div>
+              } />
+              <Route path="/ilerleme" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProgressPage />
+                </motion.div>
+              } />
+              <Route path="/programlar" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProgramsPage />
+                </motion.div>
+              } />
+              <Route path="/programlar/olustur" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <CreateProgramPage />
+                </motion.div>
+              } />
+              <Route path="/programlar/duzenle/:editId" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <CreateProgramPage />
                 </motion.div>
               } />
               <Route path="/ilerleme" element={
@@ -248,11 +277,6 @@ export default function App() {
               <Route path="/premium" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <PremiumPage />
-                </motion.div>
-              } />
-              <Route path="/landing" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <LandingPage />
                 </motion.div>
               } />
               <Route path="/analytics" element={
