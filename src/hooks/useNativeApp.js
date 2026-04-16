@@ -8,21 +8,6 @@ export function useNativeApp() {
 
     const setupApp = async () => {
       try {
-        const { App } = await import('@capacitor/app');
-        if (App?.addListener) {
-          await App.addListener('appStateChange', ({ isActive }) => {
-            if (isActive) {
-              console.log('[app] App became active');
-            } else {
-              console.log('[app] App became inactive');
-            }
-          });
-
-          await App.addListener('appUrlOpen', ({ url }) => {
-            console.log('[app] App opened with URL:', url);
-          });
-        }
-
         await setupPushNotifications();
         console.log('[app] Native app initialized');
       } catch (error) {
