@@ -6,10 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "capacitor:init": "npx cap init 'V-Taper Coach' 'com.vtaper.coach --web-dir=dist'",
+    "capacitor:add": "npx cap add",
+    "capacitor:sync": "npx cap sync",
+    "capacitor:build": "npm run build && npx cap sync"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.51.0",
+    "@capacitor/camera": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/preferences": "^6.0.0",
+    "@capacitor/push-notifications": "^6.0.0",
     "@stripe/react-stripe-js": "^6.1.0",
     "@stripe/stripe-js": "^9.1.0",
     "@supabase/supabase-js": "^2.103.0",

@@ -14,6 +14,7 @@ import useCustomProgramStore from './store/useCustomProgramStore.js';
 import useAuthStore          from './store/useAuthStore.js';
 import { supabase, isSupabaseConfigured } from './lib/supabase.js';
 import { pushAllData, pullAndRestoreData } from './utils/syncEngine.js';
+import { useNativeApp, setupNativeFeatures } from './hooks/useNativeApp.js';
 
 // Lazy-load all route-level pages — keeps initial bundle lean
 const WorkoutPage      = lazy(() => import('./components/Workout/WorkoutPage.jsx'));
@@ -91,6 +92,11 @@ export default function App() {
   const notificationsEnabled = useSettingsStore(s => s.notificationsEnabled);
   const user               = useSettingsStore(s => s.user);
   const { session, loading, isGuest, isPasswordRecovery, setSession, setLoading, setPasswordRecovery, clearAuth } = useAuthStore();
+
+  useNativeApp();
+  useEffect(() => {
+    setupNativeFeatures();
+  }, []);
 
   // ── Supabase auth listener ─────────────────────────────────────────────────
   useEffect(() => {
