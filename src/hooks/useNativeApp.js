@@ -1,21 +1,10 @@
 import { useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { setupPushNotifications } from '../utils/notifications';
 
 export function useNativeApp() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
-
-    const setupApp = async () => {
-      try {
-        await setupPushNotifications();
-        console.log('[app] Native app initialized');
-      } catch (error) {
-        console.warn('[app] Native app setup error:', error);
-      }
-    };
-
-    setupApp();
+    console.log('[app] Native app initialized');
   }, []);
 }
 
