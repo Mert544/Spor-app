@@ -536,17 +536,17 @@ export default function CoachPage() {
     startWeight,
   }), [userName]); // eslint-disable-line — intentionally stable per mount
 
-  // Show widgets for first-time conversation
-  const showWidgets = displayMessages.length <= 2;
-
-  // Kilo AI - no client-side key needed (uses server-side KILO_API_KEY)
+  // OpenRouter AI - no client-side key needed
   const [history, setHistory] = useState([]);
   const [displayMessages, setDisplayMessages] = useState([
-    { role: 'assistant', text: `Merhaba ${userName}! 💪 Antrenman, beslenme veya toparlanma hakkında sormak istediğin bir şey var mı?` },
+    { role: 'assistant', text: `Merhaba ${userName}! Antrenman, beslenme veya toparlanma hakkında sormak istedigin bir sey var mi?` },
   ]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState(null);
+
+  // Show widgets for first-time conversation
+  const showWidgets = displayMessages.length <= 2;
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -554,11 +554,6 @@ export default function CoachPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [displayMessages]);
-
-  // Kilo AI - no API key required
-  const enableCoach = () => {
-    // Just enable the coach - no API key needed with Kilo
-  };
 
   async function handleSend(text) {
     const msg = (text || input).trim();
