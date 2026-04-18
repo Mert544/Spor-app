@@ -605,29 +605,7 @@ export default function CoachPage() {
     }
   }
 
-  // ── Premium Required ──────────────────────────────────────────────────────
-  if (!hasFeature('aiCoach')) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-16">
-        <div className="w-16 h-16 rounded-2xl bg-[#14B8A6]/15 border border-[#14B8A6]/30 flex items-center justify-center mb-5 text-3xl">
-          🤖
-        </div>
-        <h2 className="text-lg font-bold text-white mb-2 text-center">AI Koç Premium Özellik</h2>
-        <p className="text-xs text-white/40 text-center mb-6 leading-relaxed max-w-xs">
-          AI Koç, kişisel antrenman tavsiyeleri ve form analizleri sunar.
-        </p>
-        <button
-          onClick={() => window.location.href = '/premium'}
-          className="px-6 py-3 rounded-2xl text-sm font-bold bg-[#14B8A6] text-white hover:bg-[#14B8A6]/80 transition-all"
-        >
-          Premium'a Geç
-        </button>
-      </div>
-    );
-  }
-
-  // ── No API key → setup screen ──────────────────────────────────────────────
-  // Kilo AI - Coach always available (no API key required)
+  // ── Main Coach UI (Free for testing) ─────────────────────────────────
   return (
     <div className="flex flex-col h-full">
       {/* AI badge */}
