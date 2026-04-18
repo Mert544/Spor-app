@@ -545,8 +545,8 @@ export default function CoachPage() {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState(null);
 
-  // Show widgets for first-time conversation
-  const showWidgets = displayMessages.length <= 2;
+  // Show widgets for first-time conversation (wrapped in useMemo to avoid TDZ)
+  const showWidgets = useMemo(() => displayMessages.length <= 2, [displayMessages]);
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
