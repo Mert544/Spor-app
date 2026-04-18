@@ -32,7 +32,7 @@ const Dashboard          = lazy(() => import('./components/Dashboard/Dashboard.j
 const ChallengePage      = lazy(() => import('./components/Challenge/ChallengePage.jsx'));
 const LeaderboardPage    = lazy(() => import('./components/Social/LeaderboardPage.jsx'));
 const NutritionPage      = lazy(() => import('./components/Nutrition/NutritionPage.jsx'));
-const CoachPage          = lazy(() => import('./components/Coach/CoachPage.jsx'));
+// CoachPage intentionally disabled - causes initialization error
 
 function PageLoader() {
   return (
@@ -314,11 +314,7 @@ export default function App() {
                   <NutritionPage />
                 </motion.div>
               } />
-              <Route path="/ai-koc" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <CoachPage />
-                </motion.div>
-              } />
+              {/* <Route path="/ai-koc" element={<CoachPage />} /> */}
             </Routes>
           </AnimatePresence>
         </Suspense>
