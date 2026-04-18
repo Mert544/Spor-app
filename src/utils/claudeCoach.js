@@ -1,8 +1,5 @@
-// claudeCoach.js — Direct browser → Anthropic API streaming for the AI Coach
-// Uses the Messages API with SSE (no backend required — API key stored locally)
-
-const MODEL = 'claude-opus-4-6';
-const API_URL = 'https://api.anthropic.com/v1/messages';
+// claudeCoach.js — AI Coach streaming via Kilo backend proxy
+// Routes through /api/coach/chat (API key never exposed to browser)
 
 /**
  * Build a personalized Turkish fitness coach system prompt from user context.
@@ -51,54 +48,86 @@ export function buildSystemPrompt(ctx) {
     ? `Son 7 günde antrenman sayısı: ${recentWorkoutDays}`
     : '';
 
-  return `Sen V-Taper Coach'un yapay zeka antrenman koçusun. Kullanıcıya Türkçe olarak kısa, net ve bilimsel tabanlı fitness tavsiyeleri veriyorsun.
+  return `Sen V-Taper Coach'un yapay zeka antrenman koçusun. Türkçe kısa, bilimsel fitness tavsiyeleri ver.
 
-Uzmanlık alanların:
-- Hipertrofi periodizasyonu (RP Strength, MEV/MAV/MRV çerçevesi)
-- Günlük dalgalanan periodizasyon (DUP — Zourdos 2016)
-- RPE/RIR tabanlı yük yönetimi (Helms 2016)
-- Deload ve toparlanma planlama (Israetel & Hoffman)
-- Beslenme: protein sentezi penceresi, kalori fazlası/açığı, makro dağılımı
-- Uyku, stres, kortizol — antrenman uyumuna etkileri
+Kullanıcı: ${userName} ${genderLine}
+Program: ${activeProgram ?? 'V-Taper'} | ${mesoLine}
+${workoutLine}${recentLine ? ` | ${recentLine}` : ''}
+${weightLine}${prLines ? `\n${prLines}` : ''}
 
-Kullanıcı bilgileri:
-İsim: ${userName}
-${genderLine}
-Aktif program: ${activeProgram ?? 'V-Taper'}
-${workoutLine}
-${mesoLine}
-${recentLine}
-${weightLine}
-${prLines}
-
-Yanıt tarzı:
-- Her zaman Türkçe konuş
-- Kısa tut (2-4 paragraf), bilimsel ama erişilebilir
-- Gerektiğinde madde listesi kullan
-- Motivasyon ver ama abartma — gerçekçi ol
-- Kullanıcının adını ara sıra kullan (her mesajda değil)
-- Kaynak belirtmek istersen kısaca "(RP Strength)" veya "(Schoenfeld 2010)" gibi parantez içinde ver`;
+Kurallar: Kısa tut (2-3 paragraf), madde listesi kullan, motivasyon ver, kaynak belirt (RP Strength, Schoenfeld 2010).`;
 }
 
 /**
- * Async generator — streams text chunks from Anthropic Claude.
- * Throws on API errors (bad key, rate limit, etc.)
+ * Async generator — streams text chunks from Kilo backend proxy.
+ * Parses OpenAI-compatible SSE streaming format.
  */
-export async function* streamCoachResponse({ conversationHistory, systemPrompt, apiKey }) {
-  const res = await fetch(API_URL, {
+export async function* streamCoachResponse({ conversationHistory, systemPrompt }) {
+  const API_PROXY_URL = '/api/coach/chat';
+
+  const res = await fetch(API_PROXY_URL, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 1024,
-      stream: true,
-      system: systemPrompt,
       messages: conversationHistory,
+      systemPrompt: systemPrompt,
+    }),
+  });
+
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const err = await res.json();
+      message = err.error?.message || message;
+    } catch { /* ignore */ }
+    throw new Error(message);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6).trim();
+      if (!raw || raw === '[DONE]' || raw === 'done') continue;
+      try {
+        const parsed = JSON.parse(raw);
+        // Kilo/OpenAI streaming format: choices[0].delta.content
+        if (parsed.choices?.[0]?.delta?.content) {
+          yield parsed.choices[0].delta.content;
+        }
+      } catch { /* malformed chunk — skip */ }
+    }
+  }
+}
+
+/**
+ * Async generator — streams text chunks from backend proxy.
+ * Routes through /api/coach/chat for security (API key never exposed to browser)
+ */
+export async function* streamCoachResponse({ conversationHistory, systemPrompt }) {
+  // Use backend proxy instead of direct Anthropic API call
+  const API_PROXY_URL = '/api/coach/chat';
+  
+  const res = await fetch(API_PROXY_URL, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      messages: conversationHistory,
+      systemPrompt: systemPrompt,
     }),
   });
 

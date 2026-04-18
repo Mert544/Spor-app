@@ -432,38 +432,23 @@ function SetupScreen({ onSave }) {
       </div>
       <h2 className="text-lg font-bold text-white mb-2 text-center">AI Koç'u Etkinleştir</h2>
       <p className="text-xs text-white/40 text-center mb-6 leading-relaxed max-w-xs">
-        AI Koç, Anthropic'in Claude modelini kullanır. API anahtarın yalnızca bu cihazda saklanır,
-        hiçbir sunucuya gönderilmez.
+        AI Koç, Kilo AI Gateway üzerinden ücretsiz AI modeli kullanır. API anahtarı gerekmez.
       </p>
 
       {/* Input */}
       <div className="w-full max-w-sm space-y-3">
         <div className="relative">
           <input
-            type={show ? 'text' : 'password'}
-            value={key}
-            onChange={e => setKey(e.target.value)}
-            placeholder="sk-ant-..."
-            className="w-full bg-bg-card border border-white/10 rounded-2xl px-4 py-3 text-sm text-white
-                       placeholder:text-white/30 focus:outline-none focus:border-[#14B8A6]/50 pr-12"
+            type="text"
+            value="Kilo AI - Ücretsiz"
+            readOnly
+            className="w-full bg-bg-card border border-white/10 rounded-2xl px-4 py-3 text-sm text-white/60"
           />
-          <button
-            type="button"
-            onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-xs px-1 py-0.5"
-          >
-            {show ? 'Gizle' : 'Göster'}
-          </button>
         </div>
 
         <button
-          onClick={() => key.trim().startsWith('sk-ant-') && onSave(key.trim())}
-          disabled={!key.trim().startsWith('sk-ant-')}
-          className="w-full py-3 rounded-2xl text-sm font-bold transition-all"
-          style={{
-            backgroundColor: key.trim().startsWith('sk-ant-') ? '#14B8A6' : '#1e293b',
-            color: key.trim().startsWith('sk-ant-') ? '#fff' : 'rgba(255,255,255,0.25)',
-          }}
+          onClick={() => onSave()}
+          className="w-full py-3 rounded-2xl text-sm font-bold transition-all bg-[#14B8A6] text-white"
         >
           Koçu Etkinleştir
         </button>
@@ -480,7 +465,7 @@ function SetupScreen({ onSave }) {
 
 // ─── Main Coach Page ──────────────────────────────────────────────────────────
 export default function CoachPage() {
-  const { anthropicApiKey, setAnthropicApiKey, activeProgram, user } = useSettingsStore();
+  const { activeProgram, user } = useSettingsStore();
   const { currentWeek, weights, startWeight, targetWeight } = useProgressStore();
   const { getDayProgress, logs: allLogs, getPersonalRecord } = useWorkoutStore();
   const { programs: customPrograms, getMesocycleWeek } = useCustomProgramStore();
@@ -554,8 +539,8 @@ export default function CoachPage() {
   // Show widgets for first-time conversation
   const showWidgets = displayMessages.length <= 2;
 
-  // Conversation state — stored as Anthropic message format
-  const [history, setHistory] = useState([]); // { role: 'user'|'assistant', content: string }[]
+  // Kilo AI - no client-side key needed (uses server-side KILO_API_KEY)
+  const [history, setHistory] = useState([]);
   const [displayMessages, setDisplayMessages] = useState([
     { role: 'assistant', text: `Merhaba ${userName}! 💪 Antrenman, beslenme veya toparlanma hakkında sormak istediğin bir şey var mı?` },
   ]);
@@ -570,13 +555,14 @@ export default function CoachPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [displayMessages]);
 
-  function saveKey(key) {
-    setAnthropicApiKey(key);
-  }
+  // Kilo AI - no API key required
+  const enableCoach = () => {
+    // Just enable the coach - no API key needed with Kilo
+  };
 
   async function handleSend(text) {
     const msg = (text || input).trim();
-    if (!msg || streaming || !anthropicApiKey) return;
+    if (!msg || streaming) return;
     setInput('');
     setError(null);
 
@@ -586,18 +572,17 @@ export default function CoachPage() {
     setDisplayMessages(m => [...m, { role: 'assistant', text: '', streaming: true }]);
     setStreaming(true);
 
-    // Build conversation history for API (keep last 20 turns to manage tokens)
+    // Build conversation history for API (keep last 5 turns to save tokens)
     const newHistory = [
       ...history,
       { role: 'user', content: msg },
-    ].slice(-20);
+    ].slice(-5);
 
     try {
       let full = '';
       for await (const chunk of streamCoachResponse({
         conversationHistory: newHistory,
         systemPrompt,
-        apiKey: anthropicApiKey,
       })) {
         full += chunk;
         setDisplayMessages(m => {
@@ -647,26 +632,12 @@ export default function CoachPage() {
   }
 
   // ── No API key → setup screen ──────────────────────────────────────────────
-  if (!anthropicApiKey) {
-    return (
-      <div className="flex flex-col h-full">
-        <SetupScreen onSave={saveKey} />
-      </div>
-    );
-  }
-
-  // ── Chat UI ────────────────────────────────────────────────────────────────
+  // Kilo AI - Coach always available (no API key required)
   return (
     <div className="flex flex-col h-full">
-      {/* API key badge */}
+      {/* AI badge */}
       <div className="px-4 pt-2 pb-1 flex items-center justify-between">
-        <p className="text-xs text-white/30">AI Koç · claude-opus-4-6</p>
-        <button
-          onClick={() => setAnthropicApiKey('')}
-          className="text-xs text-white/20 hover:text-accent-red transition-colors"
-        >
-          Anahtarı Sil
-        </button>
+        <p className="text-xs text-white/30">AI Koç · Kilo Auto Free</p>
       </div>
 
       {/* Messages */}

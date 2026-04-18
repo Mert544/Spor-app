@@ -5,14 +5,42 @@ import { PLANS } from '../../lib/stripe';
 import { SlideUp } from '../UI/AnimatedCard.jsx';
 
 export default function PremiumPage() {
-  const { subscriptionTier, subscriptionExpiry, isPremium, getTier, stripeCustomerId } = useAuthStore();
+  const { subscriptionTier, subscriptionExpiry, isPremium, getTier, stripeCustomerId, refreshSubscription } = useAuthStore();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [searchParams] = useSearchParams();
 
   const success = searchParams.get('success');
   const canceled = searchParams.get('canceled');
+  const sessionId = searchParams.get('session_id');
+
+  // Verify payment server-side when returning from Stripe
+  useEffect(() => {
+    if (success && sessionId) {
+      setVerifying(true);
+      verifyPayment(sessionId);
+    }
+  }, [success, sessionId]);
+
+  const verifyPayment = async (sessionId) => {
+    try {
+      const response = await fetch(`/api/verify-payment?session_id=${sessionId}`);
+      const data = await response.json();
+      
+      if (data.verified) {
+        // Refresh subscription status from server
+        await refreshSubscription();
+      } else {
+        console.error('Payment verification failed');
+      }
+    } catch (error) {
+      console.error('Payment verification error:', error);
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   const handleManageSubscription = async () => {
     if (!stripeCustomerId) {

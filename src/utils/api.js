@@ -1,5 +1,11 @@
+// Default timeout for API calls (30 seconds)
+const DEFAULT_TIMEOUT = 30000;
+
 export async function createSession() {
-  const res = await fetch('/api/coach/session', { method: 'POST' });
+  const res = await fetch('/api/coach/session', {
+    method: 'POST',
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  });
   if (!res.ok) throw new Error('Session başlatılamadı');
   const { sessionId } = await res.json();
   return sessionId;
@@ -10,6 +16,7 @@ export async function* sendMessage(sessionId, message, context) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, context }),
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
   });
 
   if (!res.ok) {

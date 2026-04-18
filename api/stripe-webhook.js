@@ -1,9 +1,15 @@
 // Vercel Serverless Function: Stripe Webhook Handler
 // Handles subscription events from Stripe
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const crypto = require('crypto');
+const { createClient } = require('@supabase/supabase-js');
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+// Initialize Supabase admin client
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -25,6 +31,24 @@ export default async function handler(req, res) {
       case 'checkout.session.completed': {
         const session = event.data.object;
         console.log('Checkout completed:', session.id);
+        
+        // Update user's subscription in Supabase
+        if (session.client_reference_id) {
+          const { error } = await supabase
+            .from('user_profiles')
+            .update({
+              subscription_tier: session.metadata?.tier || 'premium',
+              subscription_status: 'active',
+              stripe_customer_id: session.customer,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', session.client_reference_id);
+            
+          if (error) {
+            console.error('Failed to update user profile:', error);
+            throw error;
+          }
+        }
         break;
       }
 
@@ -33,6 +57,7 @@ export default async function handler(req, res) {
         const subscription = event.data.object;
         const customerId = subscription.customer;
         const tier = subscription.metadata?.tier || 'premium';
+        const isActive = subscription.status === 'active' || subscription.status === 'trialing';
 
         console.log(`Subscription ${event.type}:`, {
           subscriptionId: subscription.id,
@@ -41,12 +66,46 @@ export default async function handler(req, res) {
           status: subscription.status,
         });
 
+        // Find user by stripe_customer_id and update subscription
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({
+            subscription_tier: isActive ? tier : 'free',
+            subscription_status: subscription.status,
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('stripe_customer_id', customerId);
+          
+        if (error) {
+          console.error('Failed to update subscription:', error);
+          throw error;
+        }
+
         break;
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
+        const customerId = subscription.customer;
+        
         console.log('Subscription deleted:', subscription.id);
+        
+        // Downgrade user to free tier
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({
+            subscription_tier: 'free',
+            subscription_status: 'canceled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('stripe_customer_id', customerId);
+          
+        if (error) {
+          console.error('Failed to cancel subscription:', error);
+          throw error;
+        }
+        
         break;
       }
 

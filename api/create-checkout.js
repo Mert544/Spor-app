@@ -2,10 +2,10 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  // CORS headers - restrict to app domain
+  const allowedOrigin = process.env.VERCEL_URL || 'https://vtaper-coach.vercel.app';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
@@ -23,9 +23,14 @@ export default async function handler(req, res) {
   try {
     const { priceId, tier, userId } = req.body;
 
-    // Validate tier
-    const validTiers = ['premium_monthly', 'premium_yearly', 'coach_monthly'];
-    if (!validTiers.some(t => priceId.includes(t))) {
+    // Validate price ID against known Stripe Price IDs
+    const VALID_PRICE_IDS = [
+      process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+      process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
+      process.env.STRIPE_COACH_MONTHLY_PRICE_ID,
+    ].filter(Boolean);
+    
+    if (!VALID_PRICE_IDS.includes(priceId)) {
       return res.status(400).json({ error: 'Invalid price ID' });
     }
 
@@ -37,7 +42,7 @@ export default async function handler(req, res) {
         price: priceId,
         quantity: 1,
       }],
-      success_url: `${process.env.VERCEL_URL || 'https://vtaper-coach.vercel.app'}/premium?success=true`,
+      success_url: `${process.env.VERCEL_URL || 'https://vtaper-coach.vercel.app'}/premium?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.VERCEL_URL || 'https://vtaper-coach.vercel.app'}/premium?canceled=true`,
       customer_email: req.body.email || undefined,
       client_reference_id: userId || undefined,
