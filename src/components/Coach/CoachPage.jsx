@@ -610,7 +610,7 @@ export default function CoachPage() {
     <div className="flex flex-col h-full">
       {/* AI badge */}
       <div className="px-4 pt-2 pb-1 flex items-center justify-between">
-        <p className="text-xs text-white/30">AI Koç · Kilo Auto Free</p>
+        <p className="text-xs text-white/30">AI Koç · Groq Free</p>
       </div>
 
       {/* Messages */}
