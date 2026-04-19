@@ -79,10 +79,12 @@ export async function* streamCoachResponse({ conversationHistory, systemPrompt }
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {
-      const err = await res.json();
-      message = err.error?.message || message;
-    } catch { /* ignore */ }
-    throw new Error(message);
+    const err = await res.json();
+    message = err.error?.message || message;
+  } catch { /* ignore */ }
+
+  console.error('[CoachAPI] Error:', res.status, message);
+  throw new Error(message);
   }
 
   const reader = res.body.getReader();
@@ -105,6 +107,7 @@ export async function* streamCoachResponse({ conversationHistory, systemPrompt }
         const parsed = JSON.parse(raw);
         // OpenAI streaming format: choices[0].delta.content
         if (parsed.choices?.[0]?.delta?.content) {
+          console.log('[Coach] Received chunk:', parsed.choices[0].delta.content.substring(0, 30));
           yield parsed.choices[0].delta.content;
         }
       } catch { /* malformed chunk — skip */ }

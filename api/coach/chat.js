@@ -93,10 +93,11 @@ export default async function handler(req, res) {
           const parsed = JSON.parse(raw);
           // OpenAI streaming format: choices[0].delta.content
           if (parsed.choices?.[0]?.delta?.content) {
+            console.log('[Groq] Sending chunk:', parsed.choices[0].delta.content.substring(0, 50));
             send({ text: parsed.choices[0].delta.content });
           }
-        } catch {
-          // Skip malformed JSON
+        } catch (e) {
+          console.log('[Groq] Parse error:', e.message, 'raw:', raw.substring(0, 100));
         }
       }
     }
