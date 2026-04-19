@@ -9,15 +9,11 @@ export const SUBSCRIPTION_TIERS = {
     currency: 'TRY',
     interval: 'month',
     features: {
-      aiCoach: false,
       customPrograms: false,
       advancedAnalytics: false,
       formVideos: false,
       mealPlanning: false,
       oneOnOneCoaching: false,
-    },
-    limits: {
-      aiMessagesPerDay: 0,
     },
   },
   premium: {
@@ -28,15 +24,11 @@ export const SUBSCRIPTION_TIERS = {
     interval: 'month',
     yearlyPrice: 399,
     features: {
-      aiCoach: true,
       customPrograms: true,
       advancedAnalytics: true,
       formVideos: true,
       mealPlanning: true,
       oneOnOneCoaching: false,
-    },
-    limits: {
-      aiMessagesPerDay: 20,
     },
   },
   coach: {
@@ -46,22 +38,17 @@ export const SUBSCRIPTION_TIERS = {
     currency: 'TRY',
     interval: 'month',
     features: {
-      aiCoach: true,
       customPrograms: true,
       advancedAnalytics: true,
       formVideos: true,
       mealPlanning: true,
       oneOnOneCoaching: true,
     },
-    limits: {
-      aiMessagesPerDay: null,
-    },
   },
 };
 
 // ─── Feature flags ───────────────────────────────────────────────────────
 export const FEATURES = {
-  AI_COACH: { id: 'aiCoach', name: 'AI Koç', icon: '🤖' },
   CUSTOM_PROGRAMS: { id: 'customPrograms', name: 'Özel Programlar', icon: '📋' },
   ADVANCED_ANALYTICS: { id: 'advancedAnalytics', name: 'Gelişmiş Analitik', icon: '📊' },
   FORM_VIDEOS: { id: 'formVideos', name: 'Form Videoları', icon: '📹' },
@@ -114,15 +101,6 @@ const useAuthStore = create((set, get) => ({
     return SUBSCRIPTION_TIERS[subscriptionTier] || SUBSCRIPTION_TIERS.free;
   },
 
-  getMessagesRemaining: () => {
-    const { subscriptionTier, subscriptionExpiry } = get();
-    if (subscriptionExpiry && new Date(subscriptionExpiry) < new Date()) {
-      return 0;
-    }
-    const tier = SUBSCRIPTION_TIERS[subscriptionTier];
-    if (tier.limits.aiMessagesPerDay === null) return null; // unlimited
-    return tier.limits.aiMessagesPerDay;
-  },
 }));
 
 export default useAuthStore;

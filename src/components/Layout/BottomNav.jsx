@@ -16,25 +16,12 @@ const Icons = {
       <rect x="19" y="10.5" width="3" height="3" rx="1" />
     </svg>
   ),
-  Progress: ({ active }) => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-    </svg>
-  ),
   Programs: ({ active }) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1.5" />
       <rect x="14" y="3" width="7" height="7" rx="1.5" />
       <rect x="3" y="14" width="7" height="7" rx="1.5" />
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
-  ),
-  AI: ({ active }) => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
-      <path d="M12 17a5 5 0 0 0 5-5h-1.5a3.5 3.5 0 0 1-7 0H7a5 5 0 0 0 5 5z" />
-      <path d="M7 10h.01M17 10h.01M7.5 14h9" />
-      <path d="M12 2v4" />
     </svg>
   ),
   Profile: ({ active }) => (
@@ -48,12 +35,10 @@ const Icons = {
 const ACTIVE_COLOR = '#14B8A6';
 
 const tabs = [
-  { to: '/dashboard',  Icon: Icons.Dashboard, label: 'Ana Sayfa' },
-  { to: '/antenman',  Icon: Icons.Workout,   label: 'Antrenman' },
-  { to: '/ilerleme',  Icon: Icons.Progress,  label: 'İlerleme' },
-  { to: '/programlar', Icon: Icons.Programs, label: 'Programlar' },
-  { to: '/ai-koc',    Icon: Icons.AI,         label: 'AI Koç' },
-  { to: '/profil',    Icon: Icons.Profile,    label: 'Profil' },
+  { to: '/dashboard',  Icon: Icons.Dashboard, label: 'Ana' },
+  { to: '/antenman',   Icon: Icons.Workout,    label: 'Antrenman' },
+  { to: '/programlar', Icon: Icons.Programs,   label: 'Program' },
+  { to: '/profil',     Icon: Icons.Profile,    label: 'Profil' },
 ];
 
 export default function BottomNav() {

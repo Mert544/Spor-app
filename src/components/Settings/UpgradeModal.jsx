@@ -7,12 +7,6 @@ export default function UpgradeModal({ isOpen, onClose, feature, onSubscribe }) 
   if (!isOpen) return null;
 
   const featureInfo = {
-    aiCoach: {
-      title: 'AI Koç',
-      description: 'Claude destekli kişisel antrenman koçunla 7/24 iletişim.',
-      icon: '🤖',
-      plan: 'premium',
-    },
     customPrograms: {
       title: 'Özel Programlar',
       description: 'Kendi antrenman programlarını oluştur ve yönet.',
