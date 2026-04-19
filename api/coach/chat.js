@@ -1,6 +1,6 @@
-// Vercel Serverless Function: AI Coach via Kilo Gateway (Free MiniMax M2.5)
-// Uses Kilo's AI Gateway - no API key required for free models
-const KILO_GATEWAY_URL = 'https://api.kilo.ai/api/gateway';
+// Vercel Serverless Function: AI Coach via Groq Cloud (Free)
+// Groq provides free API access with llama models - no credit card required
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Default fallback prompt - actual prompt comes from client with user context
 const DEFAULT_SYSTEM_PROMPT = `Sen V-Taper Coach'un yapay zeka antrenman koçusun. Türkçe kısa, bilimsel fitness tavsiyeleri ver.
@@ -8,13 +8,20 @@ const DEFAULT_SYSTEM_PROMPT = `Sen V-Taper Coach'un yapay zeka antrenman koçusu
 Kurallar:
 - Kısa tut (2-3 paragraf), madde listesi kullan
 - Motivasyon ver, kaynak belirt (RP Strength, Schoenfeld 2010)
-- Gerçekçi ol: mucize vaddetme, bilim tabanlı konuş
+- Gerçekçi ol: mucize vad etme, bilim tabanlı konuş
 - Jargon kullanabilirsin ama Türkçe açıkla
 - Emoji kullanma`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({
+      error: 'GROQ_API_KEY eksik — Vercel dashboard > Settings > Environment Variables. Ücretsiz anahtar için: https://console.groq.com/keys',
+    });
   }
 
   const { messages, systemPrompt } = req.body || {};
@@ -44,14 +51,15 @@ export default async function handler(req, res) {
   const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
 
   try {
-    // Use Kilo Gateway with MiniMax M2.5 Free model (no API key needed)
-    const response = await fetch(KILO_GATEWAY_URL, {
+    // Use Groq Cloud with llama-3.1-8b-instant (free tier)
+    const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'minimax/minimax-m2.5:free',
+        model: 'llama-3.1-8b-instant',
         messages: apiMessages,
         max_tokens: 512,
         stream: true,
@@ -60,7 +68,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `Kilo Gateway error: ${response.status}`);
+      throw new Error(errorData.error?.message || `Groq error: ${response.status}`);
     }
 
     // Stream the response
