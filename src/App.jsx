@@ -254,26 +254,6 @@ export default function App() {
                   <CreateProgramPage />
                 </motion.div>
               } />
-              <Route path="/ilerleme" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <ProgressPage />
-                </motion.div>
-              } />
-              <Route path="/programlar" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <ProgramsPage />
-                </motion.div>
-              } />
-              <Route path="/programlar/olustur" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <CreateProgramPage />
-                </motion.div>
-              } />
-              <Route path="/programlar/duzenle/:editId" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <CreateProgramPage />
-                </motion.div>
-              } />
               <Route path="/programlar/:programId/analiz" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <ProgramAnalytics />

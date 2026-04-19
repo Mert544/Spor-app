@@ -1,5 +1,6 @@
-// Vercel Serverless Function: AI Coach via OpenRouter (Free MiniMax)
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+// Vercel Serverless Function: AI Coach via Kilo Gateway (Free MiniMax M2.5)
+// Uses Kilo's AI Gateway - no API key required for free models
+const KILO_GATEWAY_URL = 'https://api.kilo.ai/api/gateway';
 
 // Default fallback prompt - actual prompt comes from client with user context
 const DEFAULT_SYSTEM_PROMPT = `Sen V-Taper Coach'un yapay zeka antrenman koçusun. Türkçe kısa, bilimsel fitness tavsiyeleri ver.
@@ -14,13 +15,6 @@ Kurallar:
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({
-      error: 'OPENROUTER_API_KEY eksik — Vercel dashboard > Settings > Environment Variables',
-    });
   }
 
   const { messages, systemPrompt } = req.body || {};
@@ -50,14 +44,11 @@ export default async function handler(req, res) {
   const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
 
   try {
-    // Use OpenRouter MiniMax 2.5 Free model
-    const response = await fetch(OPENROUTER_API_URL, {
+    // Use Kilo Gateway with MiniMax M2.5 Free model (no API key needed)
+    const response = await fetch(KILO_GATEWAY_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://vtaper-coach.vercel.app',
-        'X-Title': 'V-Taper Coach',
       },
       body: JSON.stringify({
         model: 'minimax/minimax-m2.5:free',
@@ -69,7 +60,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `OpenRouter error: ${response.status}`);
+      throw new Error(errorData.error?.message || `Kilo Gateway error: ${response.status}`);
     }
 
     // Stream the response

@@ -10,6 +10,7 @@ import useWorkoutStore    from '../store/useWorkoutStore';
 import useProgressStore   from '../store/useProgressStore';
 import useCustomProgramStore from '../store/useCustomProgramStore';
 import useSettingsStore   from '../store/useSettingsStore';
+import useAuthStore from '../store/useAuthStore';
 
 const OFFLINE_QUEUE_KEY = 'vtaper-offline-queue';
 const LAST_SYNC_KEY = 'vtaper-last-sync';
@@ -372,5 +373,3 @@ export function initNetworkListeners(onStatusChange) {
     window.removeEventListener('offline', handleOffline);
   };
 }
-
-import useAuthStore from '../store/useAuthStore';
