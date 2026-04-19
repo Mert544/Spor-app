@@ -71,9 +71,9 @@ export default async function handler(req, res) {
       throw new Error(errorData.error?.message || `Groq error: ${response.status}`);
     }
 
-    // Stream the response
+    // Stream the response with explicit UTF-8 encoding
     const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    const decoder = new TextDecoder('utf-8');
     let buffer = '';
 
     while (true) {

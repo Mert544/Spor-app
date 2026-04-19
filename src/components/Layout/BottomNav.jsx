@@ -51,6 +51,7 @@ const tabs = [
   { to: '/dashboard',  Icon: Icons.Dashboard, label: 'Ana Sayfa' },
   { to: '/antenman',  Icon: Icons.Workout,   label: 'Antrenman' },
   { to: '/ilerleme',  Icon: Icons.Progress,  label: 'İlerleme' },
+  { to: '/programlar', Icon: Icons.Programs, label: 'Programlar' },
   { to: '/ai-koc',    Icon: Icons.AI,         label: 'AI Koç' },
   { to: '/profil',    Icon: Icons.Profile,    label: 'Profil' },
 ];
