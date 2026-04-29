@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  hermes:
+    build:
+      context: ../..
+      dockerfile: autonomous-system/docker/Dockerfile
+    container_name: hermes-agent
+    environment:
+      - LOG_LEVEL=INFO
+      - PROJECT_ROOT=/project
+      - USE_REDIS=true
+      - REDIS_URL=redis://redis:6379
+      - DB_URL=postgresql://autonomous:password@postgres:5432/autonomous_dev
+    volumes:
+      - ../..:/project
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    networks:
+      - autonomous-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: autonomous-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - autonomous-net
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: autonomous-postgres
+    environment:
+      - POSTGRES_USER=autonomous
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=autonomous_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./memory/migrations:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - autonomous-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: autonomous-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+    networks:
+      - autonomous-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: autonomous-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - autonomous-net
+
+volumes:
+  redis-data:
+  postgres-data:
+  grafana-data:
+
+networks:
+  autonomous-net:
+    driver: bridge

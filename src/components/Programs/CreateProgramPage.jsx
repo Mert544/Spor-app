@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useAchievementStore from '../../store/useAchievementStore';
 import ExercisePicker from './ExercisePicker';
 
 const EMOJIS = ['💪','🏋️','⚡','🔥','💎','🎯','🛡️','⚔️','🏆','🥇','🐺','🦁','🦅','🐍','🦍','🤖','👽','🧬','🧠','🫀','🦵','👑','🌟','🎖️','🚀'];
@@ -95,7 +96,12 @@ export default function CreateProgramPage() {
       mesocycle: showMeso ? { durationWeeks: +mesoWeeks||6, phases: MESO_PHASES } : null,
     };
 
-    isEdit ? updateProgram(editId, payload) : addProgram(payload);
+    if (isEdit) {
+      updateProgram(editId, payload);
+    } else {
+      addProgram(payload);
+      useAchievementStore.getState().recordProgramCreated();
+    }
     nav('/programlar');
   };
 

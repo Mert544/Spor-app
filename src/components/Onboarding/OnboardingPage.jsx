@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
+import useAchievementStore from '../../store/useAchievementStore';
 
 // ─── Step definitions ───────────────────────────────────────────────
 const INPUT_STEPS = [
@@ -112,6 +113,7 @@ export default function OnboardingPage() {
     setUser({ name: values.name.trim(), height: values.height.trim(), gender });
     setStartWeight(cw);
     addWeight(today, cw);
+    useAchievementStore.getState().recordWeightEntry();
     useProgressStore.setState({ targetWeight: tw });
     setActiveProgram(gender === 'female' ? 'bikini_fit' : 'vtaper_orta');
     setOnboarded(true);

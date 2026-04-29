@@ -10,12 +10,15 @@ import useCustomStore from '../../store/useCustomStore';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
 import ThemeToggle from '../Settings/ThemeToggle';
+import AchievementBadge from './AchievementBadge';
+import useAchievementStore, { ACHIEVEMENTS } from '../../store/useAchievementStore';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
   const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
   const { session, isGuest, clearAuth } = useAuthStore();
   const workoutStore = useWorkoutStore();
+  const { unlocked, stats } = useAchievementStore();
   const [showReset, setShowReset] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -45,6 +48,7 @@ export default function ProfilePage() {
       setStartWeight(sw);
       const today = new Date().toISOString().split('T')[0];
       addWeight(today, sw);
+      useAchievementStore.getState().recordWeightEntry();
     }
     if (tw > 0) useProgressStore.setState({ targetWeight: tw });
     setEditing(false);
@@ -60,6 +64,7 @@ export default function ProfilePage() {
       settings: useSettingsStore.getState(),
       customPrograms: useCustomProgramStore.getState(),
       customExercises: useCustomStore.getState(),
+      achievements: useAchievementStore.getState(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -76,6 +81,7 @@ export default function ProfilePage() {
     localStorage.removeItem('vtaper-settings');
     localStorage.removeItem('vtaper-custom-programs');
     localStorage.removeItem('vtaper-custom-exercises');
+    localStorage.removeItem('vtaper-achievements');
     window.location.reload();
   }
 
@@ -101,6 +107,7 @@ export default function ProfilePage() {
         useSettingsStore.setState(data.settings);
         if (data.customPrograms) useCustomProgramStore.setState(data.customPrograms);
         if (data.customExercises) useCustomStore.setState(data.customExercises);
+        if (data.achievements) useAchievementStore.setState(data.achievements);
         alert('Veri başarıyla geri yüklendi. Sayfa yenilenecek.');
         window.location.reload();
       } catch {
@@ -290,6 +297,35 @@ export default function ProfilePage() {
           </div>
           <span className="text-white/30 text-sm">›</span>
         </button>
+
+        {/* Achievements */}
+        <div className="bg-bg-card rounded-2xl p-4 mb-4 border border-white/5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">Rozetler</p>
+            <p className="text-xs font-bold text-accent-teal">
+              {unlocked.length} / {ACHIEVEMENTS.length}
+            </p>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-white/5 mb-4 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${(unlocked.length / ACHIEVEMENTS.length) * 100}%`,
+                backgroundColor: '#14B8A6',
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            {ACHIEVEMENTS.map((ach) => (
+              <AchievementBadge
+                key={ach.id}
+                id={ach.id}
+                unlocked={unlocked.includes(ach.id)}
+                progress={useAchievementStore.getState().getProgress(ach.id)}
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Actions */}
         <div className="space-y-2 mb-4">

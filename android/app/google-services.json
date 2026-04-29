@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "800352031994",
+    "project_id": "v-taper-coach",
+    "storage_bucket": "v-taper-coach.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800352031994:android:f8bf3d079c4dd027c6e543",
+        "android_client_info": {
+          "package_name": "com.vtaper.coach"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUVKe6v1vOzLCZoirAiCz8WFQ_1gDnTV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

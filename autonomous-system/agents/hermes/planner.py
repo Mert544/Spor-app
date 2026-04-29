@@ -28,14 +28,30 @@ class TaskPlanner:
 
     def __init__(self):
         self._task_counter = 0
+        self._completed_tasks: set[tuple] = set()
 
-    def create_plan(self, analysis: dict) -> dict:
+    def mark_completed(self, task_id: str, files_changed: list, category: str):
+        """Tamamlanan görevi deduplication için kaydet"""
+        key = (category, tuple(sorted(files_changed)))
+        self._completed_tasks.add(key)
+
+    def _is_duplicate(self, category: str, files: list) -> bool:
+        """Aynı kategori + aynı dosya = duplicate"""
+        key = (category, tuple(sorted(files)))
+        return key in self._completed_tasks
+
+    def create_plan(self, analysis: dict, completed_tasks: set = None) -> dict:
         """Analiz sonuçlarından görev planı oluştur"""
+        if completed_tasks:
+            self._completed_tasks = completed_tasks
+
         tasks = []
 
         # Security issues first
         for issue in analysis.get("quality", {}).get("issues", []):
             if issue.get("type") in ("todo", "fixme", "hack"):
+                if self._is_duplicate("code_quality", [issue.get("file", "")]):
+                    continue
                 tasks.append(
                     self._create_task(
                         category="code_quality",
@@ -109,6 +125,11 @@ class TaskPlanner:
 
         # Sort by priority
         tasks.sort(key=lambda t: t.get("priority", 3))
+
+        # Limit tasks per cycle
+        max_tasks = 5
+        if len(tasks) > max_tasks:
+            tasks = tasks[:max_tasks]
 
         return {
             "tasks": tasks,

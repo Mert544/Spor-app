@@ -23,8 +23,16 @@ class CodebaseAnalyzer:
         self._total_files = 0
         self._issues = []
 
+    def _reset_counters(self):
+        """Sayaçları sıfırla — her analyze() çağrısında temiz başla"""
+        self._file_extensions = {}
+        self._total_lines = 0
+        self._total_files = 0
+        self._issues = []
+
     async def analyze(self) -> dict:
         """Kapsamlı codebase analizi"""
+        self._reset_counters()
         structure = self._analyze_structure()
         quality = self._analyze_quality()
         dependencies = self._analyze_dependencies()

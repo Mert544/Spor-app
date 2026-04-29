@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useProgressStore from '../../store/useProgressStore';
+import useAchievementStore from '../../store/useAchievementStore';
 import WeightChart from './WeightChart';
 import VolumeChart from './VolumeChart';
 import StrengthLog from './StrengthLog';
@@ -36,6 +37,7 @@ export default function ProgressPage() {
     if (!w || w < 40 || w > 200) return;
     const date = new Date().toISOString().split('T')[0];
     addWeight(date, w);
+    useAchievementStore.getState().recordWeightEntry();
     setWeightInput('');
   }
 

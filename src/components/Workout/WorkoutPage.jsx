@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
@@ -10,6 +10,7 @@ import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
 import useCustomStore from '../../store/useCustomStore';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useAchievementStore from '../../store/useAchievementStore';
 
 const MUSCLES = ['Göğüs', 'Sırt', 'Omuz', 'Trisep', 'Bisep', 'Bacak', 'Kor'];
 
@@ -48,6 +49,7 @@ export default function WorkoutPage() {
   const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
   const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle, markDayComplete } = useCustomProgramStore();
+  const achievementTriggered = useRef(false);
 
   const isCustom = activeProgram?.startsWith('custom_') || activeProgram?.startsWith('personal_');
 
@@ -109,12 +111,23 @@ export default function WorkoutPage() {
   const { completed, total } = getDayProgress(date, exercises);
   const allDone = total > 0 && completed === total;
 
-  // Auto-advance mesocycle week when all program days are completed
+  // Auto-advance mesocycle week + achievement triggers when all done
   useEffect(() => {
     if (allDone && isCustom && programData?.days?.length) {
       markDayComplete(resolvedProgram, selectedDayIndex, programData.days.length);
     }
-  }, [allDone, isCustom, resolvedProgram, selectedDayIndex, programData.days.length, markDayComplete]);
+    if (allDone && !achievementTriggered.current) {
+      achievementTriggered.current = true;
+      const hour = new Date().getHours();
+      const { totalVolume } = useWorkoutStore.getState().getSessionVolume(date, exercises);
+      useAchievementStore.getState().recordWorkout(totalVolume, hour);
+      const streak = useWorkoutStore.getState().getStreak();
+      useAchievementStore.getState().recordStreak(streak);
+    }
+    if (!allDone) {
+      achievementTriggered.current = false;
+    }
+  }, [allDone, isCustom, resolvedProgram, selectedDayIndex, programData.days.length, markDayComplete, date]);
 
   const nameMap = {};
   exercises.forEach(e => { nameMap[e.id] = e.name; });

@@ -1,0 +1,45 @@
+# Autonomous System Configuration
+
+system:
+  name: "autonomous-dev"
+  version: "1.0.0"
+  project_root: "."
+  log_level: "INFO"
+
+hermes:
+  cycle_interval_seconds: 300
+  max_tasks_per_cycle: 5
+  review_threshold: 75
+  self_improvement_enabled: true
+
+clawbot:
+  max_retries: 3
+  max_revisions: 2
+  auto_fix_enabled: true
+  build_timeout_seconds: 300
+  test_timeout_seconds: 120
+
+security:
+  rate_limits:
+    git_push: 20/hour
+    deploy: 10/hour
+    api_calls: 1000/hour
+    file_writes: 500/hour
+  critical_operations_blocked: true
+  secret_scan_enabled: true
+
+memory:
+  use_database: false
+  db_url: "postgresql://user:pass@localhost:5432/autonomous_dev"
+  redis_url: "redis://localhost:6379"
+  max_task_history: 10000
+  max_error_solutions: 5000
+
+monitoring:
+  enabled: true
+  metrics_interval_seconds: 60
+  alert_on:
+    - security_violation
+    - cycle_failure
+    - infinite_loop
+    - high_error_rate
