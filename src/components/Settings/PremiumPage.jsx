@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuthStore, SUBSCRIPTION_TIERS } from '../../store/useAuthStore';
+import useAuthStore, { SUBSCRIPTION_TIERS } from '../../store/useAuthStore';
 import { PLANS } from '../../lib/stripe';
 
 export default function PremiumPage() {

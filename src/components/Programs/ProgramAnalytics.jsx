@@ -292,10 +292,89 @@ function MesocycleTab({ programData, mesoWeek, onWeekChange, onNewMeso }) {
   );
 }
 
+// ─── Comparison Tab ───────────────────────────────────────────────────────
+
+function ComparisonTab({ programData, otherPrograms }) {
+  const [compareId, setCompareId] = useState(null);
+  const compareProgram = otherPrograms.find(p => p.id === compareId);
+
+  const stats = (p) => {
+    const exs = Object.values(p.program || {}).flatMap(d => d.exercises || []);
+    const totalSets = exs.reduce((s, ex) => s + (ex.sets || 0), 0);
+    const byMuscle = {};
+    exs.forEach(ex => { byMuscle[ex.muscle] = (byMuscle[ex.muscle] || 0) + (ex.sets || 0); });
+    return { totalSets, exCount: exs.length, byMuscle };
+  };
+
+  const s1 = stats(programData);
+  const s2 = compareProgram ? stats(compareProgram) : null;
+  const muscles = Array.from(new Set([...Object.keys(s1.byMuscle), ...(s2 ? Object.keys(s2.byMuscle) : [])]));
+  const chartData = muscles.map(m => ({ muscle: m, A: s1.byMuscle[m] || 0, B: s2?.byMuscle[m] || 0 }));
+
+  return (
+    <div className="px-4 space-y-4 pb-8">
+      <div className="bg-bg-card rounded-2xl p-4 border border-white/8">
+        <p className="text-xs text-white/50 mb-2">Karşılaştırılacak Program</p>
+        <select
+          value={compareId || ''}
+          onChange={e => setCompareId(e.target.value || null)}
+          className="w-full bg-bg-dark border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-[#14B8A6]"
+        >
+          <option value="">Program seç...</option>
+          {otherPrograms.map(p => (
+            <option key={p.id} value={p.id}>{p.emoji} {p.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {compareProgram && (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              ['Egzersiz', s1.exCount, s2.exCount],
+              ['Toplam Set', s1.totalSets, s2.totalSets],
+            ].map(([label, v1, v2]) => (
+              <div key={label} className="bg-bg-card rounded-xl p-3 border border-white/8">
+                <p className="text-xs text-white/40 mb-2">{label}</p>
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-lg font-bold text-white">{v1}</p>
+                    <p className="text-[10px] text-white/30 truncate" style={{ color: programData.color }}>{programData.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-white">{v2}</p>
+                    <p className="text-[10px] text-white/30 truncate" style={{ color: compareProgram.color }}>{compareProgram.name}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {chartData.length > 0 && (
+            <div className="bg-bg-card rounded-2xl p-4 border border-white/8">
+              <p className="text-xs text-white/50 mb-3">Kas Grubu Set Dağılımı</p>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                  <XAxis dataKey="muscle" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ backgroundColor: '#111c2d', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
+                  <Bar dataKey="A" fill={programData.color} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="B" fill={compareProgram.color} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 const TABS = [
   { id: 'exercise', label: 'Egzersizler' },
   { id: 'volume',   label: 'Hacim' },
   { id: 'meso',     label: 'Meso' },
+  { id: 'compare',  label: 'Karşılaştır' },
 ];
 
 export default function ProgramAnalytics() {
@@ -388,6 +467,13 @@ export default function ProgramAnalytics() {
           mesoWeek={mesoWeek}
           onWeekChange={(w) => setMesocycleWeek(programId, w)}
           onNewMeso={() => { startNewMesocycle(programId); setTab('exercise'); }}
+        />
+      )}
+
+      {tab === 'compare' && (
+        <ComparisonTab
+          programData={programData}
+          otherPrograms={Object.values(programs).filter(p => p.id !== programId)}
         />
       )}
     </div>

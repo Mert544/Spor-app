@@ -9,6 +9,7 @@ const useCustomProgramStore = create(
   persist(
     (set, get) => ({
       programs: {}, // { [programId]: programObject }
+      weeklyProgress: {}, // { [programId]: { completedDayIndices: number[], currentWeek: number } }
 
       addProgram: (program) =>
         set((s) => ({ programs: { ...s.programs, [program.id]: { ...program, mesocycleWeek: 1 } } })),
@@ -85,6 +86,31 @@ const useCustomProgramStore = create(
           },
         }));
       },
+
+      // Auto-advance mesocycle week when all program days completed in a week
+      markDayComplete: (id, dayIndex, totalDays) => {
+        const wp = get().weeklyProgress[id] || { completedDayIndices: [], currentWeek: get().programs[id]?.mesocycleWeek ?? 1 };
+        if (wp.completedDayIndices.includes(dayIndex)) return; // already counted today
+        const nextIndices = [...wp.completedDayIndices, dayIndex];
+        const maxWeek = get().programs[id]?.mesocycle?.durationWeeks ?? 6;
+        let nextWeek = wp.currentWeek;
+        if (nextIndices.length >= totalDays && nextWeek < maxWeek) {
+          nextWeek += 1;
+          nextIndices.length = 0; // reset for new week
+        }
+        set((s) => ({
+          weeklyProgress: {
+            ...s.weeklyProgress,
+            [id]: { completedDayIndices: nextIndices, currentWeek: nextWeek },
+          },
+          programs: {
+            ...s.programs,
+            [id]: { ...s.programs[id], mesocycleWeek: nextWeek },
+          },
+        }));
+      },
+
+      getWeeklyProgress: (id) => get().weeklyProgress[id] || { completedDayIndices: [], currentWeek: get().programs[id]?.mesocycleWeek ?? 1 },
     }),
     { name: 'vtaper-custom-programs' }
   )

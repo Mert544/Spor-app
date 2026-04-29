@@ -47,7 +47,7 @@ export default function WorkoutPage() {
   const { logs, getDayProgress } = useWorkoutStore();
   const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
-  const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle } = useCustomProgramStore();
+  const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle, markDayComplete } = useCustomProgramStore();
 
   const isCustom = activeProgram?.startsWith('custom_') || activeProgram?.startsWith('personal_');
 
@@ -108,6 +108,13 @@ export default function WorkoutPage() {
   const exercises = dayData.exercises;
   const { completed, total } = getDayProgress(date, exercises);
   const allDone = total > 0 && completed === total;
+
+  // Auto-advance mesocycle week when all program days are completed
+  useEffect(() => {
+    if (allDone && isCustom && programData?.days?.length) {
+      markDayComplete(resolvedProgram, selectedDayIndex, programData.days.length);
+    }
+  }, [allDone, isCustom, resolvedProgram, selectedDayIndex, programData.days.length, markDayComplete]);
 
   const nameMap = {};
   exercises.forEach(e => { nameMap[e.id] = e.name; });

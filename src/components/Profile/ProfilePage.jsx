@@ -5,6 +5,8 @@ import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
 import useAuthStore from '../../store/useAuthStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useCustomStore from '../../store/useCustomStore';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
 import ThemeToggle from '../Settings/ThemeToggle';
@@ -49,25 +51,21 @@ export default function ProfilePage() {
   }
 
   function handleExport() {
-    const ps = useProgressStore.getState();
     const data = {
+      version: 2,
+      app: 'v-taper-coach',
       exportedAt: new Date().toISOString(),
-      progress: {
-        weights: ps.weights,
-        measurements: ps.measurements,
-        weeklyCheckIns: ps.weeklyCheckIns,
-        currentWeek: ps.currentWeek,
-        startWeight: ps.startWeight,
-        targetWeight: ps.targetWeight,
-      },
-      workoutLogs: workoutStore.logs,
-      exerciseNotes: useWorkoutStore.getState().exerciseNotes,
+      progress: useProgressStore.getState(),
+      workout: useWorkoutStore.getState(),
+      settings: useSettingsStore.getState(),
+      customPrograms: useCustomProgramStore.getState(),
+      customExercises: useCustomStore.getState(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `vtaper-export-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `vtaper-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -76,6 +74,8 @@ export default function ProfilePage() {
     localStorage.removeItem('vtaper-workout-logs');
     localStorage.removeItem('vtaper-progress');
     localStorage.removeItem('vtaper-settings');
+    localStorage.removeItem('vtaper-custom-programs');
+    localStorage.removeItem('vtaper-custom-exercises');
     window.location.reload();
   }
 
@@ -86,13 +86,22 @@ export default function ProfilePage() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (data.workoutLogs) {
-          localStorage.setItem('vtaper-workout-logs', JSON.stringify({ state: { logs: data.workoutLogs, exerciseNotes: data.exerciseNotes || {} }, version: 0 }));
+        if (data.app !== 'v-taper-coach') {
+          alert('Geçersiz yedek dosyası. V-Taper Coach yedeği değil.');
+          return;
         }
-        if (data.progress) {
-          localStorage.setItem('vtaper-progress', JSON.stringify({ state: data.progress, version: 0 }));
+        // Validate required sections exist
+        if (!data.progress || !data.workout || !data.settings) {
+          alert('Yedek dosyası eksik bölümler içeriyor.');
+          return;
         }
-        alert('Veri başarıyla içe aktarıldı. Sayfa yenilenecek.');
+        // Restore stores via Zustand setState (proper reactivity)
+        useProgressStore.setState(data.progress);
+        useWorkoutStore.setState(data.workout);
+        useSettingsStore.setState(data.settings);
+        if (data.customPrograms) useCustomProgramStore.setState(data.customPrograms);
+        if (data.customExercises) useCustomStore.setState(data.customExercises);
+        alert('Veri başarıyla geri yüklendi. Sayfa yenilenecek.');
         window.location.reload();
       } catch {
         alert('Geçersiz dosya formatı. Daha önce dışa aktarılmış bir JSON dosyası kullanın.');

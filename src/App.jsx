@@ -1,4 +1,4 @@
-import { useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import BottomNav    from './components/Layout/BottomNav.jsx';
 import Header       from './components/Layout/Header.jsx';
@@ -24,6 +24,7 @@ const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalyti
 const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
 const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
 const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.jsx'));
+const LandingPage        = lazy(() => import('./components/Landing/LandingPage.jsx'));
 
 function PageLoader() {
   return (
@@ -32,6 +33,28 @@ function PageLoader() {
         <div className="w-8 h-8 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
         <p className="text-xs text-white/30 tracking-widest uppercase">Hazırlanıyor</p>
       </div>
+    </div>
+  );
+}
+
+// ── Offline indicator ─────────────────────────────────────────────────────────
+function OfflineIndicator() {
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
+  if (online) return null;
+  return (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none bg-[#F5A623]/10 border border-[#F5A623]/30 text-[#F5A623]">
+      <span className="w-2 h-2 rounded-full bg-[#F5A623] animate-pulse" />
+      Çevrimdışı moddasın · Veriler cihazında güvende
     </div>
   );
 }
@@ -181,6 +204,7 @@ export default function App() {
   // ── Main app ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-bg flex flex-col max-w-lg mx-auto relative">
+      <OfflineIndicator />
       <Header />
       {!tourShown && <AppTour />}
       <main className="flex-1 overflow-y-auto pb-20 pt-16">
@@ -196,6 +220,7 @@ export default function App() {
             <Route path="/profil" element={<ProfilePage />} />
             <Route path="/takviye" element={<SupplementGuide />} />
             <Route path="/premium" element={<PremiumPage />} />
+            <Route path="/welcome" element={<LandingPage />} />
           </Routes>
         </Suspense>
       </main>

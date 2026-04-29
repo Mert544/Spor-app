@@ -1,0 +1,122 @@
+name: Apex Orchestrator
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday 2 AM
+  workflow_dispatch:
+    inputs:
+      plan:
+        description: 'Automation plan'
+        required: true
+        default: 'project_scan'
+        type: choice
+        options:
+          - project_scan
+          - verify_project
+          - semantic_patch_loop
+          - full_autonomous_loop
+          - telemetry_only
+      goal:
+        description: 'Natural language goal (optional)'
+        required: false
+        default: ''
+      mode:
+        description: 'Execution mode'
+        required: true
+        default: 'report'
+        type: choice
+        options:
+          - report
+          - supervised
+          - autonomous
+
+jobs:
+  apex-orchestrator:
+    name: Fractal Code Intelligence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for fractal analysis
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache Apex Orchestrator
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/apex-orchestrator
+          key: apex-orch-${{ runner.os }}-${{ hashFiles('**/Apex-orchestrator/**') }}
+
+      - name: Install Apex Orchestrator
+        run: |
+          git clone --depth 1 https://github.com/${{ github.repository_owner }}/Apex-orchestrator.git /tmp/apex-orch || \
+          git clone --depth 1 https://github.com/apex-agents/Apex-orchestrator.git /tmp/apex-orch || \
+          echo "Using local Apex Orchestrator"
+          if [ -d "/tmp/apex-orch" ]; then
+            cd /tmp/apex-orch
+            pip install -e ".[dev]"
+          fi
+
+      - name: Run Apex Orchestrator
+        run: |
+          PLAN="${{ github.event.inputs.plan || 'project_scan' }}"
+          MODE="${{ github.event.inputs.mode || 'report' }}"
+          GOAL="${{ github.event.inputs.goal || '' }}"
+          
+          cd /tmp/apex-orch
+          export EPISTEMIC_TARGET_ROOT=${{ github.workspace }}
+          export EPISTEMIC_AUTOMATION_PLAN=$PLAN
+          
+          if [ -n "$GOAL" ]; then
+            python -m app.cli scan --target=${{ github.workspace }} --plan=$PLAN --mode=$MODE --goal="$GOAL"
+          else
+            python -m app.cli scan --target=${{ github.workspace }} --plan=$PLAN --mode=$MODE
+          fi
+        env:
+          PYTHONPATH: /tmp/apex-orch
+          APEX_USE_FRACTAL: 1
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-orchestrator-report
+          path: |
+            .apex/*.md
+            .apex/*.json
+            .apex/security-report.json
+          retention-days: 30
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '🧠 **Apex Orchestrator** fractal analysis complete.\n\n';
+            
+            // Try to read summary
+            try {
+              const files = fs.readdirSync('.apex');
+              const mdFiles = files.filter(f => f.endsWith('.md'));
+              if (mdFiles.length > 0) {
+                body += `Reports generated: ${mdFiles.join(', ')}\n\n`;
+              }
+            } catch (e) {
+              body += 'Check artifacts for full report.\n';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
