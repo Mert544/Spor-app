@@ -61,22 +61,32 @@ export default function BottomNav() {
           <NavLink
             key={to}
             to={to}
-            className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all btn-press relative"
           >
             {({ isActive }) => (
               <>
+                {/* Active glow indicator */}
+                {isActive && (
+                  <div
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                    style={{
+                      background: `linear-gradient(90deg, transparent, ${ACTIVE_COLOR}, transparent)`,
+                      opacity: 0.6,
+                    }}
+                  />
+                )}
                 {/* Icon container — pill background when active */}
                 <div
-                  className="flex items-center justify-center w-10 h-7 rounded-xl transition-all"
+                  className="flex items-center justify-center w-10 h-7 rounded-xl transition-all duration-300"
                   style={isActive
-                    ? { backgroundColor: `${ACTIVE_COLOR}1a`, color: ACTIVE_COLOR }
+                    ? { backgroundColor: `${ACTIVE_COLOR}1a`, color: ACTIVE_COLOR, boxShadow: `0 0 12px ${ACTIVE_COLOR}20` }
                     : { color: 'rgba(255,255,255,0.3)' }
                   }
                 >
                   <Icon active={isActive} />
                 </div>
                 <span
-                  className="text-xs font-medium transition-colors"
+                  className="text-xs font-medium transition-colors duration-300"
                   style={{ color: isActive ? ACTIVE_COLOR : 'rgba(255,255,255,0.3)', fontSize: '10px' }}
                 >
                   {label}

@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import BottomNav    from './components/Layout/BottomNav.jsx';
 import Header       from './components/Layout/Header.jsx';
 import RestTimer    from './components/Timer/RestTimer.jsx';
+import ToastContainer from './components/UI/Toast.jsx';
 import AuthPage          from './components/Auth/AuthPage.jsx';
 import PasswordResetPage from './components/Auth/PasswordResetPage.jsx';
 import AppTour           from './components/Onboarding/AppTour.jsx';
@@ -29,11 +31,49 @@ const LandingPage        = lazy(() => import('./components/Landing/LandingPage.j
 function PageLoader() {
   return (
     <div className="flex-1 flex items-center justify-center py-20">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
-        <p className="text-xs text-white/30 tracking-widest uppercase">Hazırlanıyor</p>
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative w-10 h-10">
+          <div className="absolute inset-0 rounded-full border-2 border-[#14B8A6]/20" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#14B8A6] animate-spin" />
+          <div className="absolute inset-1.5 rounded-full bg-[#14B8A6]/10 animate-pulse" />
+        </div>
+        <p className="text-xs text-white/30 tracking-[0.2em] uppercase font-medium">Hazırlanıyor</p>
       </div>
     </div>
+  );
+}
+
+const pageTransition = {
+  initial: { opacity: 0, y: 12, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -8, scale: 0.98 },
+  transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+};
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        {...pageTransition}
+        className="flex-1 overflow-y-auto pb-32 scrollbar-hide"
+      >
+        <Routes location={location}>
+          <Route path="/" element={<Navigate to="/antrenman" replace />} />
+          <Route path="/antrenman" element={<WorkoutPage />} />
+          <Route path="/ilerleme"  element={<ProgressPage />} />
+          <Route path="/programlar" element={<ProgramsPage />} />
+          <Route path="/programlar/olustur" element={<CreateProgramPage />} />
+          <Route path="/programlar/duzenle/:editId" element={<CreateProgramPage />} />
+          <Route path="/programlar/:programId/analiz" element={<ProgramAnalytics />} />
+          <Route path="/profil" element={<ProfilePage />} />
+          <Route path="/takviye" element={<SupplementGuide />} />
+          <Route path="/premium" element={<PremiumPage />} />
+          <Route path="/welcome" element={<LandingPage />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -205,23 +245,12 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg flex flex-col max-w-lg mx-auto relative">
       <OfflineIndicator />
+      <ToastContainer />
       <Header />
       {!tourShown && <AppTour />}
       <main className="flex-1 overflow-y-auto pb-20 pt-16">
         <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/antrenman" replace />} />
-            <Route path="/antrenman" element={<WorkoutPage />} />
-            <Route path="/ilerleme"  element={<ProgressPage />} />
-            <Route path="/programlar" element={<ProgramsPage />} />
-            <Route path="/programlar/olustur" element={<CreateProgramPage />} />
-            <Route path="/programlar/duzenle/:editId" element={<CreateProgramPage />} />
-            <Route path="/programlar/:programId/analiz" element={<ProgramAnalytics />} />
-            <Route path="/profil" element={<ProfilePage />} />
-            <Route path="/takviye" element={<SupplementGuide />} />
-            <Route path="/premium" element={<PremiumPage />} />
-            <Route path="/welcome" element={<LandingPage />} />
-          </Routes>
+          <AnimatedRoutes />
         </Suspense>
       </main>
       <BottomNav />

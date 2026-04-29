@@ -99,6 +99,60 @@
   animation: fadeInUp 0.25s ease-out;
 }
 
+/* Premium glassmorphism card */
+.glass {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Premium hover glow effect */
+.hover-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(20, 184, 166, 0.15);
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+/* Premium button press */
+.btn-press {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease;
+}
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* Gradient border */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.5), rgba(59, 130, 246, 0.3), rgba(236, 72, 153, 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Premium text shadow for headings */
+.text-glow {
+  text-shadow: 0 0 30px rgba(20, 184, 166, 0.3);
+}
+
 /* Print styles */
 @media print {
   nav, header, button, .no-print { display: none !important; }

@@ -75,17 +75,21 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
 
   return (
     <div
-      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all duration-300"
+      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all duration-300 hover-glow btn-press"
       style={{
         background: complete
-          ? `linear-gradient(135deg, ${accentColor}14 0%, #1e293b 55%)`
-          : '#1e293b',
+          ? `linear-gradient(135deg, ${accentColor}12 0%, rgba(30,41,59,0.7) 55%)`
+          : 'rgba(30, 41, 59, 0.6)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         border: complete
-          ? `1.5px solid ${accentColor}90`
+          ? `1.5px solid ${accentColor}80`
           : exercise.superset
-          ? `1.5px solid ${accentColor}44`
-          : '1.5px solid rgba(255,255,255,0.07)',
-        boxShadow: complete ? `0 0 18px ${accentColor}22` : 'none',
+          ? `1.5px solid ${accentColor}40`
+          : '1.5px solid rgba(255,255,255,0.06)',
+        boxShadow: complete
+          ? `0 4px 24px ${accentColor}18, inset 0 1px 0 rgba(255,255,255,0.04)`
+          : '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
       }}
     >
       {/* Superset badge */}
