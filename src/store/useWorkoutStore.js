@@ -167,6 +167,22 @@ export const useWorkoutStore = create(
         return totalSets;
       },
 
+      // Returns { date: completedSetsCount } for heatmap coloring
+      getDateVolumes: () => {
+        const logs = get().logs;
+        const result = {};
+        for (const [date, dayLogs] of Object.entries(logs)) {
+          let count = 0;
+          for (const exLogs of Object.values(dayLogs)) {
+            for (const s of Object.values(exLogs)) {
+              if (s?.done) count++;
+            }
+          }
+          if (count > 0) result[date] = count;
+        }
+        return result;
+      },
+
       getSessionVolume: (date, exercises) => {
         const logs = get().logs[date] || {};
         let totalVolume = 0;

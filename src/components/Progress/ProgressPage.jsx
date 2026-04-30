@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useProgressStore from '../../store/useProgressStore';
+import useAchievementStore from '../../store/useAchievementStore';
 import WeightChart from './WeightChart';
 import VolumeChart from './VolumeChart';
 import StrengthLog from './StrengthLog';
@@ -10,17 +11,20 @@ import AchievementBadges from './AchievementBadges';
 import MuscleFatigueMap from './MuscleFatigueMap';
 import WeeklySummary from './WeeklySummary';
 import ProgressPhotos from './ProgressPhotos';
+import VolumePlanner from './VolumePlanner';
 
 const TABS = [
   { id: 'Hafta',    label: 'Hafta',    icon: '📅' },
   { id: 'Kilo',     label: 'Kilo',     icon: '⚖️' },
-  { id: 'Hacim',   label: 'Hacim',    icon: '📊' },
+  { id: 'Hacim',    label: 'Hacim',    icon: '📊' },
+  { id: 'Kuvvet',   label: 'Kuvvet',   icon: '💪' },
   { id: 'Egzersiz', label: 'Egzersiz', icon: '📈' },
-  { id: 'Kaslar',  label: 'Kaslar',   icon: '🫀' },
-  { id: 'Takvim',  label: 'Takvim',   icon: '🗓️' },
+  { id: 'Kaslar',   label: 'Kaslar',   icon: '🫀' },
+  { id: 'HacimPlan', label: 'Plan',   icon: '🗺️' },
+  { id: 'Takvim',   label: 'Takvim',   icon: '🗓️' },
   { id: 'Rozetler', label: 'Rozetler', icon: '🏅' },
   { id: 'Fotoğraf', label: 'Fotoğraf', icon: '📸' },
-  { id: 'Ölçüm',  label: 'Ölçüm',    icon: '📐' },
+  { id: 'Ölçüm',   label: 'Ölçüm',    icon: '📐' },
 ];
 
 export default function ProgressPage() {
@@ -33,6 +37,7 @@ export default function ProgressPage() {
     if (!w || w < 40 || w > 200) return;
     const date = new Date().toISOString().split('T')[0];
     addWeight(date, w);
+    useAchievementStore.getState().recordWeightEntry();
     setWeightInput('');
   }
 
@@ -126,6 +131,7 @@ export default function ProgressPage() {
         {tab === 'Hafta' && <WeeklySummary />}
         {tab === 'Egzersiz' && <ExerciseHistory />}
         {tab === 'Kaslar' && <MuscleFatigueMap />}
+        {tab === 'HacimPlan' && <VolumePlanner />}
         {tab === 'Takvim' && <WorkoutCalendar />}
         {tab === 'Rozetler' && <AchievementBadges />}
         {tab === 'Fotoğraf' && <ProgressPhotos />}

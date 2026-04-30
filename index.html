@@ -5,7 +5,7 @@
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f172a" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Kiþisel antrenman programlarý, AI koçluk ve detaylý ilerleme takibi. 12 haftalýk V-taper programý ile ideal fizik hedefine ulaþ." />\n    <meta name="keywords" content="v-taper, antrenman, fitness, spor, gym, bodybuilding, AI koç, egzersiz, program" />\n    <meta property="og:title" content="V-Taper Coach — AI Destekli Antrenman Uygulamasý" />\n    <meta property="og:description" content="Kiþisel antrenman programlarý, AI koçluk ve detaylý ilerleme takibi. 12 haftalýk V-taper programý ile ideal fizik hedefine ulaþ." />\n    <meta property="og:type" content="website" />\n    <meta property="og:url" content="https://vtaper-coach.vercel.app" />\n    <meta property="og:image" content="/icons/icon-512.png" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:title" content="V-Taper Coach — AI Destekli Antrenman Uygulamasý" />\n    <meta name="twitter:description" content="Kiþisel antrenman programlarý, AI koçluk ve detaylý ilerleme takibi." />\n    <meta name="twitter:image" content="/icons/icon-512.png" />\n    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="VTaper" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -48,7 +48,28 @@
       }
     </script>
   </head>
-  <body style="background:#0f172a">
+  <style>
+    :root {
+      --color-bg: #0f172a;
+      --color-bg-card: #1e293b;
+      --color-bg-card-hover: #334155;
+      --color-bg-input: #1e293b;
+      --color-text: #ffffff;
+      --color-text-muted: rgba(255,255,255,0.6);
+      --color-text-muted-light: rgba(255,255,255,0.3);
+      --color-primary: #14B8A6;
+      --color-primary-hover: #0d9488;
+      --color-accent: #E94560;
+      --color-accent-hover: #d63d52;
+      --color-border: rgba(255,255,255,0.1);
+      --color-border-hover: rgba(255,255,255,0.2);
+      --color-success: #10B981;
+      --color-warning: #F59E0B;
+      --color-error: #E94560;
+      --color-gradient: linear-gradient(135deg, #14B8A6 0%, #0d9488 100%);
+    }
+  </style>
+  <body style="background:#0f172a; transition: background-color 0.3s ease;">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

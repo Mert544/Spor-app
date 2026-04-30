@@ -1,19 +1,30 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WeeklyCheckIn from './WeeklyCheckIn';
 import useProgressStore from '../../store/useProgressStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useAuthStore from '../../store/useAuthStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useCustomStore from '../../store/useCustomStore';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { PHASES, getPhaseFromWeek } from '../../data/program';
+import ThemeToggle from '../Settings/ThemeToggle';
+import AchievementBadge from './AchievementBadge';
+import useAchievementStore, { ACHIEVEMENTS } from '../../store/useAchievementStore';
 
 export default function ProfilePage() {
   const { currentWeek, setCurrentWeek, startWeight, targetWeight, setStartWeight, addWeight } = useProgressStore();
   const { user, setUser, notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
+  const { session, isGuest, clearAuth } = useAuthStore();
   const workoutStore = useWorkoutStore();
+  const { unlocked, stats } = useAchievementStore();
   const [showReset, setShowReset] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({ name: '', height: '', startWeight: '', targetWeight: '' });
   const importRef = useRef(null);
+  const navigate = useNavigate();
 
   const phase = getPhaseFromWeek(currentWeek);
   const phaseData = PHASES[phase];
@@ -22,6 +33,7 @@ export default function ProfilePage() {
     setEditValues({
       name: user?.name || '',
       height: user?.height || '',
+      gender: user?.gender || null,
       startWeight: startWeight || '',
       targetWeight: targetWeight || '',
     });
@@ -31,36 +43,34 @@ export default function ProfilePage() {
   function saveEdit() {
     const sw = parseFloat(editValues.startWeight);
     const tw = parseFloat(editValues.targetWeight);
-    setUser({ name: editValues.name.trim(), height: editValues.height.trim() });
+    setUser({ name: editValues.name.trim(), height: editValues.height.trim(), gender: editValues.gender });
     if (sw > 0) {
       setStartWeight(sw);
       const today = new Date().toISOString().split('T')[0];
       addWeight(today, sw);
+      useAchievementStore.getState().recordWeightEntry();
     }
     if (tw > 0) useProgressStore.setState({ targetWeight: tw });
     setEditing(false);
   }
 
   function handleExport() {
-    const ps = useProgressStore.getState();
     const data = {
+      version: 2,
+      app: 'v-taper-coach',
       exportedAt: new Date().toISOString(),
-      progress: {
-        weights: ps.weights,
-        measurements: ps.measurements,
-        weeklyCheckIns: ps.weeklyCheckIns,
-        currentWeek: ps.currentWeek,
-        startWeight: ps.startWeight,
-        targetWeight: ps.targetWeight,
-      },
-      workoutLogs: workoutStore.logs,
-      exerciseNotes: useWorkoutStore.getState().exerciseNotes,
+      progress: useProgressStore.getState(),
+      workout: useWorkoutStore.getState(),
+      settings: useSettingsStore.getState(),
+      customPrograms: useCustomProgramStore.getState(),
+      customExercises: useCustomStore.getState(),
+      achievements: useAchievementStore.getState(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `vtaper-export-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `vtaper-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -69,6 +79,9 @@ export default function ProfilePage() {
     localStorage.removeItem('vtaper-workout-logs');
     localStorage.removeItem('vtaper-progress');
     localStorage.removeItem('vtaper-settings');
+    localStorage.removeItem('vtaper-custom-programs');
+    localStorage.removeItem('vtaper-custom-exercises');
+    localStorage.removeItem('vtaper-achievements');
     window.location.reload();
   }
 
@@ -79,13 +92,23 @@ export default function ProfilePage() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (data.workoutLogs) {
-          localStorage.setItem('vtaper-workout-logs', JSON.stringify({ state: { logs: data.workoutLogs, exerciseNotes: data.exerciseNotes || {} }, version: 0 }));
+        if (data.app !== 'v-taper-coach') {
+          alert('Geçersiz yedek dosyası. V-Taper Coach yedeği değil.');
+          return;
         }
-        if (data.progress) {
-          localStorage.setItem('vtaper-progress', JSON.stringify({ state: data.progress, version: 0 }));
+        // Validate required sections exist
+        if (!data.progress || !data.workout || !data.settings) {
+          alert('Yedek dosyası eksik bölümler içeriyor.');
+          return;
         }
-        alert('Veri başarıyla içe aktarıldı. Sayfa yenilenecek.');
+        // Restore stores via Zustand setState (proper reactivity)
+        useProgressStore.setState(data.progress);
+        useWorkoutStore.setState(data.workout);
+        useSettingsStore.setState(data.settings);
+        if (data.customPrograms) useCustomProgramStore.setState(data.customPrograms);
+        if (data.customExercises) useCustomStore.setState(data.customExercises);
+        if (data.achievements) useAchievementStore.setState(data.achievements);
+        alert('Veri başarıyla geri yüklendi. Sayfa yenilenecek.');
         window.location.reload();
       } catch {
         alert('Geçersiz dosya formatı. Daha önce dışa aktarılmış bir JSON dosyası kullanın.');
@@ -113,6 +136,25 @@ export default function ProfilePage() {
               <EditField label="Boy (cm)" value={editValues.height} onChange={v => setEditValues(p => ({ ...p, height: v }))} placeholder="180" type="number" />
               <EditField label="Başlangıç Kilo (kg)" value={editValues.startWeight} onChange={v => setEditValues(p => ({ ...p, startWeight: v }))} placeholder="85.0" type="number" />
               <EditField label="Hedef Kilo (kg)" value={editValues.targetWeight} onChange={v => setEditValues(p => ({ ...p, targetWeight: v }))} placeholder="78.0" type="number" />
+              <div>
+                <p className="text-xs text-white/40 mb-1.5">Cinsiyet</p>
+                <div className="flex gap-2">
+                  {[{ val: 'male', label: 'Erkek', emoji: '♂️' }, { val: 'female', label: 'Kadın', emoji: '♀️' }].map(g => (
+                    <button
+                      key={g.val}
+                      type="button"
+                      onClick={() => setEditValues(p => ({ ...p, gender: p.gender === g.val ? null : g.val }))}
+                      className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition-all"
+                      style={editValues.gender === g.val
+                        ? { backgroundColor: g.val === 'male' ? '#3B82F620' : '#EC489920', color: g.val === 'male' ? '#3B82F6' : '#EC4899', border: `1px solid ${g.val === 'male' ? '#3B82F650' : '#EC489950'}` }
+                        : { backgroundColor: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }
+                      }
+                    >
+                      <span>{g.emoji}</span> {g.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="flex gap-2 pt-1">
                 <button onClick={() => setEditing(false)} className="flex-1 py-2.5 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
                 <button onClick={saveEdit} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-accent-teal">Kaydet</button>
@@ -121,12 +163,19 @@ export default function ProfilePage() {
           ) : (
             <>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-14 h-14 rounded-full bg-accent-teal flex items-center justify-center text-2xl">
-                  💪
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+                  style={{ backgroundColor: user?.gender === 'female' ? '#EC489920' : user?.gender === 'male' ? '#3B82F620' : '#14B8A620' }}
+                >
+                  {user?.gender === 'female' ? '🌸' : '💪'}
                 </div>
                 <div className="flex-1">
                   <p className="text-lg font-bold text-white">{user?.name || 'Sporcu'}</p>
-                  <p className="text-xs text-white/40">{user?.height ? `${user.height} cm · ` : ''}V-Taper Programı</p>
+                  <p className="text-xs text-white/40">
+                    {user?.height ? `${user.height} cm · ` : ''}
+                    {user?.gender === 'female' ? 'Kadın · ' : user?.gender === 'male' ? 'Erkek · ' : ''}
+                    Sporcu Programı
+                  </p>
                 </div>
                 <button onClick={startEdit} className="text-xs text-accent-teal px-2 py-1 rounded-lg border border-accent-teal/30">
                   Düzenle
@@ -190,6 +239,14 @@ export default function ProfilePage() {
           <p className="text-xs text-white/40 mb-3">
             Veriler yalnızca bu cihazda saklanır. Farklı bir kullanıcı başlatmak için oturumu kapatabilirsin.
           </p>
+          {/* Cloud account badge */}
+          {isSupabaseConfigured && session?.user && (
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#14B8A6]/15 text-[#14B8A6]">Bulut</span>
+              <span className="text-xs text-white/40 truncate">{session.user.email}</span>
+            </div>
+          )}
+
           {!showLogout ? (
             <button
               onClick={() => setShowLogout(true)}
@@ -208,7 +265,11 @@ export default function ProfilePage() {
                   className="flex-1 py-2.5 rounded-xl text-sm bg-bg-dark text-white/50"
                 >İptal</button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    if (isSupabaseConfigured && supabase && session) {
+                      await supabase.auth.signOut();
+                      clearAuth();
+                    }
                     localStorage.clear();
                     window.location.reload();
                   }}
@@ -218,6 +279,52 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Supplement Guide card */}
+        <button
+          onClick={() => navigate('/takviye')}
+          className="w-full flex items-center gap-3 p-4 rounded-2xl mb-4 transition-all text-left"
+          style={{ background: '#1E293B', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+            style={{ background: '#14B8A615', border: '1px solid #14B8A630' }}>
+            💊
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-white">Supplement Rehberi</p>
+            <p className="text-xs text-white/40">Seviyene göre takviye önerileri</p>
+          </div>
+          <span className="text-white/30 text-sm">›</span>
+        </button>
+
+        {/* Achievements */}
+        <div className="bg-bg-card rounded-2xl p-4 mb-4 border border-white/5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">Rozetler</p>
+            <p className="text-xs font-bold text-accent-teal">
+              {unlocked.length} / {ACHIEVEMENTS.length}
+            </p>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-white/5 mb-4 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${(unlocked.length / ACHIEVEMENTS.length) * 100}%`,
+                backgroundColor: '#14B8A6',
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            {ACHIEVEMENTS.map((ach) => (
+              <AchievementBadge
+                key={ach.id}
+                id={ach.id}
+                unlocked={unlocked.includes(ach.id)}
+                progress={useAchievementStore.getState().getProgress(ach.id)}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Actions */}
@@ -324,7 +431,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="text-center text-white/20 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
+        <p className="text-center text-white/30 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
       </div>
     </div>
   );

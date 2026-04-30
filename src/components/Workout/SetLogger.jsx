@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useAchievementStore from '../../store/useAchievementStore';
 
 const RPE_OPTIONS = [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 
@@ -9,6 +10,20 @@ function calc1RM(weight, reps) {
   const r = parseInt(reps);
   if (!w || !r || r < 1 || r > 30) return null;
   return r === 1 ? w : Math.round(w * (1 + r / 30));
+}
+
+// RPE-to-next-session weight suggestion
+// Formula: nextWeight = round(weight × (1 + (10 - rpe) × 0.025), 2.5)
+// RPE 10 → +0%, RPE 9 → +2.5%, RPE 8 → +5%, RPE 7 → +7.5%
+function calcNextWeight(weight, rpe) {
+  const w = parseFloat(weight);
+  const r = parseFloat(rpe);
+  if (!w || !r) return null;
+  const factor = 1 + (10 - r) * 0.025;
+  const raw = w * factor;
+  // Round to nearest 2.5kg
+  const rounded = Math.round(raw / 2.5) * 2.5;
+  return rounded === w ? null : rounded; // only show if actually different
 }
 
 export default function SetLogger({ date, exerciseId, setIndex, accentColor, restSeconds }) {
@@ -29,6 +44,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   const [isPR, setIsPR] = useState(false);
 
   const estimated1RM = calc1RM(weight, reps);
+  const nextWeight = done ? calcNextWeight(weight, rpe) : null;
 
   function save(patch) {
     logSet(date, exerciseId, setIndex, { weight, reps, rpe, done, ...patch });
@@ -44,7 +60,10 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
       setDone(true);
       save({ done: true });
       if (navigator.vibrate) navigator.vibrate(30);
-      if (cur1RM && (!oldPR || cur1RM > oldPR.e1rm)) setIsPR(true);
+      if (cur1RM && (!oldPR || cur1RM > oldPR.e1rm)) {
+        setIsPR(true);
+        useAchievementStore.getState().recordPR();
+      }
       if (restSeconds > 0) setTimerVisible(true);
     } else {
       setDone(false);
@@ -54,7 +73,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   }
 
   return (
-    <div className={`transition-all ${done ? 'opacity-60' : ''}`}>
+    <div className={`transition-all duration-200 ${done ? 'opacity-50' : 'opacity-100'}`}>
       <div className="flex items-center gap-2 py-1.5 px-1">
         {/* Quick copy from previous set */}
         {prevSetEntry?.weight && !entry.weight && !done ? (
@@ -84,7 +103,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
             disabled={done}
           />
           {!weight && prevWeight && (
-            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-white/25 text-xs pointer-events-none">
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-white/30 text-xs pointer-events-none">
               ↑{prevWeight}
             </span>
           )}
@@ -122,19 +141,19 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
         {/* Done toggle */}
         <button
           onClick={handleDone}
-          className="w-8 h-8 rounded-full flex items-center justify-center transition-all border flex-shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 border flex-shrink-0 active:scale-75"
           style={done
-            ? { backgroundColor: accentColor, borderColor: accentColor }
+            ? { backgroundColor: accentColor, borderColor: accentColor, boxShadow: `0 0 8px ${accentColor}55` }
             : { borderColor: 'rgba(255,255,255,0.2)', backgroundColor: 'transparent' }
           }
         >
-          {done && <span className="text-white text-xs">✓</span>}
+          {done && <span className="text-white text-xs font-bold">✓</span>}
         </button>
       </div>
 
-      {/* 1RM + PR badge */}
-      {(estimated1RM || isPR) && weight && reps && (
-        <div className="flex justify-end gap-2 pr-1 pb-1">
+      {/* Badges row: PR + 1RM + next weight suggestion */}
+      {weight && reps && (isPR || estimated1RM || nextWeight) && (
+        <div className="flex items-center gap-2 pr-1 pb-1 flex-wrap justify-end">
           {isPR && (
             <span className="text-xs px-2 py-0.5 rounded-full font-bold"
               style={{ backgroundColor: '#F5A62330', color: '#F5A623' }}>
@@ -145,6 +164,13 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
             <span className="text-xs px-2 py-0.5 rounded-full"
               style={{ backgroundColor: `${accentColor}18`, color: accentColor }}>
               ~1RM: {estimated1RM} kg
+            </span>
+          )}
+          {nextWeight && done && (
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+              style={{ backgroundColor: '#3B82F620', color: '#3B82F6', border: '1px solid #3B82F640' }}
+              title="RPE'ye göre sonraki seans hedefi">
+              → {nextWeight} kg sonraki seans
             </span>
           )}
         </div>

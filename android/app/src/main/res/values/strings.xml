@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">V-Taper Coach</string>
+    <string name="title_activity_main">V-Taper Coach</string>
+    <string name="package_name">com.vtaper.coach</string>
+    <string name="custom_url_scheme">com.vtaper.coach</string>
+    <string name="notification_channel_id">workout_reminders</string>
+    <string name="notification_channel_name">Antrenman Hatırlatıcıları</string>
+    <string name="notification_channel_desc">Günlük antrenman hatırlatma bildirimleri</string>
+</resources>

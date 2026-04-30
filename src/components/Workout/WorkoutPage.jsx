@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
 import CompletionCard from './CompletionCard';
-import { ALL_PROGRAMS, getTodayDayIndex } from '../../data/program';
+import DayBasisCard from './DayBasisCard';
+import { ALL_PROGRAMS, getTodayDayIndex, PHASES } from '../../data/program';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useProgressStore from '../../store/useProgressStore';
 import useCustomStore from '../../store/useCustomStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useAchievementStore from '../../store/useAchievementStore';
 
 const MUSCLES = ['Göğüs', 'Sırt', 'Omuz', 'Trisep', 'Bisep', 'Bacak', 'Kor'];
 
@@ -32,13 +36,26 @@ function useDeloadSuggestion(logs) {
   return { show, count, dismiss: () => setDeloadDismissed(true) };
 }
 
+function getCurrentPhase(week) {
+  for (const [num, phase] of Object.entries(PHASES)) {
+    if (phase.weeks.includes(week)) return { num: parseInt(num), ...phase };
+  }
+  return null;
+}
+
 export default function WorkoutPage() {
   const { activeProgram, setActiveProgram } = useSettingsStore();
   const { logs, getDayProgress } = useWorkoutStore();
+  const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
+  const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle, markDayComplete } = useCustomProgramStore();
+  const achievementTriggered = useRef(false);
+
+  const isCustom = activeProgram?.startsWith('custom_') || activeProgram?.startsWith('personal_');
 
   const resolvedProgram = (() => {
     if (!activeProgram) return 'vtaper_orta';
+    if (isCustom) return activeProgram;
     if (ALL_PROGRAMS[activeProgram]) return activeProgram;
     const withLevel = `${activeProgram}_orta`;
     if (ALL_PROGRAMS[withLevel]) return withLevel;
@@ -46,14 +63,21 @@ export default function WorkoutPage() {
   })();
 
   useEffect(() => {
-    if (activeProgram && !ALL_PROGRAMS[activeProgram]) {
+    if (activeProgram && !isCustom && !ALL_PROGRAMS[activeProgram]) {
       const withLevel = `${activeProgram}_orta`;
       if (ALL_PROGRAMS[withLevel]) setActiveProgram(withLevel);
       else setActiveProgram('vtaper_orta');
     }
-  }, [activeProgram, setActiveProgram]);
+  }, [activeProgram, isCustom, setActiveProgram]);
 
-  const programData = ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'];
+  const programData = isCustom
+    ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'])
+    : (ALL_PROGRAMS[resolvedProgram] || ALL_PROGRAMS['vtaper_orta']);
+
+  // For custom programs: use per-program mesocycle week
+  const customMesoWeek = isCustom ? getMesocycleWeek(resolvedProgram) : null;
+  const effectiveWeek = isCustom ? customMesoWeek : currentWeek;
+
   const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayDayIndex());
   const date = getToday();
 
@@ -67,11 +91,18 @@ export default function WorkoutPage() {
   const [customForm, setCustomForm] = useState({ name: '', muscle: 'Göğüs', sets: 3, reps: '8-10' });
 
   const { show: showDeload, count: deloadCount, dismiss: dismissDeload } = useDeloadSuggestion(logs);
+  const currentPhase = getCurrentPhase(currentWeek);
+  const isDeloadWeek = currentPhase && currentPhase.deload === currentWeek;
+
+  // Custom program mesocycle phase
+  const customPhase = isCustom ? programData?.mesocycle?.phases?.find(p => p.weeks?.includes(effectiveWeek)) : null;
+  const customMesoTotal = programData?.mesocycle?.durationWeeks ?? 0;
+  const customIsDeload = !!(customPhase?.volumeMultiplier);
 
   if (!dayData) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-white/40 text-sm">Antrenman bulunamadı.</p>
+        <p className="text-white/40 text-sm">Program verisi yüklenemedi.</p>
       </div>
     );
   }
@@ -79,6 +110,24 @@ export default function WorkoutPage() {
   const exercises = dayData.exercises;
   const { completed, total } = getDayProgress(date, exercises);
   const allDone = total > 0 && completed === total;
+
+  // Auto-advance mesocycle week + achievement triggers when all done
+  useEffect(() => {
+    if (allDone && isCustom && programData?.days?.length) {
+      markDayComplete(resolvedProgram, selectedDayIndex, programData.days.length);
+    }
+    if (allDone && !achievementTriggered.current) {
+      achievementTriggered.current = true;
+      const hour = new Date().getHours();
+      const { totalVolume } = useWorkoutStore.getState().getSessionVolume(date, exercises);
+      useAchievementStore.getState().recordWorkout(totalVolume, hour);
+      const streak = useWorkoutStore.getState().getStreak();
+      useAchievementStore.getState().recordStreak(streak);
+    }
+    if (!allDone) {
+      achievementTriggered.current = false;
+    }
+  }, [allDone, isCustom, resolvedProgram, selectedDayIndex, programData.days.length, markDayComplete, date]);
 
   const nameMap = {};
   exercises.forEach(e => { nameMap[e.id] = e.name; });
@@ -98,6 +147,80 @@ export default function WorkoutPage() {
         days={programData.days}
         program={programData.program}
       />
+
+      {/* Phase / Week context banner */}
+      {currentPhase && (
+        <div
+          className="mx-4 mb-3 rounded-xl px-4 py-2.5"
+          style={{
+            background: isDeloadWeek
+              ? 'linear-gradient(135deg, #F5A62308, #F5A62318)'
+              : 'linear-gradient(135deg, #14B8A608, #14B8A618)',
+            border: `1px solid ${isDeloadWeek ? '#F5A62330' : '#14B8A630'}`,
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: isDeloadWeek ? '#F5A62325' : '#14B8A625', color: isDeloadWeek ? '#F5A623' : '#14B8A6' }}>
+                Hf {currentWeek}
+              </span>
+              <span className="text-xs font-semibold text-white/60">
+                Faz {currentPhase.num}: {currentPhase.name}
+                {isDeloadWeek && ' · DELOAD'}
+              </span>
+            </div>
+            <span className="text-xs text-white/30">
+              RPE ≤{currentPhase.rpeMax}
+            </span>
+          </div>
+          {isDeloadWeek && (
+            <p className="text-xs text-accent-gold/70 mt-1.5 leading-relaxed">{currentPhase.deloadNote}</p>
+          )}
+        </div>
+      )}
+
+      {/* Custom program mesocycle banner */}
+      {isCustom && customMesoTotal > 0 && (
+        <div className="mx-4 mb-3 rounded-xl px-4 py-2.5"
+          style={{
+            background: customIsDeload
+              ? 'linear-gradient(135deg, #F5A62308, #F5A62318)'
+              : `linear-gradient(135deg, ${programData.color}08, ${programData.color}18)`,
+            border: `1px solid ${customIsDeload ? '#F5A62330' : programData.color + '40'}`,
+          }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: (customIsDeload ? '#F5A623' : programData.color) + '25', color: customIsDeload ? '#F5A623' : programData.color }}>
+                Hf {effectiveWeek}/{customMesoTotal}
+              </span>
+              <span className="text-xs font-semibold text-white/60">
+                {customPhase?.name ?? 'Birikim'}
+                {customIsDeload && ' · DELOAD'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {customPhase?.rpeMax && (
+                <span className="text-xs text-white/30">RPE ≤{customPhase.rpeMax}</span>
+              )}
+              {effectiveWeek < customMesoTotal && (
+                <button onClick={() => incrementMesocycleWeek(resolvedProgram)}
+                  className="text-xs px-2 py-0.5 rounded-lg"
+                  style={{ backgroundColor: programData.color + '20', color: programData.color }}>
+                  Hf +1 →
+                </button>
+              )}
+              {effectiveWeek >= customMesoTotal && (
+                <button onClick={() => startNewMesocycle(resolvedProgram)}
+                  className="text-xs px-2 py-0.5 rounded-lg bg-[#14B8A6]/15 text-[#14B8A6]">
+                  Yeni Meso
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Deload suggestion banner */}
       {showDeload && (
@@ -127,6 +250,9 @@ export default function WorkoutPage() {
 
       <ProgressBar completed={completed} total={total} color={dayData.color} />
 
+      {/* Scientific basis accordion */}
+      <DayBasisCard dayKey={dayKey} accentColor={dayData.color} />
+
       {/* Morning note */}
       {dayData.morning && (
         <div className="mx-4 mb-3 rounded-xl px-4 py-3 bg-bg-card border border-accent-teal/20">
@@ -148,6 +274,7 @@ export default function WorkoutPage() {
           date={date}
           accentColor={dayData.color}
           supersetPartnerName={ex.superset ? nameMap[ex.superset] : null}
+          mesoWeek={isCustom ? effectiveWeek : undefined}
         />
       ))}
 
@@ -162,7 +289,7 @@ export default function WorkoutPage() {
           />
           <button
             onClick={() => removeExercise(date, ex.id)}
-            className="absolute top-3 right-12 text-white/25 text-xs hover:text-accent-red transition-colors"
+            className="absolute top-3 right-12 text-white/30 text-xs hover:text-accent-red transition-colors"
           >✕</button>
         </div>
       ))}
@@ -171,7 +298,7 @@ export default function WorkoutPage() {
       <div className="mx-4 mb-4">
         {showCustomForm ? (
           <div className="bg-bg-card rounded-2xl p-4 space-y-3">
-            <p className="text-xs font-semibold text-accent-teal">+ Özel Egzersiz Ekle</p>
+            <p className="text-xs font-semibold text-accent-teal uppercase tracking-widest">Egzersiz Ekle</p>
             <input
               type="text"
               placeholder="Egzersiz adı"
@@ -203,8 +330,8 @@ export default function WorkoutPage() {
               />
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowCustomForm(false)} className="flex-1 py-2 rounded-xl text-sm text-white/50 bg-bg-dark">İptal</button>
-              <button onClick={handleAddCustom} className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-accent-teal">Ekle</button>
+              <button onClick={() => setShowCustomForm(false)} className="flex-1 py-2 rounded-xl text-sm text-white/50 bg-bg-dark">Vazgeç</button>
+              <button onClick={handleAddCustom} className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-accent-teal">Programa Ekle</button>
             </div>
           </div>
         ) : (
@@ -212,7 +339,7 @@ export default function WorkoutPage() {
             onClick={() => setShowCustomForm(true)}
             className="w-full py-3 rounded-2xl border border-dashed border-white/10 text-white/30 text-sm flex items-center justify-center gap-2 active:border-accent-teal/40 transition-colors"
           >
-            <span>+</span> Özel Egzersiz Ekle
+            <span className="text-base">+</span> Egzersiz Ekle
           </button>
         )}
       </div>

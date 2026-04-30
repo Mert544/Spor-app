@@ -1,12 +1,17 @@
 {
+  "name": "vtaper-coach",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
     "api/**/*.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "rewrites": [
+    {
+      "source": "/supabase-proxy/:path*",
+      "destination": "https://sfnpefcxvmypfxzdzzzi.supabase.co/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

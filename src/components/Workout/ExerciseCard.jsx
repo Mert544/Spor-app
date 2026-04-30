@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
+import useProgressStore from '../../store/useProgressStore';
 import { getVideoUrl } from '../../data/videos';
 import { getAlternatives } from '../../data/exerciseAlternatives';
+import { getProgressionSuggestion } from '../../utils/progressionEngine';
 
 const MUSCLE_COLORS = {
   'Göğüs': '#E94560', 'Trisep': '#EC4899', 'Omuz': '#F5A623',
@@ -11,13 +13,20 @@ const MUSCLE_COLORS = {
   'Kor': '#14B8A6', 'Hamstring': '#10B981', 'Kalça': '#10B981',
 };
 
-export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName }) {
+export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
   const alternatives = getAlternatives(exercise.name);
-  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord } = useWorkoutStore();
-  const complete = isExerciseComplete(date, exercise.id, exercise.sets);
+  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord, logs: allLogs } = useWorkoutStore();
+  const { currentWeek } = useProgressStore();
+
+  // Use weeklySetRamp if available (custom programs pass mesoWeek prop)
+  const effectiveWeek = mesoWeek ?? currentWeek;
+  const rampSets = exercise.weeklySetRamp?.[effectiveWeek - 1] ?? exercise.sets;
+  const isRampActive = !!(exercise.weeklySetRamp?.length);
+
+  const complete = isExerciseComplete(date, exercise.id, rampSets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
   const logs = getExerciseLogs(date, exercise.id);
   const doneSets = Object.values(logs).filter(l => l.done).length;
@@ -26,17 +35,61 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
   const pr = open ? getPersonalRecord(exercise.id) : null;
   const chartData = history.slice(-10).map(h => ({ w: h.maxWeight }));
 
+  // Infer a progression rule for static program exercises that lack one
+  const exerciseWithRule = useMemo(() => {
+    if (exercise.progressionRule) return exercise;
+    const reps = exercise.reps ?? '';
+    const rpe  = exercise.rpe  ?? '';
+    const repMax = parseInt(String(reps).split('-').pop()) || 0;
+
+    let rule;
+    if (repMax <= 6) {
+      // Heavy strength range → linear
+      rule = { type: 'linear', params: { loadIncrement: 2.5 } };
+    } else if (String(rpe).includes('7') || String(rpe).includes('8')) {
+      // Moderate RPE range → double progression
+      const repParts = String(reps).split('-');
+      rule = {
+        type: 'double_progression',
+        params: {
+          repRangeMin: parseInt(repParts[0]) || 8,
+          repRangeMax: parseInt(repParts[1]) || 12,
+          loadIncrement: 2.5,
+        },
+      };
+    } else {
+      // Default: double progression
+      rule = {
+        type: 'double_progression',
+        params: { repRangeMin: 10, repRangeMax: 15, loadIncrement: 2.5 },
+      };
+    }
+    return { ...exercise, progressionRule: rule };
+  }, [exercise]);
+
+  // Progression suggestion for all exercises
+  const suggestion = useMemo(() => {
+    try { return getProgressionSuggestion(exerciseWithRule, allLogs, currentWeek); }
+    catch { return null; }
+  }, [exerciseWithRule, allLogs, currentWeek]);
+
   return (
     <div
-      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all"
+      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all duration-300 hover-glow btn-press"
       style={{
-        backgroundColor: '#1e293b',
+        background: complete
+          ? `linear-gradient(135deg, ${accentColor}12 0%, rgba(30,41,59,0.7) 55%)`
+          : 'rgba(30, 41, 59, 0.6)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         border: complete
-          ? `1.5px solid ${accentColor}`
+          ? `1.5px solid ${accentColor}80`
           : exercise.superset
-          ? `1.5px solid ${accentColor}44`
-          : '1.5px solid transparent',
-        boxShadow: complete ? `0 0 12px ${accentColor}33` : 'none',
+          ? `1.5px solid ${accentColor}40`
+          : '1.5px solid rgba(255,255,255,0.06)',
+        boxShadow: complete
+          ? `0 4px 24px ${accentColor}18, inset 0 1px 0 rgba(255,255,255,0.04)`
+          : '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
       }}
     >
       {/* Superset badge */}
@@ -51,7 +104,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
       {/* Header row */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
       >
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all"
@@ -62,7 +115,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
         >
           {complete
             ? <span className="text-white text-sm font-bold">✓</span>
-            : <span className="text-white/40 text-xs font-mono">{doneSets}/{exercise.sets}</span>
+            : <span className="text-white/40 text-xs font-mono">{doneSets}/{rampSets}</span>
           }
         </div>
 
@@ -72,7 +125,13 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           </p>
           {/* Chips row */}
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            <Chip text={`${exercise.sets}×${exercise.reps}`} color="rgba(255,255,255,0.12)" textColor="rgba(255,255,255,0.6)" />
+            <Chip
+              text={isRampActive ? `${rampSets}×${exercise.reps}` : `${exercise.sets}×${exercise.reps}`}
+              color="rgba(255,255,255,0.12)" textColor="rgba(255,255,255,0.6)"
+            />
+            {isRampActive && rampSets !== exercise.sets && (
+              <Chip text={`Hf${effectiveWeek}`} color="#14B8A618" textColor="#14B8A6" />
+            )}
             {exercise.rpe && <Chip text={`RPE ${exercise.rpe}`} color={accentColor + '22'} textColor={accentColor + 'cc'} />}
             {exercise.rest > 0 && <Chip text={`${exercise.rest}sn ⏱`} color="rgba(255,255,255,0.06)" textColor="rgba(255,255,255,0.35)" />}
             {personalNote && <Chip text="📝" color="#F5A62320" textColor="#F5A623" />}
@@ -86,13 +145,16 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           >
             {exercise.muscle}
           </span>
-          <span className="text-white/20 text-xs">{open ? '▲' : '▼'}</span>
+          <span
+            className="text-white/30 text-xs transition-transform duration-200 inline-block"
+            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          >▼</span>
         </div>
       </button>
 
       {/* Expanded */}
       {open && (
-        <div className="px-3 pb-3 border-t border-white/5 pt-2">
+        <div className="px-3 pb-3 border-t border-white/5 pt-2 animate-fadeInUp">
           {/* Program note + Video + Alt buttons */}
           <div className="flex items-start gap-2 mb-2">
             {exercise.note && (
@@ -128,7 +190,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
               <div className="space-y-1">
                 {alternatives.map((alt, i) => (
                   <div key={i} className="text-xs text-white/60 px-1 py-0.5 flex items-center gap-1.5">
-                    <span className="text-white/25">•</span> {alt}
+                    <span className="text-white/30">•</span> {alt}
                   </div>
                 ))}
               </div>
@@ -164,10 +226,25 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
               ) : (
                 <button
                   onClick={() => setShowNoteInput(true)}
-                  className="text-xs text-white/25 px-1 hover:text-white/50 transition-colors"
+                  className="text-xs text-white/30 px-1 hover:text-white/50 transition-colors"
                 >
                   + Not ekle
                 </button>
+              )}
+            </div>
+          )}
+
+          {/* Progression suggestion (custom programs) */}
+          {suggestion && (
+            <div className="mb-3 px-3 py-2 rounded-xl border flex items-center gap-2"
+              style={{ backgroundColor: '#14B8A608', borderColor: '#14B8A630' }}>
+              <span className="text-base">🎯</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#14B8A6]">Önerilen</p>
+                <p className="text-xs text-white/60">{suggestion.label}</p>
+              </div>
+              {suggestion.note && (
+                <span className="text-xs text-white/30 shrink-0">{suggestion.note}</span>
               )}
             </div>
           )}
@@ -181,7 +258,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             <span className="w-8" />
           </div>
 
-          {Array.from({ length: exercise.sets }, (_, i) => (
+          {Array.from({ length: rampSets }, (_, i) => (
             <SetLogger
               key={`${exercise.id}-set-${i}`}
               date={date}
