@@ -29,7 +29,13 @@ const TABS = [
 
 export default function ProgressPage() {
   const [tab, setTab] = useState('Kilo');
-  const { weights, startWeight, targetWeight, getTodayWeight, getTotalChange, addWeight, currentWeek } = useProgressStore();
+  const weights = useProgressStore(s => s.weights);
+  const startWeight = useProgressStore(s => s.startWeight);
+  const targetWeight = useProgressStore(s => s.targetWeight);
+  const getTodayWeight = useProgressStore(s => s.getTodayWeight);
+  const getTotalChange = useProgressStore(s => s.getTotalChange);
+  const addWeight = useProgressStore(s => s.addWeight);
+  const currentWeek = useProgressStore(s => s.currentWeek);
   const [weightInput, setWeightInput] = useState('');
 
   function handleAddWeight() {

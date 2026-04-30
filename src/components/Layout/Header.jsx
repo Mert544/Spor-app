@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import { memo } from 'react';
 import useSettingsStore from '../../store/useSettingsStore.js';
 import useWorkoutStore from '../../store/useWorkoutStore.js';
 import { LEVEL_CONFIG, PROGRAM_LIBRARY } from '../../data/program.js';
@@ -10,9 +11,11 @@ const PAGE_TITLES = {
   '/profil': 'Profil',
 };
 
-export default function Header() {
+const Header = memo(function _Header() {
   const location = useLocation();
-  const { setTimerVisible, activeProgram, user } = useSettingsStore();
+  const setTimerVisible = useSettingsStore(s => s.setTimerVisible);
+  const activeProgram = useSettingsStore(s => s.activeProgram);
+  const user = useSettingsStore(s => s.user);
   const getStreak = useWorkoutStore((s) => s.getStreak);
   const streak = getStreak();
   const isWorkout = location.pathname === '/antrenman';
@@ -78,4 +81,6 @@ export default function Header() {
       </div>
     </header>
   );
-}
+});
+
+export default Header;

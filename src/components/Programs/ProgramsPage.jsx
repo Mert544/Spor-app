@@ -29,9 +29,13 @@ const GenderBadge = ({ targetGender, userGender }) => {
 
 export default function ProgramsPage() {
   const nav = useNavigate();
-  const { activeProgram, setActiveProgram, user } = useSettingsStore();
-  const { programs: customPrograms, deleteProgram } = useCustomProgramStore();
-  const { isPremium, hasFeature } = useAuthStore();
+  const activeProgram = useSettingsStore(s => s.activeProgram);
+  const setActiveProgram = useSettingsStore(s => s.setActiveProgram);
+  const user = useSettingsStore(s => s.user);
+  const customPrograms = useCustomProgramStore(s => s.programs);
+  const deleteProgram = useCustomProgramStore(s => s.deleteProgram);
+  const isPremium = useAuthStore(s => s.isPremium);
+  const hasFeature = useAuthStore(s => s.hasFeature);
 
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [expandedLib, setExpandedLib] = useState(null);

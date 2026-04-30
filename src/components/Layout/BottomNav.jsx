@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { memo } from 'react';
 
 // Inline SVG icons — crisp, professional, no emoji rendering variance
 const Icons = {
@@ -47,9 +48,9 @@ const tabs = [
   { to: '/premium',   Icon: Icons.Premium, label: 'Premium' },
 ];
 
-export default function BottomNav() {
+const BottomNav = memo(function _BottomNav() {
   return (
-    <nav
+    <nav aria-label="Ana navigasyon"
       className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto pb-safe z-40"
       style={{ background: 'linear-gradient(0deg, #09111f 75%, transparent 100%)' }}
     >
@@ -98,4 +99,6 @@ export default function BottomNav() {
       </div>
     </nav>
   );
-}
+});
+
+export default BottomNav;

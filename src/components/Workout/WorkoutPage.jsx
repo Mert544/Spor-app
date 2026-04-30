@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import DaySelector from '../Layout/DaySelector';
 import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
@@ -44,11 +44,19 @@ function getCurrentPhase(week) {
 }
 
 export default function WorkoutPage() {
-  const { activeProgram, setActiveProgram } = useSettingsStore();
-  const { logs, getDayProgress } = useWorkoutStore();
-  const { currentWeek } = useProgressStore();
-  const { getExercises, addExercise, removeExercise } = useCustomStore();
-  const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle, markDayComplete } = useCustomProgramStore();
+  const activeProgram = useSettingsStore(s => s.activeProgram);
+  const setActiveProgram = useSettingsStore(s => s.setActiveProgram);
+  const logs = useWorkoutStore(s => s.logs);
+  const getDayProgress = useWorkoutStore(s => s.getDayProgress);
+  const currentWeek = useProgressStore(s => s.currentWeek);
+  const getExercises = useCustomStore(s => s.getExercises);
+  const addExercise = useCustomStore(s => s.addExercise);
+  const removeExercise = useCustomStore(s => s.removeExercise);
+  const customPrograms = useCustomProgramStore(s => s.programs);
+  const getMesocycleWeek = useCustomProgramStore(s => s.getMesocycleWeek);
+  const incrementMesocycleWeek = useCustomProgramStore(s => s.incrementMesocycleWeek);
+  const startNewMesocycle = useCustomProgramStore(s => s.startNewMesocycle);
+  const markDayComplete = useCustomProgramStore(s => s.markDayComplete);
   const achievementTriggered = useRef(false);
 
   const isCustom = activeProgram?.startsWith('custom_') || activeProgram?.startsWith('personal_');
@@ -129,15 +137,18 @@ export default function WorkoutPage() {
     }
   }, [allDone, isCustom, resolvedProgram, selectedDayIndex, programData.days.length, markDayComplete, date]);
 
-  const nameMap = {};
-  exercises.forEach(e => { nameMap[e.id] = e.name; });
+  const nameMap = useMemo(() => {
+    const map = {};
+    exercises.forEach(e => { map[e.id] = e.name; });
+    return map;
+  }, [exercises]);
 
-  function handleAddCustom() {
+  const handleAddCustom = useCallback(() => {
     if (!customForm.name.trim()) return;
     addExercise(date, { ...customForm, sets: Number(customForm.sets) });
     setCustomForm({ name: '', muscle: 'Göğüs', sets: 3, reps: '8-10' });
     setShowCustomForm(false);
-  }
+  }, [customForm, date, addExercise]);
 
   return (
     <div className="flex-1 overflow-y-auto pb-32 scrollbar-hide">
