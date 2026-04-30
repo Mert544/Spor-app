@@ -1,3 +1,13 @@
+
+export const FEATURES = {
+  AI_COACH: { id: 'aiCoach', name: 'AI Koç', icon: '??' },
+  CUSTOM_PROGRAMS: { id: 'customPrograms', name: 'Özel Programlar', icon: '??' },
+  ADVANCED_ANALYTICS: { id: 'advancedAnalytics', name: 'Geliþmiþ Analitik', icon: '??' },
+  FORM_VIDEOS: { id: 'formVideos', name: 'Form Videolarý', icon: '??' },
+  MEAL_PLANNING: { id: 'mealPlanning', name: 'Yemek Planlama', icon: '???' },
+  ONE_ON_ONE: { id: 'oneOnOneCoaching', name: '1:1 Koçluk', icon: '?????' },
+};
+
 export const SUBSCRIPTION_TIERS = {
   free: {
     id: 'free',

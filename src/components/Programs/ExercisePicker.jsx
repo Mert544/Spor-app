@@ -1,5 +1,5 @@
 // ExercisePicker — Searchable modal to pick exercises from the full program library
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ALL_PROGRAMS } from '../../data/program';
 
 const MUSCLE_COLOR = {
@@ -42,7 +42,7 @@ const ALL_MUSCLES = ['Tümü', ...new Set(LIBRARY.map(e => e.muscle))].sort((a, 
   a === 'Tümü' ? -1 : a.localeCompare(b, 'tr')
 );
 
-export default function ExercisePicker({ onSelect, onClose }) {
+export default function ExercisePicker({ onSelect, onClose, onReorder, items: reorderableItems }) {
   const [search, setSearch] = useState('');
   const [muscle, setMuscle] = useState('Tümü');
 

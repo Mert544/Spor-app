@@ -189,7 +189,7 @@ const useAchievementStore = create(
         if (achievementId === 'program_master') return Math.min(s.customProgramsCreated / 5, 1);
         if (achievementId === 'weight_tracker') return Math.min(s.weightEntries / 30, 1);
         if (achievementId === 'early_bird') return Math.min(s.earlyWorkouts / 1, 1);
-        if (achievementId === 'late_workouts') return Math.min(s.lateWorkouts / 1, 1);
+        if (achievementId === 'night_owl') return Math.min(s.lateWorkouts / 1, 1);
         if (achievementId === 'consistent') return Math.min(s.totalWorkouts / 50, 1);
         if (achievementId === 'legend') return Math.min(s.totalWorkouts / 100, 1);
         return 0;
