@@ -1,11 +1,11 @@
-
+ï»¿
 export const FEATURES = {
-  AI_COACH: { id: 'aiCoach', name: 'AI Koç', icon: '??' },
-  CUSTOM_PROGRAMS: { id: 'customPrograms', name: 'Özel Programlar', icon: '??' },
-  ADVANCED_ANALYTICS: { id: 'advancedAnalytics', name: 'Geliþmiþ Analitik', icon: '??' },
-  FORM_VIDEOS: { id: 'formVideos', name: 'Form Videolarý', icon: '??' },
+  AI_COACH: { id: 'aiCoach', name: 'AI KoÃ§', icon: '??' },
+  CUSTOM_PROGRAMS: { id: 'customPrograms', name: 'Ã–zel Programlar', icon: '??' },
+  ADVANCED_ANALYTICS: { id: 'advancedAnalytics', name: 'GeliÅŸmiÅŸ Analitik', icon: '??' },
+  FORM_VIDEOS: { id: 'formVideos', name: 'Form VideolarÄ±', icon: '??' },
   MEAL_PLANNING: { id: 'mealPlanning', name: 'Yemek Planlama', icon: '???' },
-  ONE_ON_ONE: { id: 'oneOnOneCoaching', name: '1:1 Koçluk', icon: '?????' },
+  ONE_ON_ONE: { id: 'oneOnOneCoaching', name: '1:1 KoÃ§luk', icon: '?????' },
 };
 
 export const SUBSCRIPTION_TIERS = {

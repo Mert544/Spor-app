@@ -1,5 +1,5 @@
-// ExercisePicker — Searchable modal to pick exercises from the full program library
-import { useState, useMemo, useCallback } from 'react';
+﻿// ExercisePicker — Searchable modal to pick exercises + touch drag-drop reorder
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { ALL_PROGRAMS } from '../../data/program';
 
 const MUSCLE_COLOR = {
@@ -12,7 +12,6 @@ const MUSCLE_COLOR = {
 };
 function mc(muscle) { return MUSCLE_COLOR[muscle] || '#ffffff50'; }
 
-// Build a deduplicated exercise library from all programs
 function buildLibrary() {
   const seen = new Set();
   const list = [];
@@ -42,9 +41,50 @@ const ALL_MUSCLES = ['Tümü', ...new Set(LIBRARY.map(e => e.muscle))].sort((a, 
   a === 'Tümü' ? -1 : a.localeCompare(b, 'tr')
 );
 
+function useDragReorder(items, setItems, onReorder) {
+  const drag = useRef(null);
+  const startY = useRef(0);
+
+  const onTouchStart = useCallback((e, id) => {
+    const t = e.touches[0];
+    startY.current = t.clientY;
+    drag.current = { id, startIdx: items.findIndex(i => i.id === id) };
+  }, [items]);
+
+  const onTouchMove = useCallback((e) => {
+    if (!drag.current) return;
+    const t = e.touches[0];
+    const delta = t.clientY - startY.current;
+    const itemH = 58;
+    const idx = items.findIndex(i => i.id === drag.current.id);
+    const newIdx = Math.max(0, Math.min(items.length - 1, idx + Math.round(delta / itemH)));
+    if (newIdx !== idx) {
+      const copy = [...items];
+      const [moved] = copy.splice(idx, 1);
+      copy.splice(newIdx, 0, moved);
+      setItems(copy);
+      startY.current = t.clientY;
+    }
+  }, [items, setItems]);
+
+  const onTouchEnd = useCallback(() => {
+    if (drag.current) onReorder(items);
+    drag.current = null;
+  }, [items, onReorder]);
+
+  return { onTouchStart, onTouchMove, onTouchEnd };
+}
+
 export default function ExercisePicker({ onSelect, onClose, onReorder, items: reorderableItems }) {
   const [search, setSearch] = useState('');
   const [muscle, setMuscle] = useState('Tümü');
+  const [localItems, setLocalItems] = useState(reorderableItems || []);
+  const isReorder = !!onReorder;
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useDragReorder(
+    localItems, setLocalItems,
+    useCallback((items) => onReorder?.(items), [onReorder])
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -55,17 +95,72 @@ export default function ExercisePicker({ onSelect, onClose, onReorder, items: re
     });
   }, [search, muscle]);
 
+  const handleSelect = useCallback((ex) => {
+    if (isReorder) {
+      const newItem = { ...ex, id: `pick_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
+      const next = [...localItems, newItem];
+      setLocalItems(next);
+      onReorder(next);
+    } else {
+      onSelect(ex);
+    }
+  }, [isReorder, localItems, onReorder, onSelect]);
+
+  const handleRemove = useCallback((id) => {
+    const next = localItems.filter(i => i.id !== id);
+    setLocalItems(next);
+    onReorder(next);
+  }, [localItems, onReorder]);
+
   return (
     <div className="fixed inset-0 z-[60] bg-bg flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/8 bg-bg shrink-0">
         <button onClick={onClose}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 text-lg">
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 text-lg"
+          aria-label="Kapat">
           ✕
         </button>
-        <h2 className="text-base font-semibold text-white flex-1">Egzersiz Seç</h2>
-        <span className="text-xs text-white/30">{filtered.length} sonuç</span>
+        <h2 className="text-base font-semibold text-white flex-1">
+          {isReorder ? 'Egzersizleri Sırala' : 'Egzersiz Seç'}
+        </h2>
+        <span className="text-xs text-white/30">
+          {isReorder ? localItems.length : filtered.length}
+          {isReorder ? ' egzersiz' : ' sonuç'}
+        </span>
       </div>
+
+      {/* Reorderable current items */}
+      {isReorder && localItems.length > 0 && (
+        <div
+          className="px-4 py-2 border-b border-[#14B8A6]/20 bg-[#14B8A6]/5 shrink-0"
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <p className="text-xs text-[#14B8A6]/60 mb-2">Sürükle-bırak ile sırala, basılı tut</p>
+          <div className="space-y-1.5 max-h-48 overflow-y-auto">
+            {localItems.map((ex) => {
+              const color = mc(ex.muscle);
+              return (
+                <div key={ex.id}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-bg-card border border-white/10 active:scale-[0.98] transition-transform"
+                  onTouchStart={(e) => onTouchStart(e, ex.id)}
+                >
+                  <span className="text-white/20 text-sm shrink-0 cursor-grab" aria-hidden="true">⠿</span>
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                  <span className="text-xs text-white/80 flex-1 truncate">{ex.name}</span>
+                  <span className="text-xs text-white/30">{ex.sets}×{ex.reps}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleRemove(ex.id); }}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-[#E94560]/20 text-[#E94560] text-xs"
+                    aria-label={`${ex.name} kaldır`}
+                  >✕</button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-4 py-3 border-b border-white/6 bg-bg shrink-0">
@@ -80,7 +175,7 @@ export default function ExercisePicker({ onSelect, onClose, onReorder, items: re
         />
       </div>
 
-      {/* Muscle filter pills — horizontal scroll */}
+      {/* Muscle filter pills */}
       <div className="flex gap-1.5 px-4 py-2.5 overflow-x-auto scrollbar-hide border-b border-white/6 bg-bg shrink-0">
         {ALL_MUSCLES.map(m => {
           const active = muscle === m;
@@ -110,13 +205,10 @@ export default function ExercisePicker({ onSelect, onClose, onReorder, items: re
         {filtered.map((ex, i) => {
           const color = mc(ex.muscle);
           return (
-            <button key={i} onClick={() => onSelect(ex)}
+            <button key={i} onClick={() => handleSelect(ex)}
               className="w-full flex items-center gap-3 px-4 py-3 border-b border-white/5
                          hover:bg-white/3 active:bg-white/5 transition-colors text-left">
-              {/* Muscle dot */}
               <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-
-              {/* Name + muscle */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{ex.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -126,9 +218,7 @@ export default function ExercisePicker({ onSelect, onClose, onReorder, items: re
                   {ex.rpe && <span className="text-xs text-white/30">RPE {ex.rpe}</span>}
                 </div>
               </div>
-
-              {/* Select arrow */}
-              <span className="text-white/30 text-sm shrink-0">›</span>
+              <span className="text-white/30 text-sm shrink-0">{isReorder ? '+' : '›'}</span>
             </button>
           );
         })}
