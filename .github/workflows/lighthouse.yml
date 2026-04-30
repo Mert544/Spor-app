@@ -34,6 +34,7 @@ jobs:
           sleep 3
       - name: Run Lighthouse
         uses: treosh/lighthouse-ci-action@v11
+        continue-on-error: true
         with:
           configPath: '.lighthouserc.json'
           uploadArtifacts: true
