@@ -60,6 +60,10 @@ const useCustomProgramStore = create(
         const oldLandmarks = program.volumeLandmarks || {};
         const newLandmarks = {};
         Object.entries(oldLandmarks).forEach(([muscle, { mev, mav, mrv }]) => {
+          if (mev == null || mav == null) {
+            newLandmarks[muscle] = { mev, mav, mrv };
+            return;
+          }
           const nudge = Math.round((mav - mev) * 0.15);
           newLandmarks[muscle] = {
             mev: Math.min(mev + nudge, mav),
@@ -89,6 +93,7 @@ const useCustomProgramStore = create(
 
       // Auto-advance mesocycle week when all program days completed in a week
       markDayComplete: (id, dayIndex, totalDays) => {
+        if (!totalDays || totalDays <= 0) return;
         const wp = get().weeklyProgress[id] || { completedDayIndices: [], currentWeek: get().programs[id]?.mesocycleWeek ?? 1 };
         if (wp.completedDayIndices.includes(dayIndex)) return; // already counted today
         const nextIndices = [...wp.completedDayIndices, dayIndex];

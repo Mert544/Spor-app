@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
@@ -7,19 +7,31 @@ import { getVideoUrl } from '../../data/videos';
 import { getAlternatives } from '../../data/exerciseAlternatives';
 import { getProgressionSuggestion } from '../../utils/progressionEngine';
 
+const SET_INDICES = Array.from({ length: 20 }, (_, i) => i);
+
 const MUSCLE_COLORS = {
   'Göğüs': '#E94560', 'Trisep': '#EC4899', 'Omuz': '#F5A623',
   'Sırt': '#3B82F6', 'Bisep': '#8B5CF6', 'Bacak': '#10B981',
   'Kor': '#14B8A6', 'Hamstring': '#10B981', 'Kalça': '#10B981',
 };
 
-export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek }) {
+function ExerciseCard_({ exercise, date, accentColor, supersetPartnerName, mesoWeek }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
   const alternatives = getAlternatives(exercise.name);
-  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord, logs: allLogs } = useWorkoutStore();
-  const { currentWeek } = useProgressStore();
+  const toggleOpen = useCallback(() => setOpen(o => !o), []);
+  const toggleAlts = useCallback(() => setShowAlts(v => !v), []);
+  const showNote = useCallback(() => setShowNoteInput(true), []);
+  const hideNote = useCallback(() => setShowNoteInput(false), []);
+  const isExerciseComplete = useWorkoutStore(s => s.isExerciseComplete);
+  const getExerciseLogs = useWorkoutStore(s => s.getExerciseLogs);
+  const exerciseNotes = useWorkoutStore(s => s.exerciseNotes);
+  const setExerciseNote = useWorkoutStore(s => s.setExerciseNote);
+  const getExerciseHistory = useWorkoutStore(s => s.getExerciseHistory);
+  const getPersonalRecord = useWorkoutStore(s => s.getPersonalRecord);
+  const allLogs = useWorkoutStore(s => s.logs);
+  const currentWeek = useProgressStore(s => s.currentWeek);
 
   // Use weeklySetRamp if available (custom programs pass mesoWeek prop)
   const effectiveWeek = mesoWeek ?? currentWeek;
@@ -29,11 +41,14 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
   const complete = isExerciseComplete(date, exercise.id, rampSets);
   const muscleColor = MUSCLE_COLORS[exercise.muscle] || '#ffffff50';
   const logs = getExerciseLogs(date, exercise.id);
-  const doneSets = Object.values(logs).filter(l => l.done).length;
+  const doneSets = useMemo(() => Object.values(logs).filter(l => l.done).length, [logs]);
+  const handleNoteChange = useCallback((e) => {
+    setExerciseNote(exercise.id, e.target.value);
+  }, [exercise.id, setExerciseNote]);
   const personalNote = exerciseNotes[exercise.id] || '';
   const history = open ? getExerciseHistory(exercise.id) : [];
   const pr = open ? getPersonalRecord(exercise.id) : null;
-  const chartData = history.slice(-10).map(h => ({ w: h.maxWeight }));
+  const chartData = useMemo(() => history.slice(-10).map(h => ({ w: h.maxWeight })), [history]);
 
   // Infer a progression rule for static program exercises that lack one
   const exerciseWithRule = useMemo(() => {
@@ -103,8 +118,10 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
 
       {/* Header row */}
       <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+        onClick={toggleOpen}
+        aria-expanded={open}
+          aria-label={`${exercise.name} detaylari`}
+          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
       >
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all"
@@ -114,7 +131,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           }
         >
           {complete
-            ? <span className="text-white text-sm font-bold">✓</span>
+            ? <span className="text-white text-sm font-bold" aria-hidden="true">✓</span>
             : <span className="text-white/40 text-xs font-mono">{doneSets}/{rampSets}</span>
           }
         </div>
@@ -146,6 +163,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             {exercise.muscle}
           </span>
           <span
+            aria-hidden="true"
             className="text-white/30 text-xs transition-transform duration-200 inline-block"
             style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
           >▼</span>
@@ -163,7 +181,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             <div className="flex gap-1 flex-shrink-0">
               {alternatives.length > 0 && (
                 <button
-                  onClick={() => setShowAlts(v => !v)}
+                  onClick={toggleAlts}
                   className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
                   style={{ backgroundColor: '#F5A62320', color: '#F5A623', border: '1px solid #F5A62333' }}
                 >
@@ -204,11 +222,12 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
                 rows={2}
                 placeholder="Kişisel notun... (form ipucu, ağırlık geçmişi vb.)"
                 value={personalNote}
-                onChange={e => setExerciseNote(exercise.id, e.target.value)}
+                onChange={handleNoteChange}
                 className="w-full bg-bg-dark border border-white/10 rounded-xl px-3 py-2 text-xs text-white resize-none focus:outline-none focus:border-accent-gold/50"
               />
               <button
-                onClick={() => setShowNoteInput(false)}
+                type="button"
+                onClick={hideNote}
                 className="text-xs text-white/40 mt-1 px-1"
               >
                 Kapat
@@ -218,14 +237,16 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             <div className="mb-3">
               {personalNote ? (
                 <button
-                  onClick={() => setShowNoteInput(true)}
+                  type="button"
+                  onClick={showNote}
                   className="w-full text-left text-xs text-accent-gold/70 bg-accent-gold/5 border border-accent-gold/20 rounded-xl px-3 py-2"
                 >
                   📝 {personalNote}
                 </button>
               ) : (
                 <button
-                  onClick={() => setShowNoteInput(true)}
+                  type="button"
+                  onClick={showNote}
                   className="text-xs text-white/30 px-1 hover:text-white/50 transition-colors"
                 >
                   + Not ekle
@@ -258,7 +279,7 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
             <span className="w-8" />
           </div>
 
-          {Array.from({ length: rampSets }, (_, i) => (
+          {SET_INDICES.slice(0, rampSets).map(i => (
             <SetLogger
               key={`${exercise.id}-set-${i}`}
               date={date}
@@ -299,11 +320,14 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
   );
 }
 
-function Chip({ text, color, textColor }) {
+const Chip = memo(function Chip({ text, color, textColor }) {
   return (
     <span className="text-xs px-1.5 py-0.5 rounded-md font-medium"
       style={{ backgroundColor: color, color: textColor }}>
       {text}
     </span>
   );
-}
+});
+
+export { Chip };
+export default memo(ExerciseCard_);

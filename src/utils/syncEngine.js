@@ -9,6 +9,7 @@ import useWorkoutStore    from '../store/useWorkoutStore';
 import useProgressStore   from '../store/useProgressStore';
 import useCustomProgramStore from '../store/useCustomProgramStore';
 import useSettingsStore   from '../store/useSettingsStore';
+import useAchievementStore from '../store/useAchievementStore';
 
 // ── Push ──────────────────────────────────────────────────────────────────────
 

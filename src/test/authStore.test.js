@@ -50,23 +50,23 @@ describe('useAuthStore', () => {
   it('coach tier has all features including oneOnOne', () => {
     useAuthStore.getState().setSubscription('coach');
     expect(useAuthStore.getState().hasFeature('oneOnOneCoaching')).toBe(true);
-    expect(useAuthStore.getState().getMessagesRemaining()).toBeNull();
+    expect(useAuthStore.getState().getDailyMessageLimit()).toBeNull();
   });
 
   it('free tier has 0 AI messages', () => {
-    expect(useAuthStore.getState().getMessagesRemaining()).toBe(0);
+    expect(useAuthStore.getState().getDailyMessageLimit()).toBe(0);
   });
 
   it('premium tier has 20 AI messages per day', () => {
     useAuthStore.getState().setSubscription('premium');
-    expect(useAuthStore.getState().getMessagesRemaining()).toBe(20);
+    expect(useAuthStore.getState().getDailyMessageLimit()).toBe(20);
   });
 
   it('expired premium returns 0 messages', () => {
     const pastDate = new Date();
     pastDate.setDate(pastDate.getDate() - 1);
     useAuthStore.getState().setSubscription('premium', pastDate.toISOString());
-    expect(useAuthStore.getState().getMessagesRemaining()).toBe(0);
+    expect(useAuthStore.getState().getDailyMessageLimit()).toBe(0);
   });
 
   it('clears auth state completely', () => {

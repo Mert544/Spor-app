@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
 import useAchievementStore from '../../store/useAchievementStore';
@@ -26,8 +26,10 @@ function calcNextWeight(weight, rpe) {
   return rounded === w ? null : rounded; // only show if actually different
 }
 
-export default function SetLogger({ date, exerciseId, setIndex, accentColor, restSeconds }) {
-  const { logSet, getExerciseLogs, getPreviousWeight } = useWorkoutStore();
+function SetLogger_({ date, exerciseId, setIndex, accentColor, restSeconds }) {
+  const logSet = useWorkoutStore(s => s.logSet);
+  const getExerciseLogs = useWorkoutStore(s => s.getExerciseLogs);
+  const getPreviousWeight = useWorkoutStore(s => s.getPreviousWeight);
   const setTimerVisible = useSettingsStore(s => s.setTimerVisible);
 
   const logs = getExerciseLogs(date, exerciseId);
@@ -46,11 +48,11 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
   const estimated1RM = calc1RM(weight, reps);
   const nextWeight = done ? calcNextWeight(weight, rpe) : null;
 
-  function save(patch) {
+  const save = useCallback((patch) => {
     logSet(date, exerciseId, setIndex, { weight, reps, rpe, done, ...patch });
-  }
+  }, [date, exerciseId, setIndex, weight, reps, rpe, done, logSet]);
 
-  function handleDone() {
+  const handleDone = useCallback(() => {
     const nextDone = !done;
 
     if (nextDone) {
@@ -70,7 +72,7 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
       setIsPR(false);
       save({ done: false });
     }
-  }
+  }, [date, exerciseId, setIndex, weight, reps, rpe, done, restSeconds, logSet, setTimerVisible, save]);
 
   return (
     <div className={`transition-all duration-200 ${done ? 'opacity-50' : 'opacity-100'}`}>
@@ -141,13 +143,15 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
         {/* Done toggle */}
         <button
           onClick={handleDone}
+          aria-pressed={done}
+          aria-label={done ? "Tamamlandi" : "Tamamlanmadi"}
           className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 border flex-shrink-0 active:scale-75"
           style={done
             ? { backgroundColor: accentColor, borderColor: accentColor, boxShadow: `0 0 8px ${accentColor}55` }
             : { borderColor: 'rgba(255,255,255,0.2)', backgroundColor: 'transparent' }
           }
         >
-          {done && <span className="text-white text-xs font-bold">✓</span>}
+          {done && <span className="text-white text-xs font-bold" aria-hidden="true">✓</span>}
         </button>
       </div>
 
@@ -178,3 +182,5 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
     </div>
   );
 }
+
+export default memo(SetLogger_);

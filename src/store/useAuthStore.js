@@ -1,7 +1,6 @@
-import { create } from 'zustand';
+ï»¿import { create } from 'zustand';
 import { SUBSCRIPTION_TIERS, FEATURES } from './subscriptionTiers.js';
 
-// Auth state — NOT persisted (session is handled by Supabase's own storage)
 const useAuthStore = create((set, get) => ({
   user: null,
   session: null,
@@ -21,38 +20,31 @@ const useAuthStore = create((set, get) => ({
   setSubscription: (tier, expiry = null, stripeCustomerId = null) =>
     set({ subscriptionTier: tier, subscriptionExpiry: expiry, stripeCustomerId }),
 
+  _isExpired: () => {
+    const { subscriptionExpiry } = get();
+    return !!(subscriptionExpiry && new Date(subscriptionExpiry) < new Date());
+  },
+
   isPremium: () => {
-    const { subscriptionTier, subscriptionExpiry } = get();
-    if (subscriptionExpiry && new Date(subscriptionExpiry) < new Date()) {
-      return false;
-    }
-    return subscriptionTier === 'premium' || subscriptionTier === 'coach';
+    if (get()._isExpired()) return false;
+    return get().subscriptionTier === 'premium' || get().subscriptionTier === 'coach';
   },
 
   hasFeature: (featureId) => {
-    const { subscriptionTier, subscriptionExpiry } = get();
-    if (subscriptionExpiry && new Date(subscriptionExpiry) < new Date()) {
-      return false;
-    }
-    const tier = SUBSCRIPTION_TIERS[subscriptionTier] || SUBSCRIPTION_TIERS.free;
+    if (get()._isExpired()) return false;
+    const tier = SUBSCRIPTION_TIERS[get().subscriptionTier] || SUBSCRIPTION_TIERS.free;
     return tier.features[featureId] === true;
   },
 
   getTier: () => {
-    const { subscriptionTier, subscriptionExpiry } = get();
-    if (subscriptionExpiry && new Date(subscriptionExpiry) < new Date()) {
-      return SUBSCRIPTION_TIERS.free;
-    }
-    return SUBSCRIPTION_TIERS[subscriptionTier] || SUBSCRIPTION_TIERS.free;
+    if (get()._isExpired()) return SUBSCRIPTION_TIERS.free;
+    return SUBSCRIPTION_TIERS[get().subscriptionTier] || SUBSCRIPTION_TIERS.free;
   },
 
-  getMessagesRemaining: () => {
-    const { subscriptionTier, subscriptionExpiry } = get();
-    if (subscriptionExpiry && new Date(subscriptionExpiry) < new Date()) {
-      return 0;
-    }
-    const tier = SUBSCRIPTION_TIERS[subscriptionTier];
-    if (tier.limits.aiMessagesPerDay === null) return null; // unlimited
+  getDailyMessageLimit: () => {
+    if (get()._isExpired()) return 0;
+    const tier = SUBSCRIPTION_TIERS[get().subscriptionTier];
+    if (tier.limits.aiMessagesPerDay === null) return null;
     return tier.limits.aiMessagesPerDay;
   },
 }));
