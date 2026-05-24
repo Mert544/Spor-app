@@ -4,10 +4,14 @@ import useWorkoutStore from '../../store/useWorkoutStore.js';
 import { LEVEL_CONFIG, PROGRAM_LIBRARY } from '../../data/program.js';
 
 const PAGE_TITLES = {
-  '/antrenman': null,
-  '/ilerleme': 'İlerleme',
+  '/antenman': null,
+  '/ilerleme': 'Ilerleme',
   '/programlar': 'Programlar',
   '/profil': 'Profil',
+  '/beslenme': 'Beslenme',
+  '/challenges': 'Challenge',
+  '/leaderboard': 'Siralama',
+  '/dashboard': null,
 };
 
 export default function Header() {
@@ -15,8 +19,9 @@ export default function Header() {
   const { setTimerVisible, activeProgram, user } = useSettingsStore();
   const getStreak = useWorkoutStore((s) => s.getStreak);
   const streak = getStreak();
-  const isWorkout = location.pathname === '/antrenman';
+  const isWorkout = location.pathname === '/antenman';
   const pageTitle = PAGE_TITLES[location.pathname];
+  const isDashboard = location.pathname === '/dashboard';
 
   // Parse active program
   const lastUnderscore = activeProgram?.lastIndexOf('_') ?? -1;
@@ -48,10 +53,15 @@ export default function Header() {
               )}
             </div>
           </div>
+        ) : isDashboard ? (
+          <div className="flex items-center gap-2">
+            <span className="text-lg">💪</span>
+            <h1 className="text-base font-bold text-white">V-Taper Coach</h1>
+          </div>
         ) : (
           <div className="flex items-center gap-2">
             <span className="text-lg">💪</span>
-            <h1 className="text-base font-bold text-white">{pageTitle}</h1>
+            <h1 className="text-base font-bold text-white">{pageTitle || 'V-Taper Coach'}</h1>
           </div>
         )}
 

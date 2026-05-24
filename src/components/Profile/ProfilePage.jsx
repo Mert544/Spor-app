@@ -265,6 +265,12 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/* Theme Toggle */}
+        <div className="bg-bg-card rounded-2xl p-4 mb-4">
+          <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Tema</p>
+          <ThemeToggle />
+        </div>
+
         {/* Supplement Guide card */}
         <button
           onClick={() => navigate('/takviye')}
@@ -277,7 +283,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-white">Supplement Rehberi</p>
-            <p className="text-xs text-white/40">Seviyene göre takviye önerileri</p>
+            <p className="text-xs text-white/40">Seviyene gore takviye onerileri</p>
           </div>
           <span className="text-white/30 text-sm">›</span>
         </button>

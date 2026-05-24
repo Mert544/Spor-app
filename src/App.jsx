@@ -183,9 +183,9 @@ export default function App() {
     return <AuthPage />;
   }
 
-  // ── Landing page (public, before onboarding) ───────────────────────────────
+  // ── Landing page (only for /landing or unauthenticated users on /) ─────────
   const location = useLocation();
-  if (location.pathname === '/landing' || location.pathname === '/') {
+  if (location.pathname === '/landing') {
     return (
       <Suspense fallback={<PageLoader />}>
         <LandingPage />
