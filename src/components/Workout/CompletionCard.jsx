@@ -1,32 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useGamificationStore from '../../store/useGamificationStore';
 
 export default function CompletionCard({ date, exercises, accentColor }) {
-  const { getSessionVolume } = useWorkoutStore();
+  const { getSessionVolume, logs } = useWorkoutStore();
   const user = useSettingsStore((s) => s.user);
+  const { recordWorkout, addVolume } = useGamificationStore();
   const [elapsed, setElapsed] = useState(null);
+  const recorded = useRef(false);
 
   const totalSets = exercises.reduce((s, e) => s + e.sets, 0);
   const { totalVolume: volume } = getSessionVolume(date, exercises);
 
   useEffect(() => {
-    const stored = localStorage.getItem('vtaper-workout-logs');
-    if (stored) {
-      try {
-        const all = JSON.parse(stored).state?.logs || {};
-        const dayLogs = all[date] || {};
-        const timestamps = Object.values(dayLogs)
-          .flatMap(setMap => Object.values(setMap))
-          .map(s => s.ts)
-          .filter(Boolean);
-        if (timestamps.length) {
-          const minTs = Math.min(...timestamps);
-          setElapsed(Math.round((Date.now() - minTs) / 60000));
-        }
-      } catch {}
+    if (!recorded.current) {
+      recorded.current = true;
+      recordWorkout();
+      if (volume > 0) addVolume(volume);
     }
-  }, [date]);
+  }, []);
+
+  useEffect(() => {
+    const dayLogs = logs[date] || {};
+    const timestamps = Object.values(dayLogs)
+      .flatMap(setMap => Object.values(setMap))
+      .map(s => s.ts)
+      .filter(Boolean);
+    if (timestamps.length) {
+      const minTs = Math.min(...timestamps);
+      setElapsed(Math.round((Date.now() - minTs) / 60000));
+    }
+  }, [date, logs]);
 
   const name = user?.name || 'Sporcu';
   const kcal = elapsed ? Math.round(elapsed * 5) : Math.round(totalSets * 12);

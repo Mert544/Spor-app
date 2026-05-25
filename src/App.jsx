@@ -1,4 +1,4 @@
-import { useEffect, useRef, lazy, Suspense } from 'react';
+import { useEffect, useRef, lazy, Suspense, Component } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomNav    from './components/Layout/BottomNav.jsx';
@@ -15,6 +15,29 @@ import useAuthStore          from './store/useAuthStore.js';
 import { supabase, isSupabaseConfigured } from './lib/supabase.js';
 import { pushAllData, pullAndRestoreData } from './utils/syncEngine.js';
 import { useNativeApp, setupNativeFeatures } from './hooks/useNativeApp.js';
+
+class ErrorBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h2 className="text-lg font-bold text-white mb-2">Bir şeyler ters gitti</h2>
+          <p className="text-sm text-white/50 mb-6">Uygulama beklenmedik bir hatayla karşılaştı.</p>
+          <button
+            onClick={() => { this.setState({ hasError: false }); window.location.reload(); }}
+            className="px-6 py-2.5 rounded-xl bg-[#14B8A6] text-white font-semibold text-sm"
+          >
+            Yeniden Başlat
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Lazy-load all route-level pages — keeps initial bundle lean
 const WorkoutPage      = lazy(() => import('./components/Workout/WorkoutPage.jsx'));
@@ -87,12 +110,13 @@ function useDebouncedSync(userId) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function App() {
+function AppInner() {
   const isOnboarded        = useSettingsStore(s => s.isOnboarded);
   const tourShown          = useSettingsStore(s => s.tourShown);
   const notificationsEnabled = useSettingsStore(s => s.notificationsEnabled);
   const user               = useSettingsStore(s => s.user);
   const { session, loading, isGuest, isPasswordRecovery, setSession, setLoading, setPasswordRecovery, clearAuth } = useAuthStore();
+  const location = useLocation();
 
   useNativeApp();
   useEffect(() => {
@@ -184,7 +208,6 @@ export default function App() {
   }
 
   // ── Landing page (public, before onboarding) ───────────────────────────────
-  const location = useLocation();
   if (location.pathname === '/landing' || location.pathname === '/') {
     return (
       <Suspense fallback={<PageLoader />}>
@@ -229,7 +252,7 @@ export default function App() {
                   <Dashboard />
                 </motion.div>
               } />
-              <Route path="/antenman" element={
+              <Route path="/antrenman" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <WorkoutPage />
                 </motion.div>
@@ -301,5 +324,13 @@ export default function App() {
       <BottomNav />
       <RestTimer />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppInner />
+    </ErrorBoundary>
   );
 }

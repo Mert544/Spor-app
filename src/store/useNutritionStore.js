@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const DAILY_GOALS = {
+const DEFAULT_GOALS = {
   calories: 2500,
   protein: 150,
   carbs: 250,
@@ -14,6 +14,7 @@ const useNutritionStore = create(
     (set, get) => ({
       dailyLogs: {},
       customFoods: [],
+      dailyGoals: { ...DEFAULT_GOALS },
 
       logMeal: (date, meal) => {
         const id = Date.now().toString();
@@ -87,12 +88,13 @@ const useNutritionStore = create(
 
       getGoalProgress: (date) => {
         const totals = get().getDailyTotals(date);
+        const goals = get().dailyGoals;
         return {
-          calories: Math.round((totals.calories / DAILY_GOALS.calories) * 100),
-          protein: Math.round((totals.protein / DAILY_GOALS.protein) * 100),
-          carbs: Math.round((totals.carbs / DAILY_GOALS.carbs) * 100),
-          fat: Math.round((totals.fat / DAILY_GOALS.fat) * 100),
-          water: Math.round((totals.water / DAILY_GOALS.water) * 100),
+          calories: Math.round((totals.calories / goals.calories) * 100),
+          protein: Math.round((totals.protein / goals.protein) * 100),
+          carbs: Math.round((totals.carbs / goals.carbs) * 100),
+          fat: Math.round((totals.fat / goals.fat) * 100),
+          water: Math.round((totals.water / goals.water) * 100),
         };
       },
 
@@ -105,14 +107,16 @@ const useNutritionStore = create(
       },
 
       setDailyGoals: (goals) => {
-        Object.assign(DAILY_GOALS, goals);
+        set((state) => ({
+          dailyGoals: { ...state.dailyGoals, ...goals },
+        }));
       },
 
-      getDailyGoals: () => ({ ...DAILY_GOALS }),
+      getDailyGoals: () => ({ ...get().dailyGoals }),
     }),
     { name: 'vtaper-nutrition' }
   )
 );
 
-export { DAILY_GOALS };
+export { DEFAULT_GOALS as DAILY_GOALS };
 export default useNutritionStore;

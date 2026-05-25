@@ -11,6 +11,8 @@ import useProgressStore   from '../store/useProgressStore';
 import useCustomProgramStore from '../store/useCustomProgramStore';
 import useSettingsStore   from '../store/useSettingsStore';
 import useAuthStore from '../store/useAuthStore';
+import useNutritionStore from '../store/useNutritionStore';
+import useGamificationStore from '../store/useGamificationStore';
 
 const OFFLINE_QUEUE_KEY = 'vtaper-offline-queue';
 const LAST_SYNC_KEY = 'vtaper-last-sync';
@@ -175,6 +177,8 @@ export async function pushAllData(userId, options = {}) {
   const p  = useProgressStore.getState();
   const cp = useCustomProgramStore.getState();
   const s  = useSettingsStore.getState();
+  const n  = useNutritionStore.getState();
+  const g  = useGamificationStore.getState();
   const ts = new Date().toISOString();
 
   const pushOptions = {
@@ -211,6 +215,27 @@ export async function pushAllData(userId, options = {}) {
         hapticEnabled:        s.hapticEnabled,
         notificationsEnabled:  s.notificationsEnabled,
         isOnboarded:         s.isOnboarded,
+      },
+    }, ts, pushOptions),
+
+    pushTableData(userId, 'user_nutrition', {
+      data: {
+        dailyLogs:  n.dailyLogs  ?? {},
+        dailyGoals: n.dailyGoals ?? {},
+      },
+    }, ts, pushOptions),
+
+    pushTableData(userId, 'user_gamification', {
+      data: {
+        streak:        g.streak,
+        longestStreak: g.longestStreak,
+        level:         g.level,
+        xp:            g.xp,
+        xpToNextLevel: g.xpToNextLevel,
+        totalWorkouts: g.totalWorkouts,
+        totalVolume:   g.totalVolume,
+        prCount:       g.prCount,
+        achievements:  g.achievements,
       },
     }, ts, pushOptions),
   ]);
@@ -255,11 +280,13 @@ export async function pullAndRestoreData(userId, options = {}) {
     restoreMissing = false,
   } = options;
 
-  const [workoutRes, progressRes, programsRes, settingsRes] = await Promise.all([
+  const [workoutRes, progressRes, programsRes, settingsRes, nutritionRes, gamificationRes] = await Promise.all([
     supabase.from('user_workout_logs').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('user_progress')    .select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('user_programs')    .select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('user_settings')    .select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from('user_nutrition')   .select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from('user_gamification').select('*').eq('user_id', userId).maybeSingle(),
   ]);
 
   let restored = false;
@@ -322,6 +349,31 @@ export async function pullAndRestoreData(userId, options = {}) {
       hapticEnabled:        d.hapticEnabled        ?? true,
       notificationsEnabled: d.notificationsEnabled ?? false,
       isOnboarded:          d.isOnboarded          ?? false,
+    });
+    restored = true;
+  }
+
+  if (nutritionRes.data?.data) {
+    const d = nutritionRes.data.data;
+    useNutritionStore.setState({
+      dailyLogs:  d.dailyLogs  ?? {},
+      dailyGoals: d.dailyGoals ?? {},
+    });
+    restored = true;
+  }
+
+  if (gamificationRes.data?.data) {
+    const d = gamificationRes.data.data;
+    useGamificationStore.setState({
+      streak:        d.streak        ?? 0,
+      longestStreak: d.longestStreak ?? 0,
+      level:         d.level         ?? 1,
+      xp:            d.xp            ?? 0,
+      xpToNextLevel: d.xpToNextLevel ?? 100,
+      totalWorkouts: d.totalWorkouts ?? 0,
+      totalVolume:   d.totalVolume   ?? 0,
+      prCount:       d.prCount       ?? 0,
+      achievements:  d.achievements  ?? [],
     });
     restored = true;
   }

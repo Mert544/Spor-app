@@ -22,12 +22,25 @@ export const useProgressStore = create(
       addMeasurement: (date, data) =>
         set((state) => ({ measurements: { ...state.measurements, [date]: data } })),
 
+      deleteMeasurement: (date) =>
+        set((state) => {
+          const { [date]: _, ...rest } = state.measurements;
+          return { measurements: rest };
+        }),
+
+      deleteWeight: (date) =>
+        set((state) => {
+          const { [date]: _, ...rest } = state.weights;
+          return { weights: rest };
+        }),
+
       addCheckIn: (week, data) =>
         set((state) => ({ weeklyCheckIns: { ...state.weeklyCheckIns, [week]: data } })),
 
       setCurrentWeek: (week) => set({ currentWeek: parseInt(week) }),
 
       setStartWeight: (w) => set({ startWeight: parseFloat(w) }),
+      setTargetWeight: (w) => set({ targetWeight: parseFloat(w) }),
 
       // Son N günlük ağırlıkları sıralı al
       getRecentWeights: (days = 30) => {

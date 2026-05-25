@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-// Custom programs are stored as a dict matching ALL_PROGRAMS structure,
-// plus extra fields for periodization modeling.
-// ID format: custom_${timestamp}
+import useSettingsStore from './useSettingsStore';
 
 const useCustomProgramStore = create(
   persist(
     (set, get) => ({
-      programs: {}, // { [programId]: programObject }
+      programs: {},
 
       addProgram: (program) =>
         set((s) => ({ programs: { ...s.programs, [program.id]: { ...program, mesocycleWeek: 1 } } })),
@@ -21,11 +18,16 @@ const useCustomProgramStore = create(
           },
         })),
 
-      deleteProgram: (id) =>
+      deleteProgram: (id) => {
+        const activeProgram = useSettingsStore.getState().activeProgram;
+        if (activeProgram === id) {
+          useSettingsStore.getState().setActiveProgram('vtaper_orta');
+        }
         set((s) => {
           const { [id]: _, ...rest } = s.programs;
           return { programs: rest };
-        }),
+        });
+      },
 
       getProgram: (id) => get().programs[id] ?? null,
 

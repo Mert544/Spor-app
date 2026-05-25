@@ -41,6 +41,30 @@ export const useWorkoutStore = create(
           exerciseNotes: { ...state.exerciseNotes, [exerciseId]: note },
         })),
 
+      deleteSet: (date, exerciseId, setIndex) =>
+        set((state) => {
+          const exLogs = { ...state.logs[date]?.[exerciseId] };
+          delete exLogs[setIndex];
+          return {
+            logs: {
+              ...state.logs,
+              [date]: {
+                ...state.logs[date],
+                [exerciseId]: exLogs,
+              },
+            },
+          };
+        }),
+
+      deleteExerciseLog: (date, exerciseId) =>
+        set((state) => {
+          const dayLogs = { ...state.logs[date] };
+          delete dayLogs[exerciseId];
+          return {
+            logs: { ...state.logs, [date]: dayLogs },
+          };
+        }),
+
       getExerciseLogs: (date, exerciseId) =>
         get().logs[date]?.[exerciseId] || {},
 

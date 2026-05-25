@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useGamificationStore from '../../store/useGamificationStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
-import useProgressStore from '../../store/useProgressStore';
+import useSettingsStore from '../../store/useSettingsStore';
 import { SlideUp, FadeIn } from '../UI/AnimatedCard.jsx';
 
 function StreakWidget() {
@@ -54,11 +54,7 @@ function StreakWidget() {
 }
 
 function DailyQuests() {
-  const { dailyQuests, questsWaterML, questsSteps, completeQuest, getDailyQuestProgress, resetDailyQuests } = useGamificationStore();
-
-  useEffect(() => {
-    resetDailyQuests();
-  }, []);
+  const { dailyQuests, questsWaterML, questsSteps, completeQuest, getDailyQuestProgress } = useGamificationStore();
 
   const progress = getDailyQuestProgress();
   const quests = [
@@ -137,13 +133,15 @@ function DailyQuests() {
 
 function WeeklyProgress() {
   const { logs } = useWorkoutStore();
-  const today = new Date();
-  const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
   const weekDays = [];
 
   for (let i = 0; i < 7; i++) {
     const date = new Date(weekStart);
-    date.setDate(date.getDate() + i);
+    date.setDate(weekStart.getDate() + i);
     const dateStr = date.toISOString().split('T')[0];
     const dayLogs = logs[dateStr];
     const hasWorkout = dayLogs && Object.values(dayLogs).some(exLogs =>
@@ -153,7 +151,7 @@ function WeeklyProgress() {
       day: date.toLocaleDateString('tr-TR', { weekday: 'short' }).slice(0, 2),
       date: dateStr,
       hasWorkout,
-      isToday: dateStr === new Date().toISOString().split('T')[0],
+      isToday: dateStr === todayStr,
     });
   }
 
@@ -232,7 +230,7 @@ function TodayWorkout() {
 
   return (
     <SlideUp delay={0.25}>
-      <Link to="/antenman">
+      <Link to="/antrenman">
         <div className="bg-bg-card border border-[#14B8A6]/30 rounded-2xl p-4 mb-4 hover:border-[#14B8A6]/50 transition-all">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
@@ -301,9 +299,15 @@ function MotivationalQuote() {
     { text: '"Güç, dışarıda değil içinde."', author: 'Düşün' },
     { text: '"Her gün bir adım ileri."', author: 'Anonim' },
     { text: '"Disiplin, özgürlüğün sessiz ortağıdır."', author: 'Jim Rohn' },
+    { text: '"Acı geçicidir, gurur sonsuzdur."', author: 'Anonim' },
+    { text: '"Bugün yapamıyorsan, yarın yaparsın. Ama pes etme."', author: 'Anonim' },
+    { text: '"Güçlü olan bedeni değil, iradesi güçlü olandır."', author: 'Anonim' },
   ];
 
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  const quote = useMemo(() => {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    return quotes[dayOfYear % quotes.length];
+  }, []);
 
   return (
     <FadeIn delay={0.35}>
@@ -317,16 +321,26 @@ function MotivationalQuote() {
 
 export default function Dashboard() {
   const { resetDailyQuests } = useGamificationStore();
+  const userName = useSettingsStore(s => s.user?.name);
 
   useEffect(() => {
     resetDailyQuests();
+  }, []);
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Gunaydin';
+    if (hour < 18) return 'Iyi gunler';
+    return 'Iyi aksamlar';
   }, []);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 pb-24">
       <SlideUp>
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-white">Merhaba! 👋</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {greeting}{userName ? `, ${userName}` : ''}!
+          </h1>
           <p className="text-sm text-white/50">Bugün neler yapacaksın?</p>
         </div>
       </SlideUp>
