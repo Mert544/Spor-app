@@ -16,6 +16,11 @@ const Icons = {
       <rect x="19" y="10.5" width="3" height="3" rx="1" />
     </svg>
   ),
+  Progress: ({ active }) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  ),
   Programs: ({ active }) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -37,6 +42,7 @@ const ACTIVE_COLOR = '#14B8A6';
 const tabs = [
   { to: '/dashboard',  Icon: Icons.Dashboard, label: 'Ana' },
   { to: '/antenman',   Icon: Icons.Workout,    label: 'Antrenman' },
+  { to: '/ilerleme',   Icon: Icons.Progress,   label: 'İlerleme' },
   { to: '/programlar', Icon: Icons.Programs,   label: 'Program' },
   { to: '/profil',     Icon: Icons.Profile,    label: 'Profil' },
 ];

@@ -169,11 +169,12 @@ export default function LeaderboardPage() {
         </div>
       </FadeIn>
 
-      {/* Motivation */}
+      {/* Community notice */}
       <FadeIn delay={0.55}>
-        <div className="mt-6 text-center">
-          <p className="text-sm text-white/50">
-            💡 Üst sıralara çıkmak için her gün antrenman yapmaya devam et!
+        <div className="mt-6 bg-gradient-to-r from-[#8B5CF6]/10 to-[#14B8A6]/10 border border-white/10 rounded-2xl p-4 text-center">
+          <p className="text-sm font-medium text-white/70 mb-1">Topluluk sıralaması yakında!</p>
+          <p className="text-xs text-white/40">
+            Gerçek kullanıcılarla yarışma özelliği geliştiriliyor. Şimdilik kendi rekorlarını kırmaya odaklan!
           </p>
         </div>
       </FadeIn>

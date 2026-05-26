@@ -386,7 +386,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="text-center text-white/30 text-xs mt-6 mb-2">V-Taper Coach v1.2</p>
+        <p className="text-center text-white/30 text-xs mt-6 mb-2">V-Taper Coach v{__APP_VERSION__}</p>
       </div>
     </div>
   );

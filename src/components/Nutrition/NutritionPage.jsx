@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useNutritionStore, { DAILY_GOALS } from '../../store/useNutritionStore';
+import useGamificationStore from '../../store/useGamificationStore';
 import { SlideUp, FadeIn } from '../UI/AnimatedCard.jsx';
 
 const MEAL_TYPES = [
@@ -123,6 +124,7 @@ export default function NutritionPage() {
   });
 
   const { getDailyTotals, getGoalProgress, getMeals, getWater, addWater, logMeal } = useNutritionStore();
+  const gamificationAddWater = useGamificationStore(s => s.addWater);
 
   const totals = getDailyTotals(selectedDate);
   const progress = getGoalProgress(selectedDate);
@@ -131,6 +133,8 @@ export default function NutritionPage() {
 
   const handleAddWater = (ml) => {
     addWater(selectedDate, ml);
+    const today = new Date().toISOString().split('T')[0];
+    if (selectedDate === today) gamificationAddWater(ml);
   };
 
   const handleQuickAdd = (food) => {
