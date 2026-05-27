@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useProgressStore from '../../store/useProgressStore';
+import { WEIGHT_RANGE } from '../../config/constants';
 import WeightChart from './WeightChart';
 import VolumeChart from './VolumeChart';
 import StrengthLog from './StrengthLog';
@@ -33,7 +34,7 @@ export default function ProgressPage() {
 
   function handleAddWeight() {
     const w = parseFloat(weightInput);
-    if (!w || w < 40 || w > 200) return;
+    if (!w || w < WEIGHT_RANGE.min || w > WEIGHT_RANGE.max) return;
     const date = new Date().toISOString().split('T')[0];
     addWeight(date, w);
     setWeightInput('');

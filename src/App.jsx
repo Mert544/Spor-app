@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import BottomNav    from './components/Layout/BottomNav.jsx';
 import Header       from './components/Layout/Header.jsx';
 import RestTimer    from './components/Timer/RestTimer.jsx';
+import ErrorBoundary from './components/UI/ErrorBoundary.jsx';
 import AuthPage          from './components/Auth/AuthPage.jsx';
 import PasswordResetPage from './components/Auth/PasswordResetPage.jsx';
 import AppTour           from './components/Onboarding/AppTour.jsx';
@@ -220,6 +221,7 @@ export default function App() {
       <Header />
       {!tourShown && <AppTour />}
       <main className="flex-1 overflow-y-auto pb-20 pt-16">
+        <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname.split('/')[1]}>
@@ -297,6 +299,7 @@ export default function App() {
             </Routes>
           </AnimatePresence>
         </Suspense>
+        </ErrorBoundary>
       </main>
       <BottomNav />
       <RestTimer />

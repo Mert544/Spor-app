@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useGamificationStore from '../../store/useGamificationStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
-import useProgressStore from '../../store/useProgressStore';
+import useSettingsStore from '../../store/useSettingsStore';
 import { SlideUp, FadeIn } from '../UI/AnimatedCard.jsx';
+import { WATER_GOAL_ML, STEP_GOAL } from '../../config/constants';
 
 function StreakWidget() {
   const { streak, longestStreak, getStreakMessage, getLevelProgress } = useGamificationStore();
@@ -74,7 +75,7 @@ function DailyQuests() {
       title: 'Su Hedefi',
       icon: '💧',
       completed: dailyQuests.water,
-      subtitle: `${Math.min(questsWaterML, 3000)}/3000ml`,
+      subtitle: `${Math.min(questsWaterML, WATER_GOAL_ML)}/${WATER_GOAL_ML}ml`,
       onClick: () => {},
     },
     {
@@ -82,7 +83,7 @@ function DailyQuests() {
       title: 'Adım Hedefi',
       icon: '🚶',
       completed: dailyQuests.step,
-      subtitle: `${Math.min(questsSteps, 10000).toLocaleString()}/10,000`,
+      subtitle: `${Math.min(questsSteps, STEP_GOAL).toLocaleString()}/${STEP_GOAL.toLocaleString()}`,
       onClick: () => {},
     },
     {
@@ -317,6 +318,7 @@ function MotivationalQuote() {
 
 export default function Dashboard() {
   const { resetDailyQuests } = useGamificationStore();
+  const userName = useSettingsStore(s => s.user?.name);
 
   useEffect(() => {
     resetDailyQuests();
@@ -326,7 +328,9 @@ export default function Dashboard() {
     <div className="flex-1 overflow-y-auto p-4 pb-24">
       <SlideUp>
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-white">Merhaba! 👋</h1>
+          <h1 className="text-2xl font-bold text-white">
+            Merhaba{userName ? `, ${userName}` : ''}! 👋
+          </h1>
           <p className="text-sm text-white/50">Bugün neler yapacaksın?</p>
         </div>
       </SlideUp>

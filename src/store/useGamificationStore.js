@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { WATER_GOAL_ML, STEP_GOAL } from '../config/constants';
 
 const DAILY_QUESTS = {
   WORKOUT: {
@@ -204,7 +205,7 @@ const useGamificationStore = create(
       addWater: (ml) => {
         set((state) => {
           const newTotal = state.questsWaterML + ml;
-          const completed = newTotal >= 3000;
+          const completed = newTotal >= WATER_GOAL_ML;
           return {
             questsWaterML: newTotal,
             dailyQuests: {
@@ -219,7 +220,7 @@ const useGamificationStore = create(
       addSteps: (steps) => {
         set((state) => {
           const newTotal = state.questsSteps + steps;
-          const completed = newTotal >= 10000;
+          const completed = newTotal >= STEP_GOAL;
           return {
             questsSteps: newTotal,
             dailyQuests: {

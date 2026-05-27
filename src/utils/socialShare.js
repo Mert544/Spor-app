@@ -81,11 +81,7 @@ export const shareWorkout = async (workout) => {
 };
 
 function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    console.log('[share] Copied to clipboard');
-  }).catch(() => {
-    console.warn('[share] Failed to copy');
-  });
+  navigator.clipboard.writeText(text).catch(() => {});
 }
 
 export const generateShareImage = (progress) => {

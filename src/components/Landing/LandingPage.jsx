@@ -4,9 +4,9 @@ import { SlideUp, FadeIn } from '../UI/AnimatedCard.jsx';
 
 const FEATURES = [
   {
-    icon: '🤖',
-    title: 'AI Koç',
-    description: 'Claude destekli kişisel antrenman koçun 7/24 yanında.',
+    icon: '🏋️',
+    title: 'Akıllı Antrenman',
+    description: 'RPE tabanlı ilerleme, otomatik hacim takibi ve deload önerileri.',
   },
   {
     icon: '📋',
@@ -28,7 +28,7 @@ const FEATURES = [
 const TESTIMONIALS = [
   {
     name: 'Ahmet Y.',
-    text: '3 ayda 8 kilo yağ kaybettim! AI koç programları harika.',
+    text: '3 ayda 8 kilo yağ kaybettim! Programlar ve ilerleme takibi harika.',
     avatar: '👨‍🦱',
   },
   {
@@ -59,7 +59,7 @@ export default function LandingPage() {
               V-Taper <span className="text-[#14B8A6]">Coach</span>
             </h1>
             <p className="text-lg text-white/60 mb-8 max-w-md mx-auto">
-              Yapay zeka destekli kişisel antrenman uygulaması. Hedeflerine ulaş, formunu geliştir.
+              Bilime dayalı kişisel antrenman uygulaması. Hedeflerine ulaş, formunu geliştir.
             </p>
             <Link
               to="/antenman"
@@ -160,11 +160,11 @@ export default function LandingPage() {
           </div>
           <ul className="space-y-3 mb-6">
             {[
-              'AI Koç tam erişim (20 mesaj/gün)',
-              'Sınırsız özel program',
-              'Gelişmiş analitik',
+              'Sınırsız özel program oluşturma',
+              'Gelişmiş analitik ve raporlar',
+              'Detaylı mesocycle planlama',
               'Form videoları',
-              'Yemek planlama',
+              'Beslenme takibi',
             ].map((f, i) => (
               <li key={i} className="flex items-center gap-2 text-sm text-white/70">
                 <span className="text-[#14B8A6]">✓</span>

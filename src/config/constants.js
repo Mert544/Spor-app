@@ -1,0 +1,10 @@
+export const WEIGHT_RANGE = { min: 30, max: 300 };
+export const HEIGHT_RANGE = { min: 100, max: 250 };
+export const WEIGHT_ROUNDING_KG = 2.5;
+export const WATER_GOAL_ML = 3000;
+export const STEP_GOAL = 10000;
+export const DELOAD_WINDOW_DAYS = 28;
+export const DELOAD_THRESHOLD = 16;
+export const CUSTOM_EXERCISE_NAME_MAX = 50;
+export const CALORIE_PER_MINUTE = 5;
+export const CALORIE_PER_SET = 12;

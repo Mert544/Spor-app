@@ -1,41 +1,49 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useGamificationStore from '../../store/useGamificationStore';
+import { CALORIE_PER_MINUTE, CALORIE_PER_SET } from '../../config/constants';
 
 export default function CompletionCard({ date, exercises, accentColor }) {
-  const { getSessionVolume } = useWorkoutStore();
+  const { getSessionVolume, getExerciseLogs } = useWorkoutStore();
   const user = useSettingsStore((s) => s.user);
+  const recordWorkout = useGamificationStore((s) => s.recordWorkout);
+  const addVolume = useGamificationStore((s) => s.addVolume);
   const [elapsed, setElapsed] = useState(null);
+  const gamificationRecorded = useRef(false);
 
   const totalSets = exercises.reduce((s, e) => s + e.sets, 0);
   const { totalVolume: volume } = getSessionVolume(date, exercises);
 
   useEffect(() => {
-    const stored = localStorage.getItem('vtaper-workout-logs');
-    if (stored) {
-      try {
-        const all = JSON.parse(stored).state?.logs || {};
-        const dayLogs = all[date] || {};
-        const timestamps = Object.values(dayLogs)
-          .flatMap(setMap => Object.values(setMap))
-          .map(s => s.ts)
-          .filter(Boolean);
-        if (timestamps.length) {
-          const minTs = Math.min(...timestamps);
-          setElapsed(Math.round((Date.now() - minTs) / 60000));
-        }
-      } catch {}
+    const timestamps = [];
+    for (const ex of exercises) {
+      const exLogs = getExerciseLogs(date, ex.id);
+      for (const setData of Object.values(exLogs)) {
+        if (setData?.ts) timestamps.push(setData.ts);
+      }
     }
-  }, [date]);
+    if (timestamps.length) {
+      const minTs = Math.min(...timestamps);
+      setElapsed(Math.round((Date.now() - minTs) / 60000));
+    }
+  }, [date, exercises, getExerciseLogs]);
+
+  useEffect(() => {
+    if (!gamificationRecorded.current) {
+      gamificationRecorded.current = true;
+      recordWorkout();
+      if (volume > 0) addVolume(volume);
+    }
+  }, [recordWorkout, addVolume, volume]);
 
   const name = user?.name || 'Sporcu';
-  const kcal = elapsed ? Math.round(elapsed * 5) : Math.round(totalSets * 12);
+  const kcal = elapsed ? Math.round(elapsed * CALORIE_PER_MINUTE) : Math.round(totalSets * CALORIE_PER_SET);
 
   return (
     <div className="mx-4 mb-4 rounded-3xl overflow-hidden"
       style={{ border: `1.5px solid ${accentColor}44` }}>
 
-      {/* Gradient header */}
       <div className="p-5 text-center"
         style={{ background: `linear-gradient(135deg, ${accentColor}28 0%, ${accentColor}10 100%)` }}>
         <div className="text-5xl mb-2">🏆</div>
@@ -45,12 +53,11 @@ export default function CompletionCard({ date, exercises, accentColor }) {
         </p>
       </div>
 
-      {/* Stats row */}
       <div className="grid grid-cols-4 divide-x divide-white/5"
         style={{ backgroundColor: '#0a0f1a' }}>
         <Stat label="Set" value={totalSets} icon="📋" color={accentColor} />
         <Stat label="Hacim" value={volume > 0 ? `${(volume / 1000).toFixed(1)}t` : '—'} icon="⚖️" color={accentColor} />
-        <Stat label="Süre" value={elapsed ? `${elapsed}dk` : '—'} icon="⏱️" color={accentColor} />
+        <Stat label="Sure" value={elapsed ? `${elapsed}dk` : '—'} icon="⏱️" color={accentColor} />
         <Stat label="Kalori" value={`~${kcal}`} icon="🔥" color="#F5A623" />
       </div>
     </div>

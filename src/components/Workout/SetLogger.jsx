@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
+import useGamificationStore from '../../store/useGamificationStore';
 
 const RPE_OPTIONS = [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 
@@ -28,6 +29,7 @@ function calcNextWeight(weight, rpe) {
 export default function SetLogger({ date, exerciseId, setIndex, accentColor, restSeconds }) {
   const { logSet, getExerciseLogs, getPreviousWeight } = useWorkoutStore();
   const setTimerVisible = useSettingsStore(s => s.setTimerVisible);
+  const recordPR = useGamificationStore(s => s.recordPR);
 
   const logs = getExerciseLogs(date, exerciseId);
   const entry = logs[setIndex] || {};
@@ -59,7 +61,10 @@ export default function SetLogger({ date, exerciseId, setIndex, accentColor, res
       setDone(true);
       save({ done: true });
       if (navigator.vibrate) navigator.vibrate(30);
-      if (cur1RM && (!oldPR || cur1RM > oldPR.e1rm)) setIsPR(true);
+      if (cur1RM && (!oldPR || cur1RM > oldPR.e1rm)) {
+        setIsPR(true);
+        recordPR();
+      }
       if (restSeconds > 0) setTimerVisible(true);
     } else {
       setDone(false);

@@ -10,6 +10,7 @@ import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
 import useCustomStore from '../../store/useCustomStore';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
+import { DELOAD_WINDOW_DAYS, DELOAD_THRESHOLD } from '../../config/constants';
 
 const MUSCLES = ['Göğüs', 'Sırt', 'Omuz', 'Trisep', 'Bisep', 'Bacak', 'Kor'];
 
@@ -24,14 +25,14 @@ function useDeloadSuggestion(logs) {
 
   const today = new Date();
   let count = 0;
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < DELOAD_WINDOW_DAYS; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const ds = d.toISOString().split('T')[0];
     const dl = logs[ds];
     if (dl && Object.values(dl).some(ex => Object.values(ex).some(s => s?.done))) count++;
   }
-  const show = count >= 16 && !dismissed;
+  const show = count >= DELOAD_THRESHOLD && !dismissed;
   return { show, count, dismiss: () => setDeloadDismissed(true) };
 }
 
@@ -113,8 +114,11 @@ export default function WorkoutPage() {
   exercises.forEach(e => { nameMap[e.id] = e.name; });
 
   function handleAddCustom() {
-    if (!customForm.name.trim()) return;
-    addExercise(date, { ...customForm, sets: Number(customForm.sets) });
+    const name = customForm.name.trim();
+    if (!name || name.length < 2 || name.length > 50) return;
+    const sets = Number(customForm.sets);
+    if (!sets || sets < 1 || sets > 10) return;
+    addExercise(date, { ...customForm, name, sets });
     setCustomForm({ name: '', muscle: 'Göğüs', sets: 3, reps: '8-10' });
     setShowCustomForm(false);
   }
