@@ -432,8 +432,8 @@ const DAY_EMOJIS = {
 // ─── Progression rule by experience ────────────────────────────────────────
 const PROGRESSION_RULE = {
   beginner: {
-    type: 'linear_progression',
-    params: { incrementKg: 2.5, sessionsBeforeIncrease: 1 },
+    type: 'linear',
+    params: { loadIncrement: 2.5, repsTarget: 5 },
   },
   intermediate: {
     type: 'double_progression',

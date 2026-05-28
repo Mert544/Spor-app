@@ -16,6 +16,7 @@ export const useSettingsStore = create(
       activeProgram: 'vtaper_orta',
       notificationsEnabled: false,
       deloadDismissed: false,
+      deloadDismissedWeek: null,
       coachSessionId: null,
       tourShown: false,
       userProfile: null,
@@ -28,7 +29,15 @@ export const useSettingsStore = create(
       setTimerVisible: (v) => set({ timerVisible: v }),
       setActiveProgram: (id) => set({ activeProgram: id }),
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
-      setDeloadDismissed: (v) => set({ deloadDismissed: v }),
+      setDeloadDismissed: (v) => {
+        const weekStart = (() => {
+          const now = new Date();
+          const day = now.getDay();
+          const diff = day === 0 ? -6 : 1 - day;
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff).toISOString().split('T')[0];
+        })();
+        set({ deloadDismissed: v, deloadDismissedWeek: v ? weekStart : null });
+      },
       setCoachSessionId: (id) => set({ coachSessionId: id }),
       setTourShown: (v) => set({ tourShown: v }),
       setUserProfile: (v) => set({ userProfile: v }),

@@ -76,6 +76,20 @@ const useChallengeStore = create(
       activeChallenges: [],
       completedChallenges: [],
       challengeProgress: {},
+      lastWeeklyReset: null,
+
+      maybeResetWeeklyChallenges: () => {
+        const state = get();
+        const now = new Date();
+        const day = now.getDay();
+        const mondayOffset = day === 0 ? -6 : 1 - day;
+        const thisMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset).toISOString().split('T')[0];
+
+        if (state.lastWeeklyReset !== thisMonday) {
+          get().resetWeeklyChallenges();
+          set({ lastWeeklyReset: thisMonday });
+        }
+      },
 
       startChallenge: (challengeId) => {
         const state = get();

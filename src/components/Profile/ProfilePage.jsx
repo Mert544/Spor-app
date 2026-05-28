@@ -282,6 +282,12 @@ export default function ProfilePage() {
           <span className="text-white/30 text-sm">›</span>
         </button>
 
+        {/* Theme */}
+        <div className="bg-bg-card rounded-2xl p-4 mb-4">
+          <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Tema</p>
+          <ThemeToggle />
+        </div>
+
         {/* Actions */}
         <div className="space-y-2 mb-4">
           <button

@@ -150,13 +150,13 @@ export default function ChallengePage() {
     getCompletedChallenges,
     startChallenge,
     addProgress,
-    resetWeeklyChallenges,
+    maybeResetWeeklyChallenges,
   } = useChallengeStore();
 
   const { addXP, xp } = useGamificationStore();
 
   useEffect(() => {
-    resetWeeklyChallenges();
+    maybeResetWeeklyChallenges();
   }, []);
 
   const activeList = getActiveChallenges();

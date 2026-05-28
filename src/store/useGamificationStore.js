@@ -69,6 +69,7 @@ const useGamificationStore = create(
       },
       questsWaterML: 0,
       questsSteps: 0,
+      lastQuestReset: null,
 
       addXP: (amount) => {
         const state = get();

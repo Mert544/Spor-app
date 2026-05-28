@@ -20,18 +20,24 @@ function getToday() {
 // Check if user has trained 16+ days in last 28 days → suggest deload
 function useDeloadSuggestion(logs) {
   const dismissed = useSettingsStore(s => s.deloadDismissed);
+  const dismissedWeek = useSettingsStore(s => s.deloadDismissedWeek);
   const setDeloadDismissed = useSettingsStore(s => s.setDeloadDismissed);
 
-  const today = new Date();
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const thisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff).toISOString().split('T')[0];
+  const stillDismissed = dismissed && dismissedWeek === thisWeek;
+
   let count = 0;
   for (let i = 0; i < 28; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
     const ds = d.toISOString().split('T')[0];
     const dl = logs[ds];
     if (dl && Object.values(dl).some(ex => Object.values(ex).some(s => s?.done))) count++;
   }
-  const show = count >= 16 && !dismissed;
+  const show = count >= 16 && !stillDismissed;
   return { show, count, dismiss: () => setDeloadDismissed(true) };
 }
 

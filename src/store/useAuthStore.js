@@ -101,6 +101,23 @@ const useAuthStore = create((set, get) => ({
     return SUBSCRIPTION_TIERS[subscriptionTier] || SUBSCRIPTION_TIERS.free;
   },
 
+  refreshSubscription: async () => {
+    try {
+      const response = await fetch('/api/subscription-status');
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.tier) {
+        set({
+          subscriptionTier: data.tier,
+          subscriptionExpiry: data.expiry || null,
+          stripeCustomerId: data.stripeCustomerId || get().stripeCustomerId,
+        });
+      }
+    } catch {
+      // Silently fail — subscription status can be retried
+    }
+  },
+
 }));
 
 export default useAuthStore;

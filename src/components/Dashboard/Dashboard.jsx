@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useGamificationStore from '../../store/useGamificationStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useProgressStore from '../../store/useProgressStore';
+import useSettingsStore from '../../store/useSettingsStore';
 import { SlideUp, FadeIn } from '../UI/AnimatedCard.jsx';
 
 function StreakWidget() {
@@ -54,11 +55,7 @@ function StreakWidget() {
 }
 
 function DailyQuests() {
-  const { dailyQuests, questsWaterML, questsSteps, completeQuest, getDailyQuestProgress, resetDailyQuests } = useGamificationStore();
-
-  useEffect(() => {
-    resetDailyQuests();
-  }, []);
+  const { dailyQuests, questsWaterML, questsSteps, completeQuest, getDailyQuestProgress } = useGamificationStore();
 
   const progress = getDailyQuestProgress();
   const quests = [
@@ -137,13 +134,16 @@ function DailyQuests() {
 
 function WeeklyProgress() {
   const { logs } = useWorkoutStore();
-  const today = new Date();
-  const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+  const now = new Date();
+  const day = now.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
+  const todayStr = new Date().toISOString().split('T')[0];
   const weekDays = [];
 
   for (let i = 0; i < 7; i++) {
     const date = new Date(weekStart);
-    date.setDate(date.getDate() + i);
+    date.setDate(weekStart.getDate() + i);
     const dateStr = date.toISOString().split('T')[0];
     const dayLogs = logs[dateStr];
     const hasWorkout = dayLogs && Object.values(dayLogs).some(exLogs =>
@@ -153,7 +153,7 @@ function WeeklyProgress() {
       day: date.toLocaleDateString('tr-TR', { weekday: 'short' }).slice(0, 2),
       date: dateStr,
       hasWorkout,
-      isToday: dateStr === new Date().toISOString().split('T')[0],
+      isToday: dateStr === todayStr,
     });
   }
 
@@ -298,12 +298,18 @@ function RecentAchievements() {
 function MotivationalQuote() {
   const quotes = [
     { text: '"Vazgeçmek, başarısızlığın en büyük kaybıdır."', author: 'Henry Ford' },
-    { text: '"Güç, dışarıda değil içinde."', author: 'Düşün' },
+    { text: '"Güç, dışarıda değil içinde."', author: 'Marcus Aurelius' },
     { text: '"Her gün bir adım ileri."', author: 'Anonim' },
     { text: '"Disiplin, özgürlüğün sessiz ortağıdır."', author: 'Jim Rohn' },
+    { text: '"Bugün yapacağın, yarın kim olacağını belirler."', author: 'James Clear' },
+    { text: '"Acı geçicidir, vazgeçmek sonsuzdur."', author: 'Lance Armstrong' },
+    { text: '"Sınırlarını ancak onları zorlayarak öğrenirsin."', author: 'Arnold Schwarzenegger' },
   ];
 
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  const quote = useMemo(() => {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    return quotes[dayOfYear % quotes.length];
+  }, []);
 
   return (
     <FadeIn delay={0.35}>
@@ -315,18 +321,88 @@ function MotivationalQuote() {
   );
 }
 
+function BodyWeightWidget() {
+  const { getTodayWeight, getWeeklyAverage, getRecentWeights, startWeight, targetWeight } = useProgressStore();
+  const todayWeight = getTodayWeight();
+  const weeklyAvg = getWeeklyAverage();
+  const recent = getRecentWeights(7);
+
+  if (!todayWeight && recent.length === 0) return null;
+
+  const latestWeight = todayWeight || (recent.length > 0 ? recent[recent.length - 1].weight : null);
+  const diff = startWeight && latestWeight ? (latestWeight - startWeight).toFixed(1) : null;
+  const progress = startWeight && targetWeight && latestWeight
+    ? Math.min(100, Math.max(0, Math.round(((startWeight - latestWeight) / (startWeight - targetWeight)) * 100)))
+    : null;
+
+  return (
+    <SlideUp delay={0.18}>
+      <Link to="/ilerleme">
+        <div className="bg-bg-card border border-white/10 rounded-2xl p-4 mb-4 hover:border-[#14B8A6]/30 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+              <span>&#9878;&#65039;</span> Kilo Takibi
+            </h3>
+            {weeklyAvg && (
+              <span className="text-xs text-white/40">7g ort: {weeklyAvg} kg</span>
+            )}
+          </div>
+          <div className="flex items-end gap-3">
+            <p className="text-2xl font-bold text-white">{latestWeight} <span className="text-sm text-white/40 font-normal">kg</span></p>
+            {diff && (
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full mb-1 ${
+                parseFloat(diff) < 0 ? 'bg-[#10B981]/15 text-[#10B981]' : parseFloat(diff) > 0 ? 'bg-[#E94560]/15 text-[#E94560]' : 'bg-white/10 text-white/50'
+              }`}>
+                {parseFloat(diff) > 0 ? '+' : ''}{diff} kg
+              </span>
+            )}
+          </div>
+          {progress !== null && (
+            <div className="mt-2">
+              <div className="flex justify-between text-xs text-white/30 mb-1">
+                <span>{startWeight} kg</span>
+                <span>{targetWeight} kg</span>
+              </div>
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#14B8A6] to-[#10B981] rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </Link>
+    </SlideUp>
+  );
+}
+
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 6) return 'Iyi geceler';
+  if (hour < 12) return 'Gunaydin';
+  if (hour < 18) return 'Iyi gunler';
+  return 'Iyi aksamlar';
+}
+
 export default function Dashboard() {
   const { resetDailyQuests } = useGamificationStore();
+  const user = useSettingsStore(s => s.user);
 
   useEffect(() => {
     resetDailyQuests();
   }, []);
 
+  const greeting = getTimeGreeting();
+  const name = user?.name || '';
+
   return (
     <div className="flex-1 overflow-y-auto p-4 pb-24">
       <SlideUp>
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-white">Merhaba! 👋</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {greeting}{name ? `, ${name}` : ''}! 👋
+          </h1>
           <p className="text-sm text-white/50">Bugün neler yapacaksın?</p>
         </div>
       </SlideUp>
@@ -334,6 +410,7 @@ export default function Dashboard() {
       <StreakWidget />
       <DailyQuests />
       <TodayWorkout />
+      <BodyWeightWidget />
       <WeeklyProgress />
       <QuickStats />
       <RecentAchievements />
@@ -344,18 +421,18 @@ export default function Dashboard() {
         <h3 className="text-sm font-semibold text-white/50 mb-3">Hızlı Erişim</h3>
         <div className="grid grid-cols-4 gap-2 mb-4">
           <Link
+            to="/ilerleme"
+            className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
+          >
+            <span className="text-xl mb-1 block">📊</span>
+            <span className="text-xs text-white/70">İlerleme</span>
+          </Link>
+          <Link
             to="/challenges"
             className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
           >
             <span className="text-xl mb-1 block">🏆</span>
             <span className="text-xs text-white/70">Challenge</span>
-          </Link>
-          <Link
-            to="/leaderboard"
-            className="bg-bg-card border border-white/10 rounded-xl p-3 text-center hover:border-[#14B8A6]/30 transition-all"
-          >
-            <span className="text-xl mb-1 block">🏅</span>
-            <span className="text-xs text-white/70">Sıralama</span>
           </Link>
           <Link
             to="/beslenme"
