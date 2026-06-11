@@ -232,7 +232,7 @@ function TodayWorkout() {
 
   return (
     <SlideUp delay={0.25}>
-      <Link to="/antenman">
+      <Link to="/antrenman">
         <div className="bg-bg-card border border-[#14B8A6]/30 rounded-2xl p-4 mb-4 hover:border-[#14B8A6]/50 transition-all">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">

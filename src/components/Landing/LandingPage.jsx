@@ -62,7 +62,7 @@ export default function LandingPage() {
               Bilimsel periyodizasyonla hazırlanmış kişisel antrenman uygulaması. Hedeflerine ulaş, formunu geliştir.
             </p>
             <Link
-              to="/antenman"
+              to="/antrenman"
               className="inline-block px-8 py-4 bg-[#14B8A6] text-white font-bold rounded-2xl hover:bg-[#14B8A6]/80 transition-colors"
             >
               Hemen Başla - Ücretsiz
@@ -190,7 +190,7 @@ export default function LandingPage() {
           Ücretsiz başla, hedeflerine ulaş
         </p>
         <Link
-          to="/antenman"
+          to="/antrenman"
           className="inline-block px-8 py-4 bg-white text-[#0f172a] font-bold rounded-2xl hover:bg-white/90 transition-colors"
         >
           Hemen Başla

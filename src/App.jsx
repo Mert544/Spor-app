@@ -23,6 +23,7 @@ const ProfilePage      = lazy(() => import('./components/Profile/ProfilePage.jsx
 const ProgramsPage     = lazy(() => import('./components/Programs/ProgramsPage.jsx'));
 const CreateProgramPage= lazy(() => import('./components/Programs/CreateProgramPage.jsx'));
 const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalytics.jsx'));
+const ProgramDetailPage= lazy(() => import('./components/Programs/ProgramDetailPage.jsx'));
 const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
 const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
 const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.jsx'));
@@ -229,7 +230,7 @@ export default function App() {
                   <Dashboard />
                 </motion.div>
               } />
-              <Route path="/antenman" element={
+              <Route path="/antrenman" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <WorkoutPage />
                 </motion.div>
@@ -252,6 +253,11 @@ export default function App() {
               <Route path="/programlar/duzenle/:editId" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <CreateProgramPage />
+                </motion.div>
+              } />
+              <Route path="/programlar/:programId" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ProgramDetailPage />
                 </motion.div>
               } />
               <Route path="/programlar/:programId/analiz" element={

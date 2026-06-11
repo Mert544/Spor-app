@@ -36,7 +36,7 @@ const ACTIVE_COLOR = '#14B8A6';
 
 const tabs = [
   { to: '/dashboard',  Icon: Icons.Dashboard, label: 'Ana' },
-  { to: '/antenman',   Icon: Icons.Workout,    label: 'Antrenman' },
+  { to: '/antrenman',   Icon: Icons.Workout,    label: 'Antrenman' },
   { to: '/programlar', Icon: Icons.Programs,   label: 'Program' },
   { to: '/profil',     Icon: Icons.Profile,    label: 'Profil' },
 ];
