@@ -2,7 +2,8 @@
 // seviye seçimi, periodizasyon zaman çizelgesi, gün gün egzersiz listesi.
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, Check, Play } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Check, Play, Download } from 'lucide-react';
+import { exportProgram } from '../../utils/programIO';
 import {
   PROGRAM_LIBRARY,
   ALL_PROGRAMS,
@@ -222,6 +223,15 @@ export default function ProgramDetailPage() {
               {isCustom ? 'Özel program' : 'Hazır program'}
             </p>
           </div>
+          {isCustom && (
+            <button
+              onClick={() => exportProgram(programId)}
+              title="Programı JSON olarak dışa aktar"
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 text-white/60 flex-shrink-0"
+            >
+              <Download size={16} />
+            </button>
+          )}
         </div>
 
         {/* Description pills */}

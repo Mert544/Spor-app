@@ -5,6 +5,7 @@ import { PROGRAM_LIBRARY, LEVEL_CONFIG, parseProgramId } from '../../data/progra
 import useSettingsStore from '../../store/useSettingsStore';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
 import ProgramWizard from './ProgramWizard';
+import ProgramImportModal from './ProgramImportModal';
 
 const GENDER_FILTERS = [
   { id: 'all',    label: 'Tümü' },
@@ -169,6 +170,7 @@ export default function ProgramsPage() {
   const [activeTab, setActiveTab] = useState('hazir');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [showWizard, setShowWizard] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   const defaultFilter = user?.gender || 'all';
   const [genderFilter, setGenderFilter] = useState(defaultFilter);
@@ -201,6 +203,8 @@ export default function ProgramsPage() {
           onComplete={handleWizardComplete}
         />
       )}
+
+      {showImport && <ProgramImportModal onClose={() => setShowImport(false)} />}
 
       <div className="flex-1 overflow-y-auto pb-32 scrollbar-hide">
         <div className="px-4 pt-4">
@@ -458,6 +462,14 @@ export default function ProgramsPage() {
                            border border-[#14B8A6]/30 bg-[#14B8A6]/8 hover:bg-[#14B8A6]/15 transition-all active:scale-[0.98]"
               >
                 + Kendi Programını Oluştur
+              </button>
+
+              <button
+                onClick={() => setShowImport(true)}
+                className="w-full mt-2 py-3 rounded-2xl text-xs font-medium text-white/50
+                           border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-all active:scale-[0.98]"
+              >
+                JSON dosyasından program içe aktar
               </button>
 
               <p className="text-center text-white/30 text-xs mt-6 mb-2">

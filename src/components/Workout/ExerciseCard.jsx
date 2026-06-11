@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import SetLogger from './SetLogger';
 import useWorkoutStore from '../../store/useWorkoutStore';
@@ -13,13 +13,19 @@ const MUSCLE_COLORS = {
   'Kor': '#14B8A6', 'Hamstring': '#10B981', 'Kalça': '#10B981',
 };
 
-export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek, inSuperset = false }) {
+function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek, inSuperset = false }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
   const alternatives = getAlternatives(exercise.name);
-  const { isExerciseComplete, getExerciseLogs, exerciseNotes, setExerciseNote, getExerciseHistory, getPersonalRecord, logs: allLogs } = useWorkoutStore();
-  const { currentWeek } = useProgressStore();
+  const isExerciseComplete = useWorkoutStore(s => s.isExerciseComplete);
+  const getExerciseLogs = useWorkoutStore(s => s.getExerciseLogs);
+  const exerciseNotes = useWorkoutStore(s => s.exerciseNotes);
+  const setExerciseNote = useWorkoutStore(s => s.setExerciseNote);
+  const getExerciseHistory = useWorkoutStore(s => s.getExerciseHistory);
+  const getPersonalRecord = useWorkoutStore(s => s.getPersonalRecord);
+  const allLogs = useWorkoutStore(s => s.logs);
+  const currentWeek = useProgressStore(s => s.currentWeek);
 
   // Use weeklySetRamp if available (custom programs pass mesoWeek prop)
   const effectiveWeek = mesoWeek ?? currentWeek;
@@ -299,3 +305,5 @@ function Chip({ text, color, textColor }) {
     </span>
   );
 }
+
+export default memo(ExerciseCard);

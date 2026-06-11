@@ -59,6 +59,11 @@ const useCustomProgramStore = create(
         const oldLandmarks = program.volumeLandmarks || {};
         const newLandmarks = {};
         Object.entries(oldLandmarks).forEach(([muscle, { mev, mav, mrv }]) => {
+          // NaN guard: bozuk/eksik landmark verisi adaptasyon hesabını kirletmesin
+          if (![mev, mav, mrv].every(Number.isFinite)) {
+            newLandmarks[muscle] = { mev, mav, mrv };
+            return;
+          }
           const nudge = Math.round((mav - mev) * 0.15);
           newLandmarks[muscle] = {
             mev: Math.min(mev + nudge, mav),

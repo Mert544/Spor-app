@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import BottomNav    from './components/Layout/BottomNav.jsx';
 import Header       from './components/Layout/Header.jsx';
 import RestTimer    from './components/Timer/RestTimer.jsx';
+import ToastContainer from './components/UI/Toast.jsx';
 import AuthPage          from './components/Auth/AuthPage.jsx';
 import PasswordResetPage from './components/Auth/PasswordResetPage.jsx';
 import AppTour           from './components/Onboarding/AppTour.jsx';
@@ -218,6 +219,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg flex flex-col max-w-lg mx-auto relative">
       <Header />
+      <ToastContainer />
       {!tourShown && <AppTour />}
       <main className="flex-1 overflow-y-auto pb-20 pt-16">
         <Suspense fallback={<PageLoader />}>

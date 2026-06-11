@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import useSettingsStore from '../../store/useSettingsStore.js';
 import useWorkoutStore from '../../store/useWorkoutStore.js';
-import { LEVEL_CONFIG, PROGRAM_LIBRARY } from '../../data/program.js';
+import { LEVEL_CONFIG, PROGRAM_LIBRARY, parseProgramId } from '../../data/program.js';
 
 const PAGE_TITLES = {
   '/antrenman': null,
@@ -10,18 +11,17 @@ const PAGE_TITLES = {
   '/profil': 'Profil',
 };
 
-export default function Header() {
+function Header() {
   const location = useLocation();
-  const { setTimerVisible, activeProgram, user } = useSettingsStore();
+  const setTimerVisible = useSettingsStore(s => s.setTimerVisible);
+  const activeProgram = useSettingsStore(s => s.activeProgram);
+  const user = useSettingsStore(s => s.user);
   const getStreak = useWorkoutStore((s) => s.getStreak);
   const streak = getStreak();
   const isWorkout = location.pathname === '/antrenman';
   const pageTitle = PAGE_TITLES[location.pathname];
 
-  // Parse active program
-  const lastUnderscore = activeProgram?.lastIndexOf('_') ?? -1;
-  const activeCategory = lastUnderscore > 0 ? activeProgram.slice(0, lastUnderscore) : activeProgram;
-  const activeLevel = lastUnderscore > 0 ? activeProgram.slice(lastUnderscore + 1) : 'orta';
+  const { category: activeCategory, level: activeLevel } = parseProgramId(activeProgram);
   const programMeta = PROGRAM_LIBRARY.find(p => p.id === activeCategory);
   const levelCfg = LEVEL_CONFIG[activeLevel];
 
@@ -79,3 +79,5 @@ export default function Header() {
     </header>
   );
 }
+
+export default memo(Header);
