@@ -14,11 +14,9 @@ const EVENT_TYPES = {
   APP_CLOSE: 'app_close',
   STREAK_MILESTONE: 'streak_milestone',
   WEIGHT_LOG: 'weight_log',
-  COACH_MESSAGE_SENT: 'coach_message_sent',
 };
 
 const FEATURES = {
-  AI_COACH: 'ai_coach',
   CUSTOM_PROGRAMS: 'custom_programs',
   ADVANCED_ANALYTICS: 'advanced_analytics',
   FORM_VIDEOS: 'form_videos',

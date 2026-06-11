@@ -16,7 +16,6 @@ export const useSettingsStore = create(
       activeProgram: 'vtaper_orta',
       notificationsEnabled: false,
       deloadDismissed: false,
-      coachSessionId: null,
       tourShown: false,
       userProfile: null,
       theme: 'dark', // 'dark' | 'light' | 'system'
@@ -29,7 +28,6 @@ export const useSettingsStore = create(
       setActiveProgram: (id) => set({ activeProgram: id }),
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setDeloadDismissed: (v) => set({ deloadDismissed: v }),
-      setCoachSessionId: (id) => set({ coachSessionId: id }),
       setTourShown: (v) => set({ tourShown: v }),
       setUserProfile: (v) => set({ userProfile: v }),
       setTheme: (theme) => set({ theme }),

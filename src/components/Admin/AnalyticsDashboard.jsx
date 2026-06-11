@@ -69,7 +69,6 @@ export default function AnalyticsDashboard() {
 
   function formatFeatureName(name) {
     const names = {
-      ai_coach: 'AI Koç',
       custom_programs: 'Özel Programlar',
       advanced_analytics: 'Analitik',
       form_videos: 'Form Videoları',

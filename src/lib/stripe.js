@@ -26,7 +26,7 @@ export const PLANS = [
     interval: 'month',
     priceId: STRIPE_PRICES.premium_monthly,
     features: [
-      'AI Koç tam erişim',
+      'Akıllı ilerleme önerileri',
       'Sınırsız özel program',
       'Gelişmiş analitik',
       'Form ipuçları',
@@ -43,7 +43,7 @@ export const PLANS = [
     interval: 'year',
     priceId: STRIPE_PRICES.premium_yearly,
     features: [
-      'AI Koç tam erişim',
+      'Akıllı ilerleme önerileri',
       'Sınırsız özel program',
       'Gelişmiş analitik',
       'Form ipuçları',
@@ -62,7 +62,7 @@ export const PLANS = [
     interval: 'month',
     priceId: STRIPE_PRICES.coach_monthly,
     features: [
-      'AI Koç sınırsız',
+      'Akıllı ilerleme önerileri',
       'Sınırsız özel program',
       'Gelişmiş analitik',
       'Form ipuçları',

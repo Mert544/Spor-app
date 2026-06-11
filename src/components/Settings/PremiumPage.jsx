@@ -303,8 +303,7 @@ export default function PremiumPage() {
             </thead>
             <tbody>
               {[
-                { name: 'AI Koç', free: '❌', premium: '✅', coach: '✅' },
-                { name: 'Günlük mesaj', free: '-', premium: '20', coach: 'Sınırsız' },
+                { name: 'Akıllı İlerleme Önerileri', free: '❌', premium: '✅', coach: '✅' },
                 { name: 'Özel Programlar', free: '❌', premium: '✅', coach: '✅' },
                 { name: 'Gelişmiş Analitik', free: '❌', premium: '✅', coach: '✅' },
                 { name: 'Form Videoları', free: '❌', premium: '✅', coach: '✅' },
@@ -344,7 +343,7 @@ export default function PremiumPage() {
             },
             {
               q: 'Coach planı nedir?',
-              a: 'Coach planı, AI koçun yanında haftalık 1:1 koçluk desteği ve kişisel review\'ler içerir.',
+              a: 'Coach planı, haftalık 1:1 koçluk desteği ve kişisel review\'ler içerir.',
             },
           ].map((faq, i) => (
             <div key={i} className="bg-bg-card border border-white/10 rounded-xl p-4">
