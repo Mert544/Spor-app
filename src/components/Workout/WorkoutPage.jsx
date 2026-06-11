@@ -10,6 +10,7 @@ import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
 import useCustomStore from '../../store/useCustomStore';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
+import useSwapStore, { applySwap } from '../../store/useSwapStore';
 
 const MUSCLES = ['Göğüs', 'Sırt', 'Omuz', 'Trisep', 'Bisep', 'Bacak', 'Kor'];
 
@@ -92,6 +93,7 @@ export default function WorkoutPage() {
   const { currentWeek } = useProgressStore();
   const { getExercises, addExercise, removeExercise } = useCustomStore();
   const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle } = useCustomProgramStore();
+  const swaps = useSwapStore(s => s.swaps);
 
   const { isCustom, resolvedId: resolvedProgram } = parseProgramId(activeProgram);
 
@@ -138,19 +140,23 @@ export default function WorkoutPage() {
     );
   }
 
-  const exercises = dayData.exercises;
+  // Egzersiz swap'larını uygula (origId superset eşleştirmesi için korunur)
+  const exercises = dayData.exercises.map((ex) =>
+    applySwap(ex, swaps, resolvedProgram, dayKey)
+  );
   const { completed, total } = getDayProgress(date, exercises);
   const allDone = total > 0 && completed === total;
 
   const nameMap = {};
-  exercises.forEach(e => { nameMap[e.id] = e.name; });
+  exercises.forEach(e => { nameMap[e.origId ?? e.id] = e.name; });
 
-  // Süperset çiftlerini tek render birimine grupla (eşleşme tek yönlü olabilir)
+  // Süperset çiftlerini tek render birimine grupla (eşleşme tek yönlü olabilir;
+  // swap'lı egzersizlerde eşleştirme orijinal id üzerinden yapılır)
   const renderUnits = [];
   const grouped = new Set();
   exercises.forEach((ex) => {
     if (grouped.has(ex.id)) return;
-    const partner = ex.superset ? exercises.find((e) => e.id === ex.superset) : null;
+    const partner = ex.superset ? exercises.find((e) => (e.origId ?? e.id) === ex.superset) : null;
     if (partner && !grouped.has(partner.id)) {
       grouped.add(ex.id);
       grouped.add(partner.id);

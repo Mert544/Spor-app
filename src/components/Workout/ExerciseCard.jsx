@@ -6,6 +6,34 @@ import useProgressStore from '../../store/useProgressStore';
 import { getVideoUrl } from '../../data/videos';
 import { getAlternatives } from '../../data/exerciseAlternatives';
 import { getProgressionSuggestion } from '../../utils/progressionEngine';
+import useSwapStore from '../../store/useSwapStore';
+
+// "2:1:X:0" → okunur açıklama (X = patlayıcı). Parse edilemiyorsa null.
+export function explainTempo(tempo) {
+  const m = String(tempo ?? '').trim().match(/^(\d+|X)[:.](\d+|X)[:.](\d+|X)[:.](\d+|X)$/i);
+  if (!m) return null;
+  const part = (v, label) =>
+    v.toUpperCase() === 'X' ? `patlayıcı ${label}` : `${v}sn ${label}`;
+  return `${part(m[1], 'indir')} · ${part(m[2], 'altta bekle')} · ${part(m[3], 'kaldır')} · ${part(m[4], 'üstte bekle')}`;
+}
+
+// Ağır compound'lar için yüzde bazlı ısınma planı
+const WARMUP_STEPS = [
+  { pct: 0.4, reps: 10 },
+  { pct: 0.55, reps: 6 },
+  { pct: 0.7, reps: 4 },
+  { pct: 0.85, reps: 2 },
+];
+
+function warmupPlan(workWeight) {
+  const w = parseFloat(workWeight);
+  if (!w || w < 20) return null;
+  return WARMUP_STEPS.map((s) => ({
+    weight: Math.max(2.5, Math.round((w * s.pct) / 2.5) * 2.5),
+    reps: s.reps,
+    pct: Math.round(s.pct * 100),
+  }));
+}
 
 const MUSCLE_COLORS = {
   'Göğüs': '#E94560', 'Trisep': '#EC4899', 'Omuz': '#F5A623',
@@ -17,13 +45,20 @@ function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWe
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
-  const alternatives = getAlternatives(exercise.name);
+  // Swap'lı egzersizde alternatif listesi orijinaline göre gelir
+  const alternatives = getAlternatives(exercise.originalName || exercise.name);
+  const setSwap = useSwapStore(s => s.setSwap);
+  const clearSwap = useSwapStore(s => s.clearSwap);
+  const canSwap = !!exercise.swapKey;
+  const [showWarmup, setShowWarmup] = useState(false);
+  const [showTempo, setShowTempo] = useState(false);
   const isExerciseComplete = useWorkoutStore(s => s.isExerciseComplete);
   const getExerciseLogs = useWorkoutStore(s => s.getExerciseLogs);
   const exerciseNotes = useWorkoutStore(s => s.exerciseNotes);
   const setExerciseNote = useWorkoutStore(s => s.setExerciseNote);
   const getExerciseHistory = useWorkoutStore(s => s.getExerciseHistory);
   const getPersonalRecord = useWorkoutStore(s => s.getPersonalRecord);
+  const getPreviousWeight = useWorkoutStore(s => s.getPreviousWeight);
   const allLogs = useWorkoutStore(s => s.logs);
   const currentWeek = useProgressStore(s => s.currentWeek);
 
@@ -40,6 +75,13 @@ function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWe
   const history = open ? getExerciseHistory(exercise.id) : [];
   const pr = open ? getPersonalRecord(exercise.id) : null;
   const chartData = history.slice(-10).map(h => ({ w: h.maxWeight }));
+
+  // Isınma planı: ağır/düşük tekrarlı kaldırışlarda, bilinen çalışma ağırlığına göre
+  const repMax = parseInt(String(exercise.reps ?? '').split('-').pop()) || 99;
+  const isHeavy = repMax <= 8 && (exercise.rest ?? 0) >= 120;
+  const warmupBase = parseFloat(logs[0]?.weight) || getPreviousWeight(exercise.id, 0) || null;
+  const warmup = open && isHeavy ? warmupPlan(warmupBase) : null;
+  const tempoText = open ? explainTempo(exercise.tempo) : null;
 
   // Infer a progression rule for static program exercises that lack one
   const exerciseWithRule = useMemo(() => {
@@ -133,6 +175,9 @@ function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWe
             {isRampActive && rampSets !== exercise.sets && (
               <Chip text={`Hf${effectiveWeek}`} color="#14B8A618" textColor="#14B8A6" />
             )}
+            {exercise.originalName && (
+              <Chip text="⇄ değiştirildi" color="#F5A62318" textColor="#F5A623" />
+            )}
           </div>
         </div>
 
@@ -159,13 +204,22 @@ function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWe
               <p className="text-xs italic text-accent-gold/80 px-1 flex-1">{exercise.note}</p>
             )}
             <div className="flex gap-1 flex-shrink-0">
+              {warmup && (
+                <button
+                  onClick={() => setShowWarmup(v => !v)}
+                  className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
+                  style={{ backgroundColor: '#3B82F620', color: '#3B82F6', border: '1px solid #3B82F633' }}
+                >
+                  Isınma
+                </button>
+              )}
               {alternatives.length > 0 && (
                 <button
                   onClick={() => setShowAlts(v => !v)}
                   className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
                   style={{ backgroundColor: '#F5A62320', color: '#F5A623', border: '1px solid #F5A62333' }}
                 >
-                  ⇄ Alt
+                  ⇄ Değiştir
                 </button>
               )}
               <a
@@ -181,16 +235,82 @@ function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWe
             </div>
           </div>
 
-          {/* Alternatives panel */}
-          {showAlts && (
+          {/* Tempo açıklaması */}
+          {tempoText && (
+            <button
+              onClick={() => setShowTempo(v => !v)}
+              className="w-full text-left mb-2 px-1"
+            >
+              <span className="text-xs text-white/40">
+                Tempo <span className="font-mono text-white/60">{exercise.tempo}</span>
+                <span className="text-white/25"> · {showTempo ? tempoText : 'nedir?'}</span>
+              </span>
+            </button>
+          )}
+
+          {/* Swap banner — egzersiz değiştirilmişse */}
+          {exercise.originalName && (
+            <div className="mb-2 flex items-center gap-2 px-3 py-2 rounded-xl"
+              style={{ backgroundColor: '#F5A62310', border: '1px solid #F5A62325' }}>
+              <p className="text-xs text-accent-gold/80 flex-1">
+                ⇄ <span className="text-white/40 line-through">{exercise.originalName}</span> yerine yapılıyor
+              </p>
+              <button
+                onClick={() => clearSwap(exercise.swapKey)}
+                className="text-xs font-semibold px-2 py-1 rounded-lg bg-white/5 text-white/60 border border-white/10 active:scale-95"
+              >
+                Geri Al
+              </button>
+            </div>
+          )}
+
+          {/* Isınma planı */}
+          {showWarmup && warmup && (
             <div className="mb-3 bg-bg-dark rounded-xl p-3">
-              <p className="text-xs font-semibold text-accent-gold mb-2">⇄ Alternatif Egzersizler</p>
+              <p className="text-xs font-semibold text-[#3B82F6] mb-2">
+                Isınma Planı <span className="text-white/30 font-normal">· {warmupBase} kg çalışma ağırlığına göre</span>
+              </p>
               <div className="space-y-1">
-                {alternatives.map((alt, i) => (
-                  <div key={i} className="text-xs text-white/60 px-1 py-0.5 flex items-center gap-1.5">
-                    <span className="text-white/30">•</span> {alt}
+                {warmup.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs px-1 py-0.5">
+                    <span className="text-white/30 w-4">{i + 1}.</span>
+                    <span className="text-white/80 font-medium">{s.weight} kg × {s.reps}</span>
+                    <span className="text-white/30">%{s.pct}</span>
                   </div>
                 ))}
+                <p className="text-xs text-white/25 pt-1">Setler arası 45-60sn dinlen, son ısınmadan sonra 2dk bekle.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Alternatives panel — dokununca egzersizi değiştirir */}
+          {showAlts && (
+            <div className="mb-3 bg-bg-dark rounded-xl p-3">
+              <p className="text-xs font-semibold text-accent-gold mb-2">
+                ⇄ Alternatif Egzersizler
+                {canSwap && <span className="text-white/30 font-normal"> · dokun, değiştir</span>}
+              </p>
+              <div className="space-y-1">
+                {alternatives.map((alt, i) => {
+                  const isCurrent = alt === exercise.name;
+                  return canSwap ? (
+                    <button
+                      key={i}
+                      disabled={isCurrent}
+                      onClick={() => { setSwap(exercise.swapKey, alt); setShowAlts(false); }}
+                      className="w-full text-left text-xs px-2 py-1.5 rounded-lg flex items-center gap-1.5 transition-all active:scale-[0.98]"
+                      style={isCurrent
+                        ? { backgroundColor: '#F5A62318', color: '#F5A623', border: '1px solid #F5A62330' }
+                        : { backgroundColor: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                      <span className="text-white/30">{isCurrent ? '✓' : '⇄'}</span> {alt}
+                    </button>
+                  ) : (
+                    <div key={i} className="text-xs text-white/60 px-1 py-0.5 flex items-center gap-1.5">
+                      <span className="text-white/30">•</span> {alt}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

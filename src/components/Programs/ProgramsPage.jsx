@@ -208,7 +208,16 @@ export default function ProgramsPage() {
 
       <div className="flex-1 overflow-y-auto pb-32 scrollbar-hide">
         <div className="px-4 pt-4">
-          <h1 className="text-xl font-bold text-white mb-1">Programlar</h1>
+          <div className="flex items-start justify-between mb-1">
+            <h1 className="text-xl font-bold text-white">Programlar</h1>
+            <button
+              onClick={() => navigate('/egzersizler')}
+              className="flex items-center gap-1 text-xs font-semibold text-[#14B8A6] px-2.5 py-1.5 rounded-xl
+                         bg-[#14B8A6]/8 border border-[#14B8A6]/25 transition-all active:scale-95"
+            >
+              Egzersiz Kütüphanesi <ChevronRight size={13} />
+            </button>
+          </div>
           <p className="text-xs text-white/40 mb-3">Programı incele, seviyeni seç, başla</p>
 
           {/* Main tabs */}

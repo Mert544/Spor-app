@@ -25,6 +25,7 @@ const ProgramsPage     = lazy(() => import('./components/Programs/ProgramsPage.j
 const CreateProgramPage= lazy(() => import('./components/Programs/CreateProgramPage.jsx'));
 const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalytics.jsx'));
 const ProgramDetailPage= lazy(() => import('./components/Programs/ProgramDetailPage.jsx'));
+const ExerciseLibraryPage = lazy(() => import('./components/Exercises/ExerciseLibraryPage.jsx'));
 const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
 const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
 const LandingPage        = lazy(() => import('./components/Landing/LandingPage.jsx'));
@@ -246,6 +247,11 @@ export default function App() {
               <Route path="/programlar" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <ProgramsPage />
+                </motion.div>
+              } />
+              <Route path="/egzersizler" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
+                  <ExerciseLibraryPage />
                 </motion.div>
               } />
               <Route path="/programlar/olustur" element={
