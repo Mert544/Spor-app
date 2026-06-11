@@ -29,7 +29,7 @@ export default function DaySelector({ selectedIndex, onSelect, days, program }) 
           <button
             key={day}
             onClick={() => onSelect(i)}
-            className="flex-shrink-0 flex flex-col items-center gap-1 px-3 pt-2 pb-1.5 rounded-2xl transition-all active:scale-95"
+            className="flex-shrink-0 flex flex-col items-center gap-1 px-3.5 pt-2.5 pb-2 rounded-2xl transition-all active:scale-95"
             style={isSelected
               ? { backgroundColor: color, boxShadow: `0 4px 16px ${color}55` }
               : { backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.06)' }

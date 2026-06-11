@@ -13,7 +13,7 @@ const MUSCLE_COLORS = {
   'Kor': '#14B8A6', 'Hamstring': '#10B981', 'Kalça': '#10B981',
 };
 
-export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek }) {
+export default function ExerciseCard({ exercise, date, accentColor, supersetPartnerName, mesoWeek, inSuperset = false }) {
   const [open, setOpen] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAlts, setShowAlts] = useState(false);
@@ -75,24 +75,22 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
 
   return (
     <div
-      className="mx-4 mb-3 rounded-2xl overflow-hidden transition-all duration-300"
+      className={`${inSuperset ? 'mx-0 mb-0' : 'mx-4 mb-3'} rounded-2xl overflow-hidden transition-all duration-300`}
       style={{
         background: complete
           ? `linear-gradient(135deg, ${accentColor}14 0%, #1e293b 55%)`
           : '#1e293b',
         border: complete
           ? `1.5px solid ${accentColor}90`
-          : exercise.superset
-          ? `1.5px solid ${accentColor}44`
           : '1.5px solid rgba(255,255,255,0.07)',
         boxShadow: complete ? `0 0 18px ${accentColor}22` : 'none',
       }}
     >
-      {/* Superset badge */}
-      {exercise.superset && (
+      {/* Superset badge — only when the partner card isn't grouped next to this one */}
+      {exercise.superset && !inSuperset && supersetPartnerName && (
         <div className="px-3 pt-2 pb-0">
           <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: `${accentColor}22`, color: accentColor }}>
-            Superset ↕ {supersetPartnerName || exercise.superset}
+            Superset ↕ {supersetPartnerName}
           </span>
         </div>
       )}
@@ -119,18 +117,16 @@ export default function ExerciseCard({ exercise, date, accentColor, supersetPart
           <p className={`font-semibold text-sm leading-tight ${complete ? 'text-white/50 line-through' : 'text-white'}`}>
             {exercise.name}
           </p>
-          {/* Chips row */}
+          {/* Metadata line */}
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            <Chip
-              text={isRampActive ? `${rampSets}×${exercise.reps}` : `${exercise.sets}×${exercise.reps}`}
-              color="rgba(255,255,255,0.12)" textColor="rgba(255,255,255,0.6)"
-            />
+            <span className="text-xs text-white/40">
+              {rampSets}×{exercise.reps}
+              {exercise.rpe && exercise.rpe !== '-' ? ` · RPE ${exercise.rpe}` : ''}
+              {exercise.rest > 0 ? ` · ${exercise.rest}sn` : ''}
+            </span>
             {isRampActive && rampSets !== exercise.sets && (
               <Chip text={`Hf${effectiveWeek}`} color="#14B8A618" textColor="#14B8A6" />
             )}
-            {exercise.rpe && <Chip text={`RPE ${exercise.rpe}`} color={accentColor + '22'} textColor={accentColor + 'cc'} />}
-            {exercise.rest > 0 && <Chip text={`${exercise.rest}sn ⏱`} color="rgba(255,255,255,0.06)" textColor="rgba(255,255,255,0.35)" />}
-            {personalNote && <Chip text="📝" color="#F5A62320" textColor="#F5A623" />}
           </div>
         </div>
 

@@ -42,6 +42,50 @@ function getCurrentPhase(week) {
   return null;
 }
 
+// İnce hafta şeridi — geçen haftalar dolu, deload haftaları altın tonlu
+function WeekStrip({ totalWeeks, currentWeek, deloadWeeks, color }) {
+  if (!totalWeeks) return null;
+  return (
+    <div className="flex gap-0.5 mt-2">
+      {Array.from({ length: totalWeeks }, (_, i) => {
+        const w = i + 1;
+        const isDeload = deloadWeeks.includes(w);
+        const filled = w <= currentWeek;
+        return (
+          <div
+            key={w}
+            className="flex-1 h-1 rounded-full"
+            style={{
+              backgroundColor: filled
+                ? (isDeload ? '#F5A623' : color)
+                : (isDeload ? '#F5A62330' : 'rgba(255,255,255,0.08)'),
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+// Karşılıklı süperset çiftini tek görsel birim olarak sarar
+function SupersetGroup({ children, accentColor }) {
+  return (
+    <div
+      className="mx-4 mb-3 rounded-2xl p-1.5 space-y-1.5"
+      style={{
+        border: `1.5px solid ${accentColor}35`,
+        borderLeft: `3px solid ${accentColor}`,
+        backgroundColor: `${accentColor}06`,
+      }}
+    >
+      <p className="text-[10px] font-bold tracking-widest px-2 pt-0.5" style={{ color: accentColor }}>
+        SÜPERSET — dinlenmeden art arda
+      </p>
+      {children}
+    </div>
+  );
+}
+
 export default function WorkoutPage() {
   const { activeProgram, setActiveProgram } = useSettingsStore();
   const { logs, getDayProgress } = useWorkoutStore();
@@ -101,6 +145,27 @@ export default function WorkoutPage() {
   const nameMap = {};
   exercises.forEach(e => { nameMap[e.id] = e.name; });
 
+  // Süperset çiftlerini tek render birimine grupla (eşleşme tek yönlü olabilir)
+  const renderUnits = [];
+  const grouped = new Set();
+  exercises.forEach((ex) => {
+    if (grouped.has(ex.id)) return;
+    const partner = ex.superset ? exercises.find((e) => e.id === ex.superset) : null;
+    if (partner && !grouped.has(partner.id)) {
+      grouped.add(ex.id);
+      grouped.add(partner.id);
+      renderUnits.push({ type: 'superset', items: [ex, partner] });
+    } else {
+      grouped.add(ex.id);
+      renderUnits.push({ type: 'single', items: [ex] });
+    }
+  });
+
+  // Deload haftaları (şerit için): statik programlarda PHASES, özelde mesocycle
+  const deloadWeeks = isCustom
+    ? (programData?.mesocycle?.phases || []).filter((p) => p.volumeMultiplier).flatMap((p) => p.weeks || [])
+    : Object.values(PHASES).map((p) => p.deload).filter(Boolean);
+
   function handleAddCustom() {
     if (!customForm.name.trim()) return;
     addExercise(date, { ...customForm, sets: Number(customForm.sets) });
@@ -143,6 +208,12 @@ export default function WorkoutPage() {
               RPE ≤{currentPhase.rpeMax}
             </span>
           </div>
+          <WeekStrip
+            totalWeeks={12}
+            currentWeek={currentWeek}
+            deloadWeeks={deloadWeeks}
+            color="#14B8A6"
+          />
           {isDeloadWeek && (
             <p className="text-xs text-accent-gold/70 mt-1.5 leading-relaxed">{currentPhase.deloadNote}</p>
           )}
@@ -188,6 +259,12 @@ export default function WorkoutPage() {
               )}
             </div>
           </div>
+          <WeekStrip
+            totalWeeks={customMesoTotal}
+            currentWeek={effectiveWeek}
+            deloadWeeks={deloadWeeks}
+            color={programData.color || '#14B8A6'}
+          />
         </div>
       )}
 
@@ -235,17 +312,33 @@ export default function WorkoutPage() {
         <CompletionCard date={date} exercises={exercises} accentColor={dayData.color} />
       )}
 
-      {/* Program exercises */}
-      {exercises.map(ex => (
-        <ExerciseCard
-          key={ex.id}
-          exercise={ex}
-          date={date}
-          accentColor={dayData.color}
-          supersetPartnerName={ex.superset ? nameMap[ex.superset] : null}
-          mesoWeek={isCustom ? effectiveWeek : undefined}
-        />
-      ))}
+      {/* Program exercises (süperset çiftleri gruplu) */}
+      {renderUnits.map((unit) =>
+        unit.type === 'superset' ? (
+          <SupersetGroup key={unit.items[0].id} accentColor={dayData.color}>
+            {unit.items.map((ex) => (
+              <ExerciseCard
+                key={ex.id}
+                exercise={ex}
+                date={date}
+                accentColor={dayData.color}
+                supersetPartnerName={ex.superset ? nameMap[ex.superset] : null}
+                mesoWeek={isCustom ? effectiveWeek : undefined}
+                inSuperset
+              />
+            ))}
+          </SupersetGroup>
+        ) : (
+          <ExerciseCard
+            key={unit.items[0].id}
+            exercise={unit.items[0]}
+            date={date}
+            accentColor={dayData.color}
+            supersetPartnerName={unit.items[0].superset ? nameMap[unit.items[0].superset] : null}
+            mesoWeek={isCustom ? effectiveWeek : undefined}
+          />
+        )
+      )}
 
       {/* Custom exercises */}
       {customExercises.map(ex => (
