@@ -8,8 +8,6 @@ const EVENT_TYPES = {
   PROGRAM_SWITCH: 'program_switch',
   FEATURE_USED: 'feature_used',
   PAGE_VIEW: 'page_view',
-  SUBSCRIPTION_START: 'subscription_start',
-  SUBSCRIPTION_CANCEL: 'subscription_cancel',
   APP_OPEN: 'app_open',
   APP_CLOSE: 'app_close',
   STREAK_MILESTONE: 'streak_milestone',
@@ -162,25 +160,6 @@ export async function getFeatureUsage(userId) {
   if (error) {
     console.warn('[analytics] Failed to fetch feature usage:', error);
     return [];
-  }
-
-  return data;
-}
-
-export async function getSubscriptionStatus(userId) {
-  if (!isSupabaseConfigured || !supabase || !userId) return null;
-
-  const { data, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.warn('[analytics] Failed to fetch subscription:', error);
-    return null;
   }
 
   return data;

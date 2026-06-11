@@ -8,7 +8,6 @@ export const APP_BUILD = '1';
 export const API_CONFIG = {
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
   supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-  stripeKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
 };
 
 export const FEATURE_FLAGS = {
@@ -78,6 +77,4 @@ export const ANALYTICS_EVENTS = {
   achievement_unlock: 'achievement_unlock',
   photo_upload: 'photo_upload',
   onboarding_complete: 'onboarding_complete',
-  subscription_start: 'subscription_start',
-  subscription_cancel: 'subscription_cancel',
 };

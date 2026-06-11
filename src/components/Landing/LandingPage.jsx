@@ -143,44 +143,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Preview */}
-      <section className="px-6 py-16">
-        <SlideUp>
-          <h2 className="text-2xl font-bold text-white text-center mb-4">
-            Premium Özellikler
-          </h2>
-          <p className="text-white/50 text-center mb-8 text-sm">
-            Tüm özellikleri açmak için Premium'a geç
-          </p>
-        </SlideUp>
-        <div className="bg-bg-card border border-[#14B8A6]/30 rounded-2xl p-6 max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <span className="text-4xl font-bold text-white">₺49</span>
-            <span className="text-white/50">/ay</span>
-          </div>
-          <ul className="space-y-3 mb-6">
-            {[
-              'Akıllı ilerleme önerileri',
-              'Sınırsız özel program',
-              'Gelişmiş analitik',
-              'Form videoları',
-              'Yemek planlama',
-            ].map((f, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm text-white/70">
-                <span className="text-[#14B8A6]">✓</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-          <Link
-            to="/premium"
-            className="block w-full py-3 bg-[#14B8A6] text-white font-semibold rounded-xl text-center hover:bg-[#14B8A6]/80 transition-colors"
-          >
-            Premium'a Geç
-          </Link>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="px-6 py-16 text-center">
         <h2 className="text-2xl font-bold text-white mb-4">
@@ -202,8 +164,6 @@ export default function LandingPage() {
         <div className="text-center text-white/30 text-xs">
           <p>V-Taper Coach © 2026</p>
           <p className="mt-2">
-            <Link to="/premium" className="hover:text-white/50 transition-colors">Premium</Link>
-            {' · '}
             <Link to="/profil" className="hover:text-white/50 transition-colors">Profil</Link>
           </p>
         </div>

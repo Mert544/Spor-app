@@ -26,7 +26,6 @@ const ProgramAnalytics = lazy(() => import('./components/Programs/ProgramAnalyti
 const ProgramDetailPage= lazy(() => import('./components/Programs/ProgramDetailPage.jsx'));
 const OnboardingPage      = lazy(() => import('./components/Onboarding/OnboardingPage.jsx'));
 const SupplementGuide     = lazy(() => import('./components/Profile/SupplementGuide.jsx'));
-const PremiumPage        = lazy(() => import('./components/Settings/PremiumPage.jsx'));
 const LandingPage        = lazy(() => import('./components/Landing/LandingPage.jsx'));
 const AnalyticsDashboard = lazy(() => import('./components/Admin/AnalyticsDashboard.jsx'));
 const Dashboard          = lazy(() => import('./components/Dashboard/Dashboard.jsx'));
@@ -273,11 +272,6 @@ export default function App() {
               <Route path="/takviye" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
                   <SupplementGuide />
-                </motion.div>
-              } />
-              <Route path="/premium" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-                  <PremiumPage />
                 </motion.div>
               } />
               <Route path="/analytics" element={
