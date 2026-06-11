@@ -4,7 +4,7 @@ import ProgressBar from './ProgressBar';
 import ExerciseCard from './ExerciseCard';
 import CompletionCard from './CompletionCard';
 import DayBasisCard from './DayBasisCard';
-import { ALL_PROGRAMS, getTodayDayIndex, PHASES } from '../../data/program';
+import { ALL_PROGRAMS, getTodayDayIndex, PHASES, parseProgramId } from '../../data/program';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useSettingsStore from '../../store/useSettingsStore';
 import useProgressStore from '../../store/useProgressStore';
@@ -49,24 +49,13 @@ export default function WorkoutPage() {
   const { getExercises, addExercise, removeExercise } = useCustomStore();
   const { programs: customPrograms, getMesocycleWeek, incrementMesocycleWeek, startNewMesocycle } = useCustomProgramStore();
 
-  const isCustom = activeProgram?.startsWith('custom_') || activeProgram?.startsWith('personal_');
-
-  const resolvedProgram = (() => {
-    if (!activeProgram) return 'vtaper_orta';
-    if (isCustom) return activeProgram;
-    if (ALL_PROGRAMS[activeProgram]) return activeProgram;
-    const withLevel = `${activeProgram}_orta`;
-    if (ALL_PROGRAMS[withLevel]) return withLevel;
-    return 'vtaper_orta';
-  })();
+  const { isCustom, resolvedId: resolvedProgram } = parseProgramId(activeProgram);
 
   useEffect(() => {
-    if (activeProgram && !isCustom && !ALL_PROGRAMS[activeProgram]) {
-      const withLevel = `${activeProgram}_orta`;
-      if (ALL_PROGRAMS[withLevel]) setActiveProgram(withLevel);
-      else setActiveProgram('vtaper_orta');
+    if (activeProgram && !isCustom && activeProgram !== resolvedProgram) {
+      setActiveProgram(resolvedProgram);
     }
-  }, [activeProgram, isCustom, setActiveProgram]);
+  }, [activeProgram, isCustom, resolvedProgram, setActiveProgram]);
 
   const programData = isCustom
     ? (customPrograms[resolvedProgram] || ALL_PROGRAMS['vtaper_orta'])

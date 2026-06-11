@@ -90,7 +90,7 @@ export default function MesocycleView({ mesocycle, compact = false }) {
               <span className="text-xs text-white/40">
                 {phase.name}
                 {phase.rpeMax ? ` ≤RPE${phase.rpeMax}` : ''}
-                {isDeload ? ' (×40%)' : ''}
+                {isDeload ? ` (hacim ×${Math.round(phase.volumeMultiplier * 100)}%)` : ''}
               </span>
             </div>
           );

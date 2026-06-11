@@ -826,6 +826,43 @@ export function getPhaseFromWeek(week) {
   return 1;
 }
 
+// Hazır programların 12 haftalık global periodizasyonu — MesocycleView şekli
+export const LIBRARY_MESOCYCLE = {
+  durationWeeks: 12,
+  phases: [
+    { name: "Birikim",        weeks: [1, 2, 3], rpeMax: 8,  focus: PHASES[1].focus },
+    { name: "Deload",         weeks: [4],       volumeMultiplier: 0.6,  focus: PHASES[1].deloadNote },
+    { name: "Yoğunlaştırma",  weeks: [5, 6, 7], rpeMax: 10, focus: PHASES[2].focus },
+    { name: "Deload",         weeks: [8],       volumeMultiplier: 0.85, focus: PHASES[2].deloadNote },
+    { name: "Gerçekleştirme", weeks: [9, 10],   rpeMax: 9,  focus: PHASES[3].focus },
+    { name: "Deload",         weeks: [11],      volumeMultiplier: 0.5,  focus: PHASES[3].deloadNote },
+    { name: "Test",           weeks: [12],      rpeMax: 10, focus: "1RM veya max tekrar testi — 12 haftalık ilerlemeyi ölç." },
+  ],
+};
+
+// Program ID çözümleme — tek doğruluk kaynağı
+// "vtaper" → vtaper_orta, "vtaper_zor" → kendisi, "custom_*"/"personal_*" → custom
+export const PROGRAM_LEVELS = ["kolay", "orta", "zor"];
+
+export function parseProgramId(id) {
+  if (!id) return { category: "vtaper", level: "orta", resolvedId: "vtaper_orta", isCustom: false };
+  if (id.startsWith("custom_") || id.startsWith("personal_")) {
+    return { category: id, level: null, resolvedId: id, isCustom: true };
+  }
+  const idx = id.lastIndexOf("_");
+  const suffix = idx > 0 ? id.slice(idx + 1) : "";
+  if (PROGRAM_LEVELS.includes(suffix)) {
+    return { category: id.slice(0, idx), level: suffix, resolvedId: id, isCustom: false };
+  }
+  const withLevel = `${id}_orta`;
+  return {
+    category: id,
+    level: "orta",
+    resolvedId: ALL_PROGRAMS[withLevel] ? withLevel : "vtaper_orta",
+    isCustom: false,
+  };
+}
+
 // ─────────────────────────────────────────────
 // DÖVÜŞ SPORLARI KUVVET PROGRAMI
 // Patlayıcı kuvvet, kavrama gücü, fonksiyonel dayanıklılık
@@ -1409,7 +1446,7 @@ function applyDifficulty(lib, level) {
       id: `${ex.id}_${level[0]}`,
       sets: cfg.setsMod(ex.sets),
       rest: cfg.restMod(ex.rest),
-      superset: cfg.removeSuperset ? null : ex.superset,
+      superset: cfg.removeSuperset ? null : (ex.superset ? `${ex.superset}_${level[0]}` : null),
       note: cfg.notePrefix + ex.note,
     }));
     program[day] = { ...d, exercises };

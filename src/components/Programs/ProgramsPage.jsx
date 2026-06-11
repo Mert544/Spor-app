@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PROGRAM_LIBRARY, LEVEL_CONFIG } from '../../data/program';
+import { PROGRAM_LIBRARY, LEVEL_CONFIG, parseProgramId } from '../../data/program';
 import useSettingsStore from '../../store/useSettingsStore';
 import useCustomProgramStore from '../../store/useCustomProgramStore';
 import ProgramWizard from './ProgramWizard';
@@ -173,12 +173,7 @@ export default function ProgramsPage() {
   const personalPrograms = allCustomList.filter((p) => p.isPersonal);
   const regularCustomList = allCustomList.filter((p) => !p.isPersonal);
 
-  const LEVELS = ['kolay', 'orta', 'zor'];
-  const lastUnderscore = activeProgram?.lastIndexOf('_') ?? -1;
-  const maybeLevelSuffix = lastUnderscore > 0 ? activeProgram.slice(lastUnderscore + 1) : '';
-  const hasLevel = LEVELS.includes(maybeLevelSuffix);
-  const activeCategory = hasLevel ? activeProgram.slice(0, lastUnderscore) : (activeProgram || 'vtaper');
-  const activeLevel = hasLevel ? maybeLevelSuffix : 'orta';
+  const { category: activeCategory, level: activeLevel } = parseProgramId(activeProgram);
 
   const visiblePrograms = PROGRAM_LIBRARY.filter((lib) => {
     if (genderFilter === 'all') return true;
