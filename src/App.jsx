@@ -94,6 +94,9 @@ export default function App() {
   const notificationsEnabled = useSettingsStore(s => s.notificationsEnabled);
   const user               = useSettingsStore(s => s.user);
   const { session, loading, isGuest, isPasswordRecovery, setSession, setLoading, setPasswordRecovery, clearAuth } = useAuthStore();
+  // Rules of Hooks: koşullu return'lerden ÖNCE çağrılmalı — aksi halde
+  // loading true→false geçişinde hook sırası değişip render çöküyor
+  const location = useLocation();
 
   useNativeApp();
   useEffect(() => {
@@ -185,7 +188,6 @@ export default function App() {
   }
 
   // ── Landing page (public, before onboarding) ───────────────────────────────
-  const location = useLocation();
   if (location.pathname === '/landing' || location.pathname === '/') {
     return (
       <Suspense fallback={<PageLoader />}>
