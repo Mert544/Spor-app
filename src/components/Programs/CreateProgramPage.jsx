@@ -285,6 +285,55 @@ function ExerciseRow({ exercise, idx, onUpdate, onRemove, onPickFromLibrary }) {
   );
 }
 
+// ─── Volume preview — günlerdeki setleri MEV/MAV/MRV ile karşılaştırır ────
+
+function VolumePreview({ form }) {
+  const totals = useMemo(() => {
+    const t = {};
+    form.days.forEach((dk) => {
+      (form.program[dk]?.exercises || []).forEach((ex) => {
+        if (!ex.muscle) return;
+        t[ex.muscle] = (t[ex.muscle] || 0) + (Number(ex.sets) || 0);
+      });
+    });
+    return t;
+  }, [form.days, form.program]);
+
+  const entries = Object.entries(totals).filter(([, sets]) => sets > 0);
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="bg-bg-card rounded-xl p-3 border border-white/8">
+      <p className="text-xs text-white/50 uppercase tracking-wide mb-2">Haftalık Hacim Önizleme</p>
+      <div className="space-y-2">
+        {entries.map(([muscle, sets]) => {
+          const lm = form.volumeLandmarks?.[muscle];
+          let color = '#14B8A6';
+          let label = `${sets} set`;
+          if (lm) {
+            if (sets < lm.mev)      { color = '#94A3B8'; label = `${sets} set · MEV altı`; }
+            else if (sets <= lm.mav){ color = '#10B981'; label = `${sets} set · optimal`; }
+            else if (sets <= lm.mrv){ color = '#F5A623'; label = `${sets} set · yüksek`; }
+            else                    { color = '#E94560'; label = `${sets} set · MRV üstü!`; }
+          }
+          const pct = lm ? Math.min((sets / lm.mrv) * 100, 100) : 50;
+          return (
+            <div key={muscle}>
+              <div className="flex items-center justify-between mb-0.5">
+                <span className="text-xs text-white/70">{muscle}</span>
+                <span className="text-xs font-medium" style={{ color }}>{label}</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Step 3: Days & Exercises ─────────────────────────────────────────────
 
 function StepDays({ form, onChange }) {
@@ -294,10 +343,11 @@ function StepDays({ form, onChange }) {
   const addDay = useCallback((template) => {
     const count = form.days.filter(d => d.startsWith(template.key)).length;
     const dayKey = count > 0 ? `${template.key}_${count + 1}` : template.key;
+    const name = count > 0 ? `${template.name} ${count + 1}` : template.name;
     onChange('days', [...form.days, dayKey]);
     onChange('program', {
       ...form.program,
-      [dayKey]: { color: template.color, emoji: template.emoji, subtitle: template.subtitle, exercises: [] },
+      [dayKey]: { name, color: template.color, emoji: template.emoji, subtitle: template.subtitle, exercises: [] },
     });
     setOpenDay(dayKey);
   }, [form.days, form.program, onChange]);
@@ -366,8 +416,10 @@ function StepDays({ form, onChange }) {
                   onClick={() => setOpenDay(isOpen ? null : dayKey)}>
                   <span className="text-lg">{day.emoji}</span>
                   <div>
-                    <p className="text-sm font-medium text-white">{day.subtitle || dayKey}</p>
-                    <p className="text-xs text-white/40">{day.exercises?.length || 0} egzersiz</p>
+                    <p className="text-sm font-medium text-white">{day.name || day.subtitle || dayKey}</p>
+                    <p className="text-xs text-white/40">
+                      {day.subtitle ? `${day.subtitle} · ` : ''}{day.exercises?.length || 0} egzersiz
+                    </p>
                   </div>
                 </button>
                 <button onClick={() => removeDay(dayKey)}
@@ -411,6 +463,9 @@ function StepDays({ form, onChange }) {
           );
         })}
       </div>
+
+      {/* Volume preview */}
+      <VolumePreview form={form} />
 
       {/* Exercise picker modal */}
       {pickerTarget && (

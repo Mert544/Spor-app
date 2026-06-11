@@ -287,7 +287,7 @@ export default function WorkoutPage() {
       {/* Day header */}
       <div className="px-4 pt-2 pb-1">
         <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: dayData.color }}>
-          {dayData.emoji} {dayKey}
+          {dayData.emoji} {dayData.name || dayKey}
         </p>
         {dayData.subtitle && (
           <p className="text-white/40 text-xs mt-0.5">{dayData.subtitle}</p>

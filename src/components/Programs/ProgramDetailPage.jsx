@@ -31,7 +31,7 @@ function DayAccordion({ dayKey, dayData, color }) {
           style={{ backgroundColor: dayData?.color || color }}
         />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white truncate">{dayKey}</p>
+          <p className="text-sm font-semibold text-white truncate">{dayData?.name || dayKey}</p>
           {dayData?.subtitle && (
             <p className="text-xs text-white/40 truncate">{dayData.subtitle}</p>
           )}
