@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import useGamificationStore from '../../store/useGamificationStore';
 import useWorkoutStore from '../../store/useWorkoutStore';
 import useProgressStore from '../../store/useProgressStore';
+import useSettingsStore from '../../store/useSettingsStore';
+import useCustomProgramStore from '../../store/useCustomProgramStore';
+import { ALL_PROGRAMS, getTodayDayIndex, parseProgramId } from '../../data/program';
 import { SlideUp, FadeIn } from '../UI/AnimatedCard.jsx';
 
 function StreakWidget() {
@@ -222,40 +225,98 @@ function QuickStats() {
 }
 
 function TodayWorkout() {
-  const { logs } = useWorkoutStore();
+  const logs = useWorkoutStore(s => s.logs);
+  const activeProgram = useSettingsStore(s => s.activeProgram);
+  const customPrograms = useCustomProgramStore(s => s.programs);
+
+  const { isCustom, resolvedId } = parseProgramId(activeProgram);
+  const programData = isCustom
+    ? (customPrograms[resolvedId] || ALL_PROGRAMS['vtaper_orta'])
+    : (ALL_PROGRAMS[resolvedId] || ALL_PROGRAMS['vtaper_orta']);
+
+  const dayIndex = Math.min(getTodayDayIndex(), programData.days.length - 1);
+  const dayKey = programData.days[dayIndex];
+  const dayData = programData.program[dayKey] || {};
+  const exercises = dayData.exercises || [];
+  const isRestDay = exercises.length === 0 || /dinlenme/i.test(dayKey);
+  const accentColor = dayData.color || '#14B8A6';
+
+  // Gün adı: "Pzt - PUSH A" → "PUSH A"
+  const dayLabel = dayKey?.includes(' - ') ? dayKey.split(' - ')[1] : dayKey;
+
   const today = new Date().toISOString().split('T')[0];
   const todayLogs = logs[today] || {};
-  const completedExercises = Object.values(todayLogs).filter(exLogs =>
-    Object.values(exLogs).some(s => s?.done)
+  // Swap edilmiş egzersizler `${id}~slug` ID'siyle loglanır — ikisini de say
+  const completedExercises = exercises.filter(ex =>
+    Object.entries(todayLogs).some(([logId, exLogs]) =>
+      (logId === ex.id || logId.startsWith(`${ex.id}~`)) &&
+      Object.values(exLogs).some(s => s?.done)
+    )
   ).length;
-  const totalExercises = Object.keys(todayLogs).length || 5;
+  const totalExercises = exercises.length;
+  const allDone = totalExercises > 0 && completedExercises === totalExercises;
+
+  if (isRestDay) {
+    return (
+      <SlideUp delay={0.25}>
+        <Link to="/antrenman">
+          <div className="bg-bg-card border border-white/10 rounded-2xl p-4 mb-4 hover:border-white/20 transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl">
+                🧘
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-white">{dayLabel || 'Dinlenme Günü'}</h3>
+                <p className="text-xs text-white/50">
+                  {dayData.subtitle || 'Toparlanma günü — hafif yürüyüş ve esneme iyi gelir'}
+                </p>
+              </div>
+              <div className="text-white/30">→</div>
+            </div>
+          </div>
+        </Link>
+      </SlideUp>
+    );
+  }
 
   return (
     <SlideUp delay={0.25}>
       <Link to="/antrenman">
-        <div className="bg-bg-card border border-[#14B8A6]/30 rounded-2xl p-4 mb-4 hover:border-[#14B8A6]/50 transition-all">
+        <div
+          className="bg-bg-card rounded-2xl p-4 mb-4 transition-all"
+          style={{ border: `1px solid ${accentColor}4d` }}
+        >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[#14B8A6]/20 flex items-center justify-center text-2xl">
-                💪
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{ backgroundColor: `${accentColor}20` }}
+              >
+                {allDone ? '✅' : dayData.emoji || '💪'}
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">Bugünkü Antrenman</h3>
+                <h3 className="text-sm font-semibold text-white">Bugün: {dayLabel}</h3>
                 <p className="text-xs text-white/50">
-                  {completedExercises > 0 ? `${completedExercises}/${totalExercises} egzersiz` : 'Başlamak için tıkla'}
+                  {dayData.subtitle && <span>{dayData.subtitle} · </span>}
+                  {allDone
+                    ? 'Tamamlandı 🎉'
+                    : completedExercises > 0
+                      ? `${completedExercises}/${totalExercises} egzersiz`
+                      : `${totalExercises} egzersiz seni bekliyor`}
                 </p>
               </div>
             </div>
-            <div className="text-[#14B8A6]">
-              →
-            </div>
+            <div style={{ color: accentColor }}>→</div>
           </div>
 
           {completedExercises > 0 && (
             <div className="h-2 bg-white/10 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#14B8A6] rounded-full transition-all"
-                style={{ width: `${(completedExercises / totalExercises) * 100}%` }}
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${(completedExercises / totalExercises) * 100}%`,
+                  backgroundColor: accentColor,
+                }}
               />
             </div>
           )}
@@ -295,15 +356,20 @@ function RecentAchievements() {
   );
 }
 
-function MotivationalQuote() {
-  const quotes = [
-    { text: '"Vazgeçmek, başarısızlığın en büyük kaybıdır."', author: 'Henry Ford' },
-    { text: '"Güç, dışarıda değil içinde."', author: 'Düşün' },
-    { text: '"Her gün bir adım ileri."', author: 'Anonim' },
-    { text: '"Disiplin, özgürlüğün sessiz ortağıdır."', author: 'Jim Rohn' },
-  ];
+const QUOTES = [
+  { text: '"Vazgeçmek, başarısızlığın en büyük kaybıdır."', author: 'Henry Ford' },
+  { text: '"Güç, dışarıda değil içinde."', author: 'Anonim' },
+  { text: '"Her gün bir adım ileri."', author: 'Anonim' },
+  { text: '"Disiplin, özgürlüğün sessiz ortağıdır."', author: 'Jim Rohn' },
+  { text: '"Antrenmanın en zor kısmı salona gitmektir."', author: 'Anonim' },
+  { text: '"Bugün yaptığın seçim, yarınki halini belirler."', author: 'Anonim' },
+  { text: '"Kıyaslanman gereken tek kişi, dünkü sensin."', author: 'Anonim' },
+];
 
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+function MotivationalQuote() {
+  // Gün bazında sabit söz — her render'da değişmesin
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const quote = QUOTES[dayOfYear % QUOTES.length];
 
   return (
     <FadeIn delay={0.35}>
@@ -317,16 +383,22 @@ function MotivationalQuote() {
 
 export default function Dashboard() {
   const { resetDailyQuests } = useGamificationStore();
+  const user = useSettingsStore(s => s.user);
 
   useEffect(() => {
     resetDailyQuests();
   }, []);
 
+  const hour = new Date().getHours();
+  const greeting = hour < 6 ? 'İyi geceler' : hour < 12 ? 'Günaydın' : hour < 18 ? 'Merhaba' : 'İyi akşamlar';
+
   return (
     <div className="flex-1 overflow-y-auto p-4 pb-24">
       <SlideUp>
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-white">Merhaba! 👋</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {greeting}{user?.name ? `, ${user.name}` : ''}! 👋
+          </h1>
           <p className="text-sm text-white/50">Bugün neler yapacaksın?</p>
         </div>
       </SlideUp>

@@ -6,9 +6,15 @@ import { LEVEL_CONFIG, PROGRAM_LIBRARY, parseProgramId } from '../../data/progra
 
 const PAGE_TITLES = {
   '/antrenman': null,
+  '/dashboard': 'Ana Sayfa',
   '/ilerleme': 'İlerleme',
   '/programlar': 'Programlar',
   '/profil': 'Profil',
+  '/egzersizler': 'Egzersizler',
+  '/beslenme': 'Beslenme',
+  '/challenges': 'Challenge',
+  '/leaderboard': 'Sıralama',
+  '/takviye': 'Supplementler',
 };
 
 function Header() {
